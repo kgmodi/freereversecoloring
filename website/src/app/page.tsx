@@ -9,29 +9,38 @@ import { SectionIntro } from '@/components/SectionIntro'
 import { SignupForm } from '@/components/SignupForm'
 import { Border } from '@/components/Border'
 import { RootLayout } from '@/components/RootLayout'
+import { ReverseColoringDemo } from '@/components/ReverseColoringDemo'
 
 import designs from '@/data/designs.json'
 
 function HeroSection() {
   return (
     <InteractiveHero>
-      <Container className="mt-24 pb-20 sm:mt-32 sm:pb-24 md:mt-56 md:pb-32">
-        <FadeIn className="max-w-3xl">
-          <h1 className="font-display text-5xl font-medium tracking-tight text-balance text-[#2D2B3D] sm:text-7xl">
-            Beautiful Watercolor Backgrounds.{' '}
-            <span className="bg-gradient-to-r from-[#6AACB8] via-[#9B7BC7] to-[#E8889B] bg-clip-text text-transparent">
-              Your Lines. Your Art.
-            </span>
-          </h1>
-          <p className="mt-6 text-xl text-[#6B687D]">
-            Every week, we send you a free watercolor background. You
-            print it, grab a pen, and draw your own outlines. It&apos;s coloring
-            &mdash; reversed.
-          </p>
-          <div id="signup" className="mt-10">
-            <SignupForm />
-          </div>
-        </FadeIn>
+      <Container className="mt-24 pb-20 sm:mt-32 sm:pb-24 md:mt-40 md:pb-32">
+        <div className="lg:flex lg:items-center lg:gap-x-12 xl:gap-x-16">
+          {/* Left column: text + signup */}
+          <FadeIn className="max-w-xl lg:shrink-0">
+            <h1 className="font-display text-5xl font-medium tracking-tight text-balance text-[#2D2B3D] sm:text-7xl lg:text-5xl xl:text-6xl">
+              Beautiful Watercolor Backgrounds.{' '}
+              <span className="bg-gradient-to-r from-[#6AACB8] via-[#9B7BC7] to-[#E8889B] bg-clip-text text-transparent">
+                Your Lines. Your Art.
+              </span>
+            </h1>
+            <p className="mt-6 text-xl text-[#6B687D]">
+              Every week, we send you a free watercolor background. You
+              print it, grab a pen, and draw your own outlines. It&apos;s coloring
+              &mdash; reversed.
+            </p>
+            <div id="signup" className="mt-10">
+              <SignupForm />
+            </div>
+          </FadeIn>
+
+          {/* Right column: animated demo */}
+          <FadeIn className="mt-12 lg:mt-0 lg:flex-1">
+            <ReverseColoringDemo />
+          </FadeIn>
+        </div>
       </Container>
     </InteractiveHero>
   )
