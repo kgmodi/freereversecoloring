@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import { Container } from '@/components/Container'
 import { FadeIn, FadeInStagger } from '@/components/FadeIn'
+import { InteractiveHero } from '@/components/InteractiveHero'
 import { SectionIntro } from '@/components/SectionIntro'
 import { SignupForm } from '@/components/SignupForm'
 import { Border } from '@/components/Border'
@@ -13,19 +14,8 @@ import designs from '@/data/designs.json'
 
 function HeroSection() {
   return (
-    <div className="relative overflow-hidden">
-      {/* Watercolor gradient background */}
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 20% 60%, rgba(106, 172, 184, 0.15), transparent),
-            radial-gradient(ellipse 60% 50% at 70% 30%, rgba(155, 123, 199, 0.12), transparent),
-            radial-gradient(ellipse 50% 40% at 50% 80%, rgba(232, 136, 155, 0.1), transparent)
-          `,
-        }}
-      />
-      <Container className="mt-24 sm:mt-32 md:mt-56">
+    <InteractiveHero>
+      <Container className="mt-24 pb-20 sm:mt-32 sm:pb-24 md:mt-56 md:pb-32">
         <FadeIn className="max-w-3xl">
           <h1 className="font-display text-5xl font-medium tracking-tight text-balance text-[#2D2B3D] sm:text-7xl">
             Beautiful Watercolor Backgrounds.{' '}
@@ -34,7 +24,7 @@ function HeroSection() {
             </span>
           </h1>
           <p className="mt-6 text-xl text-[#6B687D]">
-            Every week, we send you a free AI-generated watercolor background. You
+            Every week, we send you a free watercolor background. You
             print it, grab a pen, and draw your own outlines. It&apos;s coloring
             &mdash; reversed.
           </p>
@@ -43,7 +33,7 @@ function HeroSection() {
           </div>
         </FadeIn>
       </Container>
-    </div>
+    </InteractiveHero>
   )
 }
 
@@ -60,7 +50,7 @@ const steps = [
     number: '02',
     title: 'Print',
     description:
-      'Download and print the AI-generated watercolor backgrounds. Each design is unique and crafted to inspire creativity on any paper type.',
+      'Download and print the watercolor backgrounds. Each design is unique and crafted to inspire creativity on any paper type.',
     icon: PrinterIcon,
     color: 'bg-[#9B7BC7]',
   },
@@ -141,7 +131,7 @@ function HowItWorks() {
         className="mt-24 sm:mt-32 lg:mt-40"
       >
         <p>
-          We handle the AI-generated backgrounds. You bring the creativity.
+          We create the backgrounds. You bring the creativity.
           Every week, a new design lands in your inbox — ready for your lines.
         </p>
       </SectionIntro>
@@ -192,7 +182,7 @@ function FeaturedDesigns() {
         className="mt-24 sm:mt-32 lg:mt-40"
       >
         <p>
-          AI-generated watercolor backgrounds, crafted to inspire. Each design
+          Watercolor backgrounds, crafted to inspire. Each design
           is unique — delivered free to your inbox every week.
         </p>
       </SectionIntro>
@@ -311,7 +301,7 @@ const faqs = [
   {
     question: 'How often do I get new designs?',
     answer:
-      'Every Wednesday. Three brand-new AI-generated watercolor backgrounds arrive in your inbox, each with a unique theme and color palette. They\'re designed to be printed on standard letter paper.',
+      'Every Wednesday. Three brand-new watercolor backgrounds arrive in your inbox, each with a unique theme and color palette. They\'re designed to be printed on standard letter paper.',
   },
   {
     question: 'What happens when adults do coloring books?',
@@ -371,47 +361,116 @@ function FAQ() {
   )
 }
 
+const stats = [
+  {
+    value: 'Free',
+    label: 'Always, no catch',
+    gradient: 'from-[#6AACB8]/20 to-[#6AACB8]/5',
+    accentColor: '#6AACB8',
+    icon: HeartIcon,
+  },
+  {
+    value: 'Weekly',
+    label: 'Fresh designs every Wednesday',
+    gradient: 'from-[#9B7BC7]/20 to-[#9B7BC7]/5',
+    accentColor: '#9B7BC7',
+    icon: CalendarIcon,
+  },
+  {
+    value: '3 Designs',
+    label: 'Unique watercolors each week',
+    gradient: 'from-[#E8889B]/20 to-[#E8889B]/5',
+    accentColor: '#E8889B',
+    icon: SparklesIcon,
+  },
+]
+
+function HeartIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" stroke="currentColor" aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+    </svg>
+  )
+}
+
+function CalendarIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" stroke="currentColor" aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+    </svg>
+  )
+}
+
+function SparklesIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" stroke="currentColor" aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+    </svg>
+  )
+}
+
 function Stats() {
   return (
-    <div
-      className="mt-24 rounded-4xl py-20 sm:mt-32 sm:py-32 lg:mt-56"
-      style={{
-        background: 'linear-gradient(135deg, #4A3F6B 0%, #2D2B3D 40%, #4A3F6B 100%)',
-      }}
-    >
-      <Container>
-        <FadeIn className="flex items-center gap-x-8">
-          <h2 className="text-center font-display text-sm font-semibold tracking-wider text-white sm:text-left">
-            A new way to create art
-          </h2>
-          <div className="h-px flex-auto bg-white/20" />
-        </FadeIn>
-        <FadeInStagger faster>
-          <dl className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {[
-              { value: 'Free', label: 'Always, no catch' },
-              { value: 'Weekly', label: 'Fresh designs every Wednesday' },
-              { value: '3 Designs', label: 'Unique watercolors each week' },
-            ].map((stat) => (
-              <FadeIn key={stat.label}>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <dd className="font-display text-4xl font-semibold text-white sm:text-5xl">
-                    {stat.value}
-                  </dd>
-                  <dt className="text-sm text-white/60">{stat.label}</dt>
-                </div>
-              </FadeIn>
-            ))}
-          </dl>
-        </FadeInStagger>
-      </Container>
-    </div>
+    <Container className="mt-24 sm:mt-32 lg:mt-40">
+      <FadeIn className="text-center">
+        <h2 className="font-display text-sm font-semibold tracking-wider text-[#9B7BC7]">
+          A new way to create art
+        </h2>
+        <div className="mx-auto mt-3 h-px w-16 bg-gradient-to-r from-transparent via-[#9B7BC7]/40 to-transparent" />
+      </FadeIn>
+      <FadeInStagger faster className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+        {stats.map((stat) => (
+          <FadeIn key={stat.label}>
+            <div className="group relative flex flex-col items-center rounded-3xl px-8 py-10 text-center transition hover:shadow-lg hover:shadow-[#9B7BC7]/5">
+              {/* Watercolor accent blob behind the card */}
+              <div
+                className="absolute inset-0 -z-10 rounded-3xl opacity-60 transition group-hover:opacity-100"
+                style={{
+                  background: `
+                    radial-gradient(ellipse 80% 70% at 50% 40%, ${stat.accentColor}15, transparent),
+                    radial-gradient(ellipse 60% 50% at 30% 70%, ${stat.accentColor}10, transparent)
+                  `,
+                }}
+              />
+              {/* Subtle ring */}
+              <div className="absolute inset-0 rounded-3xl ring-1 ring-[#9B7BC7]/8" />
+              {/* Icon with watercolor circle accent */}
+              <div className="relative">
+                <div
+                  className="absolute -inset-3 rounded-full opacity-30"
+                  style={{
+                    background: `radial-gradient(circle, ${stat.accentColor}40, transparent 70%)`,
+                  }}
+                />
+                <stat.icon
+                  className="relative h-8 w-8"
+                  style={{ color: stat.accentColor }}
+                />
+              </div>
+              {/* Value */}
+              <dd className="mt-6 font-display text-4xl font-semibold text-[#2D2B3D] sm:text-5xl">
+                {stat.value}
+              </dd>
+              {/* Label */}
+              <dt className="mt-2 text-sm text-[#6B687D]">{stat.label}</dt>
+              {/* Gradient underline accent */}
+              <div
+                className="mt-4 h-0.5 w-12 rounded-full opacity-40 transition group-hover:w-16 group-hover:opacity-70"
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${stat.accentColor}, transparent)`,
+                }}
+              />
+            </div>
+          </FadeIn>
+        ))}
+      </FadeInStagger>
+    </Container>
   )
 }
 
 export const metadata: Metadata = {
   description:
-    'Get free AI-generated reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you add the lines.',
+    'Get free reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you add the lines.',
 }
 
 export default function Home() {

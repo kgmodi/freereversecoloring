@@ -14,7 +14,7 @@ import designs from '@/data/designs.json'
 export const metadata: Metadata = {
   title: 'Gallery',
   description:
-    'Browse our collection of AI-generated reverse coloring pages. Beautiful watercolor backgrounds ready for your creative outlines.',
+    'Browse our collection of reverse coloring pages. Beautiful watercolor backgrounds ready for your creative outlines.',
 }
 
 // Extract unique themes for filter
@@ -25,7 +25,7 @@ export default function GalleryPage() {
     <RootLayout>
       <PageIntro eyebrow="Gallery" title="Browse our reverse coloring designs">
         <p>
-          Each design is a unique AI-generated watercolor background, crafted to
+          Each design is a unique watercolor background, crafted to
           inspire your creativity. Pick one, print it, and add your own outlines
           to create something beautiful.
         </p>

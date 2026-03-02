@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: {
     template: '%s - FreeReverseColoring',
     default:
-      'Free Reverse Coloring Pages | Weekly AI-Generated Watercolor Designs',
+      'Free Reverse Coloring Pages | Weekly Watercolor Designs',
   },
   description:
-    'Get free AI-generated reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you print, grab a pen, and draw your own outlines.',
+    'Get free reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you print, grab a pen, and draw your own outlines.',
   keywords:
-    'free reverse coloring pages, coloring book, reverse coloring book, creative prompts, weekly designs, artistic challenge, coloring for adults, drawing, art therapy, watercolor backgrounds, AI coloring pages',
+    'free reverse coloring pages, coloring book, reverse coloring book, creative prompts, weekly designs, artistic challenge, coloring for adults, drawing, art therapy, watercolor backgrounds, coloring pages',
   authors: [{ name: 'FreeReverseColoring.com' }],
   metadataBase: new URL('https://www.freereversecoloring.com'),
   alternates: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: 'https://www.freereversecoloring.com/',
-    title: 'Free Reverse Coloring Pages | Weekly AI-Generated Watercolor Designs',
+    title: 'Free Reverse Coloring Pages | Weekly Watercolor Designs',
     description:
       'Join FreeReverseColoring.com for unique artistic challenges. Sign up and get exclusive access to weekly reverse coloring page designs!',
     siteName: 'FreeReverseColoring',

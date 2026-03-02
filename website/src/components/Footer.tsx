@@ -67,7 +67,7 @@ export function Footer() {
                 Get free weekly designs
               </h2>
               <p className="mt-4 text-sm text-[#6B687D]">
-                Subscribe to receive new AI-generated reverse coloring pages
+                Subscribe to receive new reverse coloring pages
                 every week. Completely free.
               </p>
               <div className="mt-6">
