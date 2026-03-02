@@ -32,8 +32,8 @@ test('CloudFront distribution is created with custom domain', () => {
   });
 });
 
-test('Route53 records exist', () => {
-  template.resourceCountIs('AWS::Route53::RecordSet', 2);
+test('Route53 records exist (2 site + 3 DKIM + 1 MX + 1 SPF + 1 DMARC = 8)', () => {
+  template.resourceCountIs('AWS::Route53::RecordSet', 8);
 });
 
 test('ACM certificate is created for wildcard domain', () => {
@@ -164,5 +164,27 @@ test('OpenAI API key secret has correct name and description', () => {
   template.hasResourceProperties('AWS::SecretsManager::Secret', {
     Name: 'frc/openai-api-key',
     Description: 'OpenAI API key for FreeReverseColoring AI generation pipeline',
+  });
+});
+
+// =========================================================================
+// SES — Email Identity & Domain Verification
+// =========================================================================
+
+test('One SES EmailIdentity exists for freereversecoloring.com', () => {
+  template.resourceCountIs('AWS::SES::EmailIdentity', 1);
+  template.hasResourceProperties('AWS::SES::EmailIdentity', {
+    EmailIdentity: 'freereversecoloring.com',
+    MailFromAttributes: {
+      MailFromDomain: 'mail.freereversecoloring.com',
+    },
+  });
+});
+
+test('DMARC TXT record exists in Route53', () => {
+  template.hasResourceProperties('AWS::Route53::RecordSet', {
+    Name: '_dmarc.freereversecoloring.com.',
+    Type: 'TXT',
+    ResourceRecords: ['"v=DMARC1; p=quarantine; rct=100; fo=1"'],
   });
 });

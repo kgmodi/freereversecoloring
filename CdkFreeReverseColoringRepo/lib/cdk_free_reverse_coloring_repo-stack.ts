@@ -10,6 +10,7 @@ import { Duration } from 'aws-cdk-lib';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as ses from 'aws-cdk-lib/aws-ses';
 
 export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -27,7 +28,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       })
     })
 
-    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'zone', {
+    const hostedZone = route53.PublicHostedZone.fromPublicHostedZoneAttributes(this, 'zone', {
       zoneName: 'freereversecoloring.com',
       hostedZoneId: 'Z05031851MVOWG1H65YQR',
     });
@@ -158,6 +159,29 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       secretName: 'frc/openai-api-key',
       description: 'OpenAI API key for FreeReverseColoring AI generation pipeline',
       secretStringValue: cdk.SecretValue.unsafePlainText('PLACEHOLDER_UPDATE_ME'),
+    });
+
+    // =========================================================================
+    // SES — Email Identity & Domain Verification
+    // =========================================================================
+
+    // SES domain identity with DKIM signing and custom MAIL FROM domain.
+    // Using Identity.publicHostedZone() so CDK automatically creates:
+    //   - 3 DKIM CNAME records in Route53
+    //   - MX record for mail.freereversecoloring.com
+    //   - SPF TXT record for mail.freereversecoloring.com
+    const sesEmailIdentity = new ses.EmailIdentity(this, 'SesEmailIdentity', {
+      identity: ses.Identity.publicHostedZone(hostedZone),
+      mailFromDomain: 'mail.freereversecoloring.com',
+    });
+
+    // DMARC TXT record — instructs receiving mail servers to quarantine
+    // unauthenticated messages and report all failures
+    const dmarcRecord = new route53.TxtRecord(this, 'DmarcRecord', {
+      zone: hostedZone,
+      recordName: '_dmarc',
+      values: ['v=DMARC1; p=quarantine; rct=100; fo=1'],
+      ttl: Duration.minutes(60),
     });
 
   }
