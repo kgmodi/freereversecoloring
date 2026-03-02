@@ -53,9 +53,18 @@ export function SignupForm({
   const [email, setEmail] = useState('')
   const [formState, setFormState] = useState<FormState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [honeypot, setHoneypot] = useState('')
+  const [loadedAt] = useState(() => Date.now())
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    // Bot detection: honeypot filled or submitted too fast (<2s)
+    if (honeypot || Date.now() - loadedAt < 2000) {
+      // Fake success to not reveal detection
+      setFormState('success')
+      return
+    }
 
     if (!email || !email.includes('@')) {
       setFormState('error')
@@ -115,6 +124,19 @@ export function SignupForm({
   return (
     <div className={className}>
       <form onSubmit={handleSubmit} className="max-w-md">
+        {/* Honeypot — hidden from humans, bots auto-fill it */}
+        <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+          <label htmlFor="website">Website</label>
+          <input
+            id="website"
+            name="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </div>
         <div className="relative">
           <input
             type="email"

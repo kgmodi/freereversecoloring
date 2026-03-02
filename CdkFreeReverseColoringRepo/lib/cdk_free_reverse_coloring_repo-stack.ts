@@ -223,6 +223,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
 
     const subscribeHandler = new lambdaNodejs.NodejsFunction(this, 'SubscribeHandler', {
       functionName: 'frc-subscribe-handler',
+      description: 'Subscribe handler with rate limiting and bot protection',
       entry: path.join(__dirname, '..', 'lambda', 'subscribe', 'index.ts'),
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,

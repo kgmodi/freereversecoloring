@@ -31,7 +31,12 @@ const SES_CONFIGURATION_SET = process.env.SES_CONFIGURATION_SET;
 // Helpers
 // =========================================================================
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Rate limiting: max 5 subscribes per IP per hour
+const RATE_LIMIT_TABLE = process.env.SUBSCRIBERS_TABLE; // Reuse table with rate-limit prefix
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function corsHeaders(): Record<string, string> {
   return {
@@ -172,9 +177,49 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const name = body.name?.trim() || '';
     const source = body.source?.trim() || 'website_signup';
 
-    // Validate email
+    // Validate email format (requires 2+ char TLD to catch typos like .cmo)
     if (!email || !EMAIL_REGEX.test(email)) {
       return response(400, { error: 'A valid email address is required' });
+    }
+
+    // Rate limiting by IP
+    const sourceIp = event.requestContext?.identity?.sourceIp || 'unknown';
+    const rateLimitKey = `RATELIMIT#${sourceIp}`;
+    const currentMs = Date.now();
+    const windowStart = new Date(currentMs - RATE_LIMIT_WINDOW_MS).toISOString();
+
+    try {
+      const rateLimitResult = await ddb.send(
+        new QueryCommand({
+          TableName: RATE_LIMIT_TABLE,
+          KeyConditionExpression: 'subscriberId = :pk AND createdAt > :window',
+          ExpressionAttributeValues: {
+            ':pk': rateLimitKey,
+            ':window': windowStart,
+          },
+        }),
+      );
+      if ((rateLimitResult.Count ?? 0) >= RATE_LIMIT_MAX) {
+        return response(429, { error: 'Too many requests. Please try again later.' });
+      }
+    } catch {
+      // Don't block signups if rate limit check fails
+    }
+
+    // Record this attempt for rate limiting
+    try {
+      await ddb.send(
+        new PutCommand({
+          TableName: RATE_LIMIT_TABLE,
+          Item: {
+            subscriberId: rateLimitKey,
+            createdAt: new Date().toISOString(),
+            ttl: Math.floor((currentMs + RATE_LIMIT_WINDOW_MS) / 1000),
+          },
+        }),
+      );
+    } catch {
+      // Non-critical
     }
 
     // Check for existing subscriber
