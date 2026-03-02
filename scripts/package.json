@@ -1,0 +1,16 @@
+{
+  "name": "frc-scripts",
+  "version": "1.0.0",
+  "description": "FreeReverseColoring utility scripts",
+  "type": "module",
+  "scripts": {
+    "seed-themes": "node seed-themes.mjs"
+  },
+  "dependencies": {
+    "openai": "^4.80.0",
+    "@aws-sdk/client-dynamodb": "^3.540.0",
+    "@aws-sdk/lib-dynamodb": "^3.540.0",
+    "@aws-sdk/client-secrets-manager": "^3.540.0",
+    "ulid": "^2.3.0"
+  }
+}

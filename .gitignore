@@ -25,5 +25,8 @@ website/node_modules/
 website/.next/
 website/out/
 
+# Scripts
+scripts/node_modules/
+
 # Claude internal
 .claude/
