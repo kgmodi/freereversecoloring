@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   QueryCommand,
+  GetCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 
@@ -100,31 +101,41 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   try {
     const token = event.queryStringParameters?.token;
-    const email = event.queryStringParameters?.email?.toLowerCase();
 
-    if (!token || !email) {
+    if (!token) {
       return errorResponse('This unsubscribe link is invalid or incomplete.');
     }
 
-    // Look up subscriber by email via EmailIndex GSI
-    const emailResult = await ddb.send(
+    // Look up subscriber by confirmation token via GSI
+    const tokenResult = await ddb.send(
       new QueryCommand({
         TableName: SUBSCRIBERS_TABLE,
-        IndexName: 'EmailIndex',
-        KeyConditionExpression: 'email = :email',
-        ExpressionAttributeValues: { ':email': email },
+        IndexName: 'ConfirmationTokenIndex',
+        KeyConditionExpression: 'confirmationToken = :token',
+        ExpressionAttributeValues: { ':token': token },
         Limit: 1,
       }),
     );
 
-    const subscriber = emailResult.Items?.[0];
-    if (!subscriber) {
-      return errorResponse('We could not find a subscription with that email address.');
+    const tokenRecord = tokenResult.Items?.[0];
+    if (!tokenRecord) {
+      return errorResponse('This unsubscribe link is invalid or has expired.');
     }
 
-    // Validate the token matches the subscriber's confirmationToken
-    if (subscriber.confirmationToken !== token) {
-      return errorResponse('This unsubscribe link is invalid.');
+    // Fetch full subscriber record using primary key from GSI
+    const subscriberResult = await ddb.send(
+      new GetCommand({
+        TableName: SUBSCRIBERS_TABLE,
+        Key: {
+          subscriberId: tokenRecord.subscriberId,
+          createdAt: tokenRecord.createdAt,
+        },
+      }),
+    );
+
+    const subscriber = subscriberResult.Item;
+    if (!subscriber) {
+      return errorResponse('This unsubscribe link is invalid or has expired.');
     }
 
     // Already unsubscribed

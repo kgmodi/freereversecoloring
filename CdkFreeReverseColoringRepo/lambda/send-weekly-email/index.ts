@@ -609,7 +609,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
       // Send emails within a batch concurrently (SES can handle concurrent calls)
       const results = await Promise.allSettled(
         batch.map(async (recipient) => {
-          const unsubscribeUrl = `${API_BASE_URL}/api/unsubscribe?email=${encodeURIComponent(recipient.email)}&token=${encodeURIComponent(recipient.confirmationToken)}`;
+          const unsubscribeUrl = `${API_BASE_URL}/api/unsubscribe?token=${encodeURIComponent(recipient.confirmationToken)}`;
           const { html, text } = buildWeeklyEmail(
             themeName,
             emailDesigns,

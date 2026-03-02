@@ -129,7 +129,7 @@ async function findSubscriberByEmail(email: string) {
 // =========================================================================
 
 async function sendConfirmationEmail(email: string, name: string, token: string) {
-  const confirmUrl = `${API_BASE_URL}/api/confirm?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+  const confirmUrl = `${API_BASE_URL}/api/confirm?token=${encodeURIComponent(token)}`;
   const { html, text } = buildConfirmationEmail(name, confirmUrl);
 
   await ses.send(

@@ -101,9 +101,8 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   try {
     const token = event.queryStringParameters?.token;
-    const email = event.queryStringParameters?.email?.toLowerCase();
 
-    if (!token || !email) {
+    if (!token) {
       return errorResponse('This confirmation link is invalid or incomplete.');
     }
 
@@ -138,11 +137,6 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const subscriber = subscriberResult.Item;
     if (!subscriber) {
       return errorResponse('This confirmation link is invalid or has already been used.');
-    }
-
-    // Verify email matches
-    if (subscriber.email !== email) {
-      return errorResponse('This confirmation link is invalid.');
     }
 
     // Already confirmed
