@@ -17,8 +17,8 @@ const navigation = [
   {
     title: 'Legal',
     links: [
-      { title: 'Privacy Policy', href: '/privacy.html' },
-      { title: 'Terms of Service', href: '/terms-of-service.html' },
+      { title: 'Privacy Policy', href: '/privacy' },
+      { title: 'Terms of Service', href: '/terms-of-service' },
       {
         title: 'hello@freereversecoloring.com',
         href: 'mailto:hello@freereversecoloring.com',
