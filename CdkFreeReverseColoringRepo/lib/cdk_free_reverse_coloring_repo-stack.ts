@@ -365,6 +365,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
 
     const generateContentHandler = new lambdaNodejs.NodejsFunction(this, 'GenerateContentHandler', {
       functionName: 'frc-generate-content-handler',
+      description: 'Generates 3 designs per week with idempotency guard (skips if any exist)',
       runtime: lambda.Runtime.NODEJS_18_X,
       entry: path.join(__dirname, '..', 'lambda', 'generate-content', 'index.ts'),
       handler: 'handler',
@@ -432,6 +433,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
 
     const sendWeeklyEmailHandler = new lambdaNodejs.NodejsFunction(this, 'SendWeeklyEmailHandler', {
       functionName: 'frc-send-weekly-email-handler',
+      description: 'Sends weekly email with max 3 designs, gallery links, formatted theme names',
       runtime: lambda.Runtime.NODEJS_18_X,
       entry: path.join(__dirname, '..', 'lambda', 'send-weekly-email', 'index.ts'),
       handler: 'handler',

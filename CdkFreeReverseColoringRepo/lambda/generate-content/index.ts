@@ -294,7 +294,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
     // Step 1: Idempotency check — skip if designs already exist for this week
     // -----------------------------------------------------------------------
     const existingCount = await existingDesignsForWeek(weekId);
-    if (existingCount >= 3) {
+    if (existingCount > 0) {
       console.log(
         `[handler] ${existingCount} designs already exist for ${weekId}, skipping generation`,
       );

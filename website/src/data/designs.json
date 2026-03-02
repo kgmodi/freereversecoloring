@@ -1,21 +1,244 @@
 [
   {
+    "designId": "design-mm9t2l3m-m5e0re7s",
+    "weekId": "2026-W10",
+    "title": "Mystical Dawn",
+    "description": "This painting is alive with vibrant shades of emerald and amethyst, embodying the lively and intricate nature of a mystical forest at dawn. The complex interplay of colors creates layered depths, evoking scenes of mythical flora and fauna.",
+    "theme": "mystical_forest",
+    "slug": "mystical-dawn",
+    "imagePath": "/designs/mystical-dawn.png",
+    "status": "pending_review",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Illustrate intricate patterns of mythical flowers.",
+      "Draw a fantastical creature emerging from the underbrush.",
+      "Create detailed textures on the forest floor."
+    ],
+    "colorPalette": [
+      "#466e49",
+      "#7f5c92",
+      "#5a7b7c",
+      "#9d6459",
+      "#e8dac3"
+    ],
+    "tags": [
+      "dawn",
+      "forest",
+      "mystical",
+      "vibrant",
+      "intricate"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:25:00.092Z"
+  },
+  {
+    "designId": "design-mm9t1jks-ap5drt25",
+    "weekId": "2026-W10",
+    "title": "Ethereal Meadow Dance",
+    "description": "This advanced watercolor features a dramatic interplay of dark purples, lush greens, and warm yellows, capturing the dynamic motion of a butterfly meadow. The vivid colors suggest a tapestry of wild movements, requiring careful observation to discern the underlying shapes.",
+    "theme": "butterfly_meadow",
+    "slug": "ethereal-meadow-dance",
+    "imagePath": "/designs/ethereal-meadow-dance.png",
+    "status": "pending_review",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Create detailed butterfly wing patterns amid the dark purple areas.",
+      "Draw elaborate floral designs where greens and yellows blend.",
+      "Capture the swirling motion of the meadow breeze with sinuous lines."
+    ],
+    "colorPalette": [
+      "#483D8B",
+      "#556B2F",
+      "#FFD700",
+      "#8B4513",
+      "#D2B48C"
+    ],
+    "tags": [
+      "spring",
+      "dynamic",
+      "butterflies",
+      "wild",
+      "advanced",
+      "nature",
+      "flora"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:24:09.292Z"
+  },
+  {
+    "designId": "design-mm9t1k91-zc28lm8o",
+    "weekId": "2026-W10",
+    "title": "Twilight Paths",
+    "description": "Swirls of soft purples and blues create a dreamlike setting that hints at a twilight moment in the mystical forest. The hues transition gently, evoking a sense of calm and wonder, with the suggestion of winding paths and ethereal glows.",
+    "theme": "mystical_forest",
+    "slug": "twilight-paths",
+    "imagePath": "/designs/twilight-paths.png",
+    "status": "pending_review",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Outline the glow of mystical lanterns along a path.",
+      "Sketch gentle silhouettes of forest creatures.",
+      "Create winding passages leading deeper into the scene."
+    ],
+    "colorPalette": [
+      "#75678a",
+      "#4a4e69",
+      "#9a8caf",
+      "#d6d0e1",
+      "#b5bdd1"
+    ],
+    "tags": [
+      "twilight",
+      "forest",
+      "mystical",
+      "purple",
+      "peaceful"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:24:06.600Z"
+  },
+  {
+    "designId": "design-mm9t0jiq-03b49531",
+    "weekId": "2026-W10",
+    "title": "Enchanted Canopy",
+    "description": "This design features a lush background with deep greens and shimmering silvers, evoking the mysterious allure of an enchanted forest. The soft interplay of colors suggests towering trees and hidden pathways, inviting explorers to imagine magical creatures lurking in the shadows.",
+    "theme": "mystical_forest",
+    "slug": "enchanted-canopy",
+    "imagePath": "/designs/enchanted-canopy.png",
+    "status": "pending_review",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw a hidden fairy perched on a branch.",
+      "Sketch whimsical tree roots intertwining beneath the canopy.",
+      "Add flickering fireflies illuminating the forest."
+    ],
+    "colorPalette": [
+      "#3b6444",
+      "#6d9169",
+      "#8b9e6d",
+      "#c4c9c2",
+      "#f0f4f5"
+    ],
+    "tags": [
+      "mystical",
+      "forest",
+      "watercolor",
+      "green",
+      "enchantment"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:23:18.827Z"
+  },
+  {
+    "designId": "design-mm9t0e8l-6gir1ffx",
+    "weekId": "2026-W10",
+    "title": "Fluttering Harmony",
+    "description": "A harmonious blend of deep purples, rich greens, and vibrant yellows dominates this watercolor painting, evoking a serene meadow at the height of spring. The colors interlace to suggest volumes of wildflowers and butterflies, fostering intricate patterns for artist interpretation.",
+    "theme": "butterfly_meadow",
+    "slug": "fluttering-harmony",
+    "imagePath": "/designs/fluttering-harmony.png",
+    "status": "pending_review",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Outline the silhouettes of butterflies taking off or landing.",
+      "Highlight the petals of wildflowers suggested by color intersections.",
+      "Sketch the soft curves of meadow grass."
+    ],
+    "colorPalette": [
+      "#6A5ACD",
+      "#32CD32",
+      "#FFD700",
+      "#9370DB",
+      "#8FBC8B"
+    ],
+    "tags": [
+      "spring",
+      "butterflies",
+      "wildflowers",
+      "serene",
+      "complex",
+      "medium"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:23:17.970Z"
+  },
+  {
+    "designId": "design-mm9sza5u-54o75z28",
+    "weekId": "2026-W10",
+    "title": "Butterfly Serenade",
+    "description": "Bright greens and gentle yellows create the base of this watercolor, with soft purple accents floating across the page. The washes suggest the presence of delicate flora and the fluttering of butterfly wings, inviting users to discover hidden patterns.",
+    "theme": "butterfly_meadow",
+    "slug": "butterfly-serenade",
+    "imagePath": "/designs/butterfly-serenade.png",
+    "status": "pending_review",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw the outlines of butterflies wings using the purple accents as guides.",
+      "Create intricate flower patterns from the yellow spots.",
+      "Sketch grass blades emerging from the green washes."
+    ],
+    "colorPalette": [
+      "#A4D4AE",
+      "#F7E8A4",
+      "#D9B2D2",
+      "#F5F5DC",
+      "#C3A2C2"
+    ],
+    "tags": [
+      "spring",
+      "butterflies",
+      "meadow",
+      "nature",
+      "soft",
+      "bright",
+      "easy"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T23:22:24.380Z"
+  },
+  {
     "designId": "design-mm9m0p4l-u0epu1xr",
     "weekId": "2026-W11",
     "title": "Spring's First Drizzle",
-    "description": "Infused with bright, cheerful tones of soft blue and lively green, this painting suggests the gentle arrival of a spring drizzle. The colors merge playfully, forming simple shapes that call to mind budding leaves and gentle rain.",
+    "description": "Infused with bright, cheerful tones of soft blue and lively green, this painting suggests the gentle arrival of a spring drizzle. The colors merge playfully, forming simple shapes that call to mind budding leaves and gentle rain. The overall effect is light and breezy, echoing the freshness of early spring.",
     "theme": "april_showers",
     "slug": "springs-first-drizzle",
     "imagePath": "/designs/springs-first-drizzle.png",
-    "status": "approved",
+    "status": "pending_review",
     "difficulty": "easy",
     "drawingPrompts": [
       "Draw budding leaves and flowers emerging from the color swirls",
       "Outline playful raindrops trickling down",
       "Create a silhouette of a person joyfully embracing the rain"
     ],
-    "colorPalette": ["#b0d8a4", "#bde0fe", "#b1e6a6", "#8ecae6", "#e5f7ee"],
-    "tags": ["easy", "spring", "drizzle", "breezy", "fresh", "nature"],
+    "colorPalette": [
+      "#b0d8a4",
+      "#bde0fe",
+      "#b1e6a6",
+      "#8ecae6",
+      "#e5f7ee"
+    ],
+    "tags": [
+      "easy",
+      "spring",
+      "drizzle",
+      "breezy",
+      "fresh",
+      "nature",
+      "light"
+    ],
     "isPremium": false,
     "width": 1024,
     "height": 1536,
@@ -25,19 +248,33 @@
     "designId": "design-mm9lzoqd-9an4dt15",
     "weekId": "2026-W11",
     "title": "Puddle Reflection",
-    "description": "This piece features expansive washes of soft grays and deep blues, evoking the moody atmosphere of a spring shower. Hinting at the reflective nature of puddles, the painting invites viewers to explore the interplay of water and light.",
+    "description": "This piece features expansive washes of soft grays and deep blues, evoking the moody atmosphere of a spring shower. Hinting at the reflective nature of puddles, the painting invites viewers to explore the interplay of water and light. The contrasting hues of vibrant greens add a touch of life, suggesting the rebirth of spring.",
     "theme": "april_showers",
     "slug": "puddle-reflection",
     "imagePath": "/designs/puddle-reflection.png",
-    "status": "approved",
+    "status": "pending_review",
     "difficulty": "advanced",
     "drawingPrompts": [
       "Illustrate the silhouettes of trees reflected in puddles",
       "Create patterns of raindrops creating ripples in water",
       "Add outlines of umbrellas in a distant storm scene"
     ],
-    "colorPalette": ["#4f6272", "#7a8a94", "#bbd9c9", "#4d6d7d", "#c3d7df"],
-    "tags": ["abstract", "rain", "reflection", "moody", "spring", "advanced", "water"],
+    "colorPalette": [
+      "#4f6272",
+      "#7a8a94",
+      "#bbd9c9",
+      "#4d6d7d",
+      "#c3d7df"
+    ],
+    "tags": [
+      "abstract",
+      "rain",
+      "reflection",
+      "moody",
+      "spring",
+      "advanced",
+      "water"
+    ],
     "isPremium": false,
     "width": 1024,
     "height": 1536,
@@ -47,374 +284,36 @@
     "designId": "design-mm9lyju1-w5b5z9p1",
     "weekId": "2026-W11",
     "title": "Raindrop Serenade",
-    "description": "Soft swirls of muted blues and gentle grays intermingle with hints of verdant green, suggesting the fresh growth of spring. The painting captures the quiet elegance of raindrops cascading and forming ephemeral puddles.",
+    "description": "Soft swirls of muted blues and gentle grays intermingle with hints of verdant green, suggesting the fresh growth of spring. The painting captures the quiet elegance of raindrops cascading and forming ephemeral puddles. The juxtaposition of light and shadow creates a soothing, peaceful mood.",
     "theme": "april_showers",
     "slug": "raindrop-serenade",
     "imagePath": "/designs/raindrop-serenade.png",
-    "status": "approved",
+    "status": "pending_review",
     "difficulty": "medium",
     "drawingPrompts": [
       "Outline the shapes of dancing raindrops",
       "Draw delicate branches reaching towards the rain",
       "Sketch the silhouettes of small birds perched among the droplets"
     ],
-    "colorPalette": ["#a1c3d1", "#8ca0b3", "#dcedc1", "#acc5d4", "#6b909e"],
-    "tags": ["spring", "watercolor", "rain", "serene", "nature", "green", "blue"],
+    "colorPalette": [
+      "#a1c3d1",
+      "#8ca0b3",
+      "#dcedc1",
+      "#acc5d4",
+      "#6b909e"
+    ],
+    "tags": [
+      "spring",
+      "watercolor",
+      "rain",
+      "serene",
+      "nature",
+      "green",
+      "blue"
+    ],
     "isPremium": false,
     "width": 1024,
     "height": 1536,
     "createdAt": "2026-03-02T20:05:54.012Z"
-  },
-  {
-    "designId": "legacy-whispers-of-the-deep",
-    "weekId": "legacy",
-    "title": "Whispers of the Deep",
-    "description": "An abstract watercolor composition, rich in cool colors like blues, greens, and purples, with a hint of warm tones. A mysterious underwater world awaits your outlines.",
-    "theme": "ocean_life",
-    "slug": "whispers-of-the-deep",
-    "imagePath": "/designs/whispers-of-the-deep.webp",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw flowing seaweed and kelp rising from the depths",
-      "Outline schools of fish swimming through the color",
-      "Add bubbles and coral formations in the lighter areas"
-    ],
-    "colorPalette": ["#1a3a5c", "#2d6b8a", "#5b9ea6", "#8ec5d4", "#c4e0e5"],
-    "tags": ["watercolor", "abstract", "ocean", "underwater", "cool_tones"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "legacy-metropolitan-mosaic-in-twilight",
-    "weekId": "legacy",
-    "title": "Metropolitan Mosaic in Twilight",
-    "description": "View of a city at dusk or dawn, where the details are left to the viewer's imagination. Deep purples and warm golds blend into an urban dreamscape.",
-    "theme": "cityscapes",
-    "slug": "metropolitan-mosaic-in-twilight",
-    "imagePath": "/designs/metropolitan-mosaic-in-twiilight.webp",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw building silhouettes and rooftop outlines against the sky",
-      "Add windows and architectural details to the color blocks",
-      "Sketch streetlights and bridges in the twilight glow"
-    ],
-    "colorPalette": ["#2c1654", "#5c3d8f", "#d4a54a", "#e8c87a", "#1a0d33"],
-    "tags": ["watercolor", "city", "twilight", "urban", "architecture"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "legacy-tranquil-hues-of-serenity",
-    "weekId": "legacy",
-    "title": "Tranquil Hues of Serenity",
-    "description": "A canvas that invites artists to superimpose their own elements or details. Soft greens and calming blues create a peaceful natural backdrop.",
-    "theme": "nature",
-    "slug": "tranquil-hues-of-serenity",
-    "imagePath": "/designs/tranquil-hues-of-serenity.webp",
-    "status": "approved",
-    "difficulty": "beginner",
-    "drawingPrompts": [
-      "Draw rolling hills and gentle landscapes in the soft greens",
-      "Add trees and foliage silhouettes along the horizon",
-      "Sketch a winding path through the serene scene"
-    ],
-    "colorPalette": ["#7db88a", "#a8d5ba", "#5a9e6f", "#c2e0cc", "#3d7a52"],
-    "tags": ["watercolor", "nature", "serene", "green", "peaceful", "beginner"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "legacy-vivid-dreamscape",
-    "weekId": "legacy",
-    "title": "Vivid Dreamscape",
-    "description": "An abstract watercolor painting that embodies a symphony of bright, vivid colors flowing freely without the constraint of outlines. A vibrant canvas for bold creativity.",
-    "theme": "abstract",
-    "slug": "vivid-dreamscape",
-    "imagePath": "/designs/vivid-dreamscape.webp",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw abstract geometric shapes that follow the color flow",
-      "Add swirling patterns and organic forms within the bright areas",
-      "Create creatures or faces hidden within the dreamscape"
-    ],
-    "colorPalette": ["#e63946", "#f4a261", "#2a9d8f", "#264653", "#e9c46a"],
-    "tags": ["watercolor", "abstract", "vivid", "colorful", "creative"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "legacy-spectral-meadows",
-    "weekId": "legacy",
-    "title": "Spectral Meadows",
-    "description": "A kaleidoscope of warm, vibrant colors that seem to dance across the canvas, suggesting the serene beauty of a countryside landscape. Perfect for nature-inspired outlines.",
-    "theme": "countryside",
-    "slug": "spectral-meadows",
-    "imagePath": "/designs/spectral-medows.webp",
-    "status": "approved",
-    "difficulty": "beginner",
-    "drawingPrompts": [
-      "Draw wildflowers and grasses swaying in the warm colors",
-      "Outline a fence line or country path through the meadow",
-      "Add butterflies and insects fluttering among the hues"
-    ],
-    "colorPalette": ["#f4a261", "#e76f51", "#2a9d8f", "#e9c46a", "#264653"],
-    "tags": ["watercolor", "countryside", "meadow", "warm", "nature", "beginner"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "legacy-aqua-fantasia",
-    "weekId": "legacy",
-    "title": "Aqua Fantasia",
-    "description": "An abstract, underwater realm where the play of light and color creates a mystical ambiance. Teals and aquas swirl together in an oceanic fantasy.",
-    "theme": "ocean_life",
-    "slug": "aqua-fantasia",
-    "imagePath": "/designs/aqua-fantasia.webp",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw jellyfish and sea creatures drifting through the aqua tones",
-      "Outline coral formations and underwater caves",
-      "Add swirling currents and light rays penetrating the water"
-    ],
-    "colorPalette": ["#0d9488", "#22d3ee", "#164e63", "#67e8f9", "#083344"],
-    "tags": ["watercolor", "underwater", "ocean", "aqua", "fantasy", "abstract"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1024,
-    "createdAt": "2024-04-01T00:00:00Z"
-  },
-  {
-    "designId": "2024-w1-aqua-resonance",
-    "weekId": "2024-W1",
-    "title": "Aqua Resonance",
-    "description": "Captures the ethereal beauty of underwater scenes, emphasizing the dynamic and vibrant life within the ocean. Deep blues, turquoise, and bright coral blend seamlessly in this immersive underwater world.",
-    "theme": "ocean_life",
-    "slug": "aqua-resonance",
-    "imagePath": "/designs/aqua-resonance.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw schools of fish swimming through the blue gradients",
-      "Outline coral reef structures in the warmer tones",
-      "Add light rays filtering down from the surface"
-    ],
-    "colorPalette": ["#0c4a6e", "#0891b2", "#f97316", "#22d3ee", "#d4a574"],
-    "tags": ["watercolor", "ocean", "underwater", "coral", "vibrant"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-16T00:00:00Z"
-  },
-  {
-    "designId": "2024-w2-veiled-canopy-whispers",
-    "weekId": "2024-W2",
-    "title": "Veiled Canopy Whispers",
-    "description": "Captures the essence of a tropical forest's diverse and dense ecosystem through abstract watercolor techniques. Soft swirls and organic shapes evoke large tropical leaves, hanging vines, and dappled light through foliage.",
-    "theme": "tropical_forest",
-    "slug": "veiled-canopy-whispers",
-    "imagePath": "/designs/veiled-canopy-whispers.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw large tropical leaves overlapping in the green washes",
-      "Outline hanging vines and aerial roots descending from above",
-      "Add exotic birds and butterflies hidden in the canopy"
-    ],
-    "colorPalette": ["#166534", "#4ade80", "#14532d", "#86efac", "#052e16"],
-    "tags": ["watercolor", "tropical", "forest", "nature", "lush", "green"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-16T00:00:00Z"
-  },
-  {
-    "designId": "2024-w4-nocturnal-hues-cityscape",
-    "weekId": "2024-W4",
-    "title": "Nocturnal Hues: Cityscape Reflections",
-    "description": "The bright lights and dark shadows of city life after sunset come alive in deep blues, purples, and electric highlights. An urban nightscape waiting for your architectural outlines.",
-    "theme": "cityscapes_at_night",
-    "slug": "nocturnal-hues-cityscape-reflections",
-    "imagePath": "/designs/nocturnal-hues-cityscape-reflections.png",
-    "status": "approved",
-    "difficulty": "advanced",
-    "drawingPrompts": [
-      "Draw skyscraper outlines against the night sky",
-      "Add reflections of city lights on wet streets",
-      "Outline neon signs and lit windows in the dark areas"
-    ],
-    "colorPalette": ["#1e1b4b", "#4338ca", "#f59e0b", "#7c3aed", "#c084fc"],
-    "tags": ["watercolor", "city", "night", "urban", "lights", "advanced"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-17T00:00:00Z"
-  },
-  {
-    "designId": "2024-w6-whispering-wilds",
-    "weekId": "2024-W6",
-    "title": "Whispering Wilds",
-    "description": "Brings intricate animal patterns to life through abstract watercolor forms. Earthy tones and wild splashes of color suggest the untamed beauty of wildlife in their natural habitat.",
-    "theme": "wildlife",
-    "slug": "whispering-wilds",
-    "imagePath": "/designs/whispering-wilds.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw animal silhouettes hidden within the color splashes",
-      "Outline fur patterns and textures in the earthy tones",
-      "Add eyes and facial features peering through the wild colors"
-    ],
-    "colorPalette": ["#78350f", "#d97706", "#4d7c0f", "#a16207", "#365314"],
-    "tags": ["watercolor", "wildlife", "nature", "animals", "earthy"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-16T00:00:00Z"
-  },
-  {
-    "designId": "2024-w7-whispering-blossoms",
-    "weekId": "2024-W7",
-    "title": "Whispering Blossoms",
-    "description": "Focuses on the intricate details of various flowers through delicate watercolor washes. Soft pinks, purples, and greens create a garden in full bloom, inviting you to define the petals.",
-    "theme": "floral_gardens",
-    "slug": "whispering-blossoms",
-    "imagePath": "/designs/whispering-blossoms.png",
-    "status": "approved",
-    "difficulty": "beginner",
-    "drawingPrompts": [
-      "Draw flower petals and stems emerging from the pink washes",
-      "Outline detailed leaf patterns in the green areas",
-      "Add bees, ladybugs, and garden insects among the blooms"
-    ],
-    "colorPalette": ["#be185d", "#f9a8d4", "#166534", "#fb7185", "#86efac"],
-    "tags": ["watercolor", "floral", "garden", "flowers", "spring", "beginner"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-17T00:00:00Z"
-  },
-  {
-    "designId": "2024-w8-vivid-depths-oceanic-reefs",
-    "weekId": "2024-W8",
-    "title": "Vivid Depths: A Symphony of Oceanic Reefs",
-    "description": "Detailed coral reefs bustling with marine life rendered in vivid underwater hues. Teals, corals, and deep ocean blues create a vibrant reef ecosystem for your creative outlines.",
-    "theme": "oceanic_reefs",
-    "slug": "vivid-depths-symphony-of-oceanic-reefs",
-    "imagePath": "/designs/vivid-depths-symphony-of-oceanic-reefs.png",
-    "status": "approved",
-    "difficulty": "advanced",
-    "drawingPrompts": [
-      "Draw intricate coral branch patterns in the warm tones",
-      "Outline tropical fish weaving between reef structures",
-      "Add sea anemones and starfish in the detailed areas"
-    ],
-    "colorPalette": ["#0d9488", "#f97316", "#164e63", "#fb923c", "#083344"],
-    "tags": ["watercolor", "ocean", "reef", "coral", "marine", "advanced"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-30T00:00:00Z"
-  },
-  {
-    "designId": "2024-w9-swirling-serenity",
-    "weekId": "2024-W9",
-    "title": "Swirling Serenity",
-    "description": "Let your creativity flow with abstract patterns and swirls. Soft, meditative colors spiral and dance across the canvas in this calming abstract composition.",
-    "theme": "abstract_art",
-    "slug": "swirling-serenity",
-    "imagePath": "/designs/swirling-serenity.png",
-    "status": "approved",
-    "difficulty": "easy",
-    "drawingPrompts": [
-      "Follow the natural swirls with flowing line patterns",
-      "Draw mandala-inspired designs within the spiral forms",
-      "Add zentangle patterns that complement the abstract movement"
-    ],
-    "colorPalette": ["#7c3aed", "#a78bfa", "#c4b5fd", "#ddd6fe", "#4c1d95"],
-    "tags": ["watercolor", "abstract", "swirls", "meditative", "relaxing", "easy"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-30T00:00:00Z"
-  },
-  {
-    "designId": "2024-w10-celestial-voyage",
-    "weekId": "2024-W10",
-    "title": "Celestial Voyage",
-    "description": "Journey through the stars and the mysteries of the cosmos. Deep space purples, midnight blues, and scattered stardust create a celestial canvas for astronomical outlines.",
-    "theme": "space_and_galaxies",
-    "slug": "celestial-voyage",
-    "imagePath": "/designs/celestial-voyage.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw constellations and star patterns in the dark areas",
-      "Outline planets and moons orbiting through the cosmic hues",
-      "Add a spacecraft or astronaut exploring the galaxy"
-    ],
-    "colorPalette": ["#1e1b4b", "#312e81", "#6366f1", "#818cf8", "#0f172a"],
-    "tags": ["watercolor", "space", "galaxy", "cosmic", "stars", "night"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-30T00:00:00Z"
-  },
-  {
-    "designId": "2024-w11-vivid-voyages",
-    "weekId": "2024-W11",
-    "title": "Vivid Voyages",
-    "description": "Explore famous sites from around the world through vivid watercolor impressions. Bright, bold colors suggest the architecture and atmosphere of iconic landmarks.",
-    "theme": "famous_landmarks",
-    "slug": "vivid-voyages",
-    "imagePath": "/designs/vivid-voyages.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw the outlines of famous buildings and monuments",
-      "Add architectural details like arches, domes, and towers",
-      "Sketch people and scenery around the landmark silhouettes"
-    ],
-    "colorPalette": ["#dc2626", "#f59e0b", "#2563eb", "#16a34a", "#7c3aed"],
-    "tags": ["watercolor", "landmarks", "travel", "architecture", "world"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-30T00:00:00Z"
-  },
-  {
-    "designId": "2024-w12-seasonal-symphony",
-    "weekId": "2024-W12",
-    "title": "Seasonal Symphony",
-    "description": "The distinct colors of the four seasons blend together in a harmonious watercolor symphony. From spring greens to autumn golds, this design celebrates the beauty of nature's cycle.",
-    "theme": "seasonal_scenery",
-    "slug": "seasonal-symphony",
-    "imagePath": "/designs/seasonal-symphony.png",
-    "status": "approved",
-    "difficulty": "medium",
-    "drawingPrompts": [
-      "Draw trees transitioning through the four seasons",
-      "Outline seasonal elements: snowflakes, flowers, sun, falling leaves",
-      "Add animals that represent each season in their quadrant"
-    ],
-    "colorPalette": ["#16a34a", "#f59e0b", "#dc2626", "#0ea5e9", "#a16207"],
-    "tags": ["watercolor", "seasons", "nature", "cycle", "harmony"],
-    "isPremium": false,
-    "width": 1024,
-    "height": 1536,
-    "createdAt": "2024-04-30T00:00:00Z"
   }
 ]

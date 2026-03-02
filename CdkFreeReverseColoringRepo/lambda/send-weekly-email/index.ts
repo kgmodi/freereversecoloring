@@ -166,11 +166,14 @@ async function getDesignsForWeek(weekId: string): Promise<DesignRecord[]> {
     (d) => d.status === 'approved' || d.status === 'pending_review',
   );
 
+  // Cap at 3 designs per email (matches marketing promise of "3 Designs per week")
+  const selected = eligible.slice(0, 3);
+
   console.log(
-    `[handler] Found ${designs.length} total designs, ${eligible.length} eligible (approved/pending_review)`,
+    `[handler] Found ${designs.length} total designs, ${eligible.length} eligible, sending ${selected.length} (max 3)`,
   );
 
-  return eligible;
+  return selected;
 }
 
 /** Query all confirmed subscribers. Paginate through all results. */
@@ -301,7 +304,7 @@ function buildWeeklyEmail(
       </tr>
       <tr>
         <td style="padding: 16px 0 0 0;">
-          <a href="${SITE_URL}/designs/${d.slug}"
+          <a href="${SITE_URL}/gallery/${d.slug}"
              style="display: inline-block; padding: 12px 28px; background-color: #6B46C1; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             Print &amp; Draw
           </a>
@@ -314,7 +317,7 @@ function buildWeeklyEmail(
   const designsTextList = designs
     .map(
       (d, i) =>
-        `${i + 1}. ${d.title} (${d.difficulty})\n   ${d.description}\n   Drawing ideas: ${d.drawingPrompts.join(', ')}\n   View: ${SITE_URL}/designs/${d.slug}`,
+        `${i + 1}. ${d.title} (${d.difficulty})\n   ${d.description}\n   Drawing ideas: ${d.drawingPrompts.join(', ')}\n   View: ${SITE_URL}/gallery/${d.slug}`,
     )
     .join('\n\n');
 
@@ -348,7 +351,7 @@ function buildWeeklyEmail(
           <tr>
             <td style="background: linear-gradient(135deg, #6B46C1 0%, #9F7AEA 100%); padding: 32px 20px; text-align: center;">
               <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                FreeReverseColoring
+                FreeReverseColoring.com
               </h1>
               <p style="margin: 8px 0 0 0; font-size: 14px; color: #E9D8FD; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 Your weekly creative escape
@@ -389,7 +392,7 @@ function buildWeeklyEmail(
           <!-- CTA Section -->
           <tr>
             <td style="padding: 0 20px 32px 20px; text-align: center;">
-              <a href="${SITE_URL}"
+              <a href="${SITE_URL}/gallery"
                  style="display: inline-block; padding: 14px 32px; background-color: #6B46C1; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 Browse All Designs
               </a>
@@ -409,7 +412,7 @@ function buildWeeklyEmail(
                 <a href="${SITE_URL}" style="color: #A0AEC0; text-decoration: underline;">Visit Website</a>
               </p>
               <p style="margin: 12px 0 0 0; font-size: 11px; color: #CBD5E0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                FreeReverseColoring &copy; ${new Date().getFullYear()}
+                FreeReverseColoring.com &copy; ${new Date().getFullYear()}
               </p>
             </td>
           </tr>
@@ -432,7 +435,7 @@ Print these watercolor backgrounds and draw your own outlines on top!
 
 ${designsTextList}
 
-Browse all designs: ${SITE_URL}
+Browse all designs: ${SITE_URL}/gallery
 
 ---
 You're receiving this because you subscribed at freereversecoloring.com.
@@ -548,8 +551,13 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
       })),
     );
 
-    // Use the theme from the first design (all designs in a week share the same theme)
-    const themeName = designs[0].theme || 'Creative Exploration';
+    // Use the theme from the first design, formatted for display
+    // e.g. "butterfly_meadow" → "Butterfly Meadow"
+    const rawTheme = designs[0].theme || 'Creative Exploration';
+    const themeName = rawTheme
+      .split('_')
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
 
     // -----------------------------------------------------------------------
     // Step 3: Get recipients
