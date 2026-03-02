@@ -27,8 +27,8 @@ function HeroSection() {
               </span>
             </h1>
             <p className="mt-6 text-xl text-[#6B687D]">
-              Every week, we send you a free watercolor background. You
-              print it, grab a pen, and draw your own outlines. It&apos;s coloring
+              Every week, we send you 3 free watercolor backgrounds. You
+              print them, grab a pen, and draw your own outlines. It&apos;s coloring
               &mdash; reversed.
             </p>
             <div id="signup" className="mt-10">
