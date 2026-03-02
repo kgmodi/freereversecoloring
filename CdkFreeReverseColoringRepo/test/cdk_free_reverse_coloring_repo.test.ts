@@ -20,6 +20,10 @@ test('S3 bucket is created with website hosting', () => {
   });
 });
 
+test('Only one S3 bucket exists', () => {
+  template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+
 test('CloudFront distribution is created with custom domain', () => {
   template.hasResourceProperties('AWS::CloudFront::Distribution', {
     DistributionConfig: {
@@ -28,7 +32,7 @@ test('CloudFront distribution is created with custom domain', () => {
   });
 });
 
-test('Route53 A record exists', () => {
+test('Route53 records exist', () => {
   template.resourceCountIs('AWS::Route53::RecordSet', 2);
 });
 
@@ -36,4 +40,12 @@ test('ACM certificate is created for wildcard domain', () => {
   template.hasResourceProperties('AWS::CertificateManager::Certificate', {
     DomainName: '*.freereversecoloring.com',
   });
+});
+
+test('No CodeCommit repositories exist', () => {
+  template.resourceCountIs('AWS::CodeCommit::Repository', 0);
+});
+
+test('No CodePipeline pipelines exist', () => {
+  template.resourceCountIs('AWS::CodePipeline::Pipeline', 0);
 });
