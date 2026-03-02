@@ -69,7 +69,7 @@ export function GalleryFilter({
     <>
       {/* Filter buttons */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-semibold text-neutral-950">
+        <span className="text-sm font-semibold text-[#2D2B3D]">
           Filter by theme:
         </span>
         <button
@@ -77,8 +77,8 @@ export function GalleryFilter({
           className={clsx(
             'rounded-full px-4 py-1.5 text-sm font-semibold transition',
             activeTheme === null
-              ? 'bg-neutral-950 text-white'
-              : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200',
+              ? 'bg-[#9B7BC7] text-white'
+              : 'bg-[#9B7BC7]/10 text-[#4A3F6B] hover:bg-[#9B7BC7]/20',
           )}
         >
           All
@@ -90,8 +90,8 @@ export function GalleryFilter({
             className={clsx(
               'rounded-full px-4 py-1.5 text-sm font-semibold transition',
               activeTheme === theme
-                ? 'bg-neutral-950 text-white'
-                : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200',
+                ? 'bg-[#9B7BC7] text-white'
+                : 'bg-[#9B7BC7]/10 text-[#4A3F6B] hover:bg-[#9B7BC7]/20',
             )}
           >
             {formatTheme(theme)}
@@ -113,9 +113,9 @@ export function GalleryFilter({
             >
               <Link
                 href={`/gallery/${design.slug}`}
-                className="group relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-neutral-950/5 transition hover:ring-neutral-950/15"
+                className="group relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-[#9B7BC7]/10 transition hover:ring-[#9B7BC7]/25 hover:shadow-lg hover:shadow-[#9B7BC7]/10"
               >
-                <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-100">
+                <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#F8F6FF]">
                   <Image
                     src={design.imagePath}
                     alt={`${design.title} — reverse coloring page watercolor background`}
@@ -126,18 +126,18 @@ export function GalleryFilter({
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700">
+                    <span className="inline-flex items-center rounded-full bg-[#9B7BC7]/10 px-2.5 py-0.5 text-xs font-semibold text-[#4A3F6B]">
                       {formatTheme(design.theme)}
                     </span>
                     <DifficultyBadge difficulty={design.difficulty} />
                   </div>
-                  <h3 className="mt-4 font-display text-xl font-semibold text-neutral-950">
+                  <h3 className="mt-4 font-display text-xl font-semibold text-[#2D2B3D]">
                     {design.title}
                   </h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-neutral-600">
+                  <p className="mt-2 line-clamp-2 text-sm text-[#6B687D]">
                     {design.description}
                   </p>
-                  <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-neutral-950">
+                  <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#4A3F6B]">
                     View design
                     <span
                       aria-hidden="true"
@@ -155,7 +155,7 @@ export function GalleryFilter({
 
       {filtered.length === 0 && (
         <div className="mt-16 text-center">
-          <p className="text-lg text-neutral-600">
+          <p className="text-lg text-[#6B687D]">
             No designs found for this theme. Check back soon!
           </p>
         </div>

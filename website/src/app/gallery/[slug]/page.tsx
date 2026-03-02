@@ -21,12 +21,13 @@ export function generateStaticParams() {
   }))
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
-}): Metadata {
-  const design = designs.find((d) => d.slug === params.slug)
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const design = designs.find((d) => d.slug === slug)
   if (!design) return {}
 
   return {
@@ -70,11 +71,11 @@ function ColorSwatch({ color }: { color: string }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
-        className="h-12 w-12 rounded-full ring-1 ring-neutral-200"
+        className="h-12 w-12 rounded-full ring-1 ring-[#9B7BC7]/20"
         style={{ backgroundColor: color }}
         title={color}
       />
-      <span className="text-xs font-mono text-neutral-500">{color}</span>
+      <span className="text-xs font-mono text-[#6B687D]">{color}</span>
     </div>
   )
 }
@@ -136,12 +137,24 @@ function PrinterIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   )
 }
 
-export default function DesignPage({
+const stepColors = [
+  'bg-[#6AACB8]',
+  'bg-[#9B7BC7]',
+  'bg-[#E8889B]',
+  'bg-[#F4845F]',
+  'bg-[#7BC77B]',
+  'bg-[#6AACB8]',
+  'bg-[#9B7BC7]',
+  'bg-[#E8889B]',
+]
+
+export default async function DesignPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const design = designs.find((d) => d.slug === params.slug)
+  const { slug } = await params
+  const design = designs.find((d) => d.slug === slug)
 
   if (!design) {
     notFound()
@@ -154,7 +167,7 @@ export default function DesignPage({
           {/* Back link */}
           <Link
             href="/gallery"
-            className="group mb-8 inline-flex items-center gap-2 text-sm font-semibold text-neutral-950 transition hover:text-neutral-700"
+            className="group mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#4A3F6B] transition hover:text-[#9B7BC7]"
           >
             <ArrowLeftIcon className="h-4 w-4 transition group-hover:-translate-x-1" />
             Back to Gallery
@@ -162,7 +175,7 @@ export default function DesignPage({
 
           <div className="grid grid-cols-1 gap-x-16 gap-y-10 lg:grid-cols-2">
             {/* Left column: image */}
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-3xl bg-neutral-100">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-3xl bg-[#F8F6FF]">
               <Image
                 src={design.imagePath}
                 alt={`${design.title} — reverse coloring page watercolor background`}
@@ -178,20 +191,20 @@ export default function DesignPage({
               {/* Title and badges */}
               <div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-sm font-semibold text-neutral-700">
+                  <span className="inline-flex items-center rounded-full bg-[#9B7BC7]/10 px-3 py-1 text-sm font-semibold text-[#4A3F6B]">
                     {formatTheme(design.theme)}
                   </span>
                   <DifficultyBadge difficulty={design.difficulty} />
-                  <span className="text-sm text-neutral-500">
+                  <span className="text-sm text-[#6B687D]">
                     Week {design.weekId}
                   </span>
                 </div>
 
-                <h1 className="mt-6 font-display text-4xl font-medium tracking-tight text-neutral-950 sm:text-5xl">
+                <h1 className="mt-6 font-display text-4xl font-medium tracking-tight text-[#2D2B3D] sm:text-5xl">
                   {design.title}
                 </h1>
 
-                <p className="mt-6 text-lg text-neutral-600">
+                <p className="mt-6 text-lg text-[#6B687D]">
                   {design.description}
                 </p>
               </div>
@@ -201,7 +214,7 @@ export default function DesignPage({
                 <a
                   href={design.imagePath}
                   download={`${design.slug}.png`}
-                  className="inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#F4845F] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#e5734e]"
                 >
                   <DownloadIcon className="h-5 w-5" />
                   Download
@@ -214,20 +227,20 @@ export default function DesignPage({
 
               {/* Drawing Ideas */}
               <Border className="mt-10 pt-10">
-                <h2 className="font-display text-xl font-semibold text-neutral-950">
+                <h2 className="font-display text-xl font-semibold text-[#2D2B3D]">
                   Drawing Ideas
                 </h2>
-                <p className="mt-2 text-sm text-neutral-600">
+                <p className="mt-2 text-sm text-[#6B687D]">
                   Not sure where to start? Here are some suggestions for outlines
                   you can draw on this background:
                 </p>
                 <ul className="mt-4 space-y-3">
                   {design.drawingPrompts.map((prompt, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-950 text-xs font-semibold text-white">
+                      <span className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${stepColors[i % stepColors.length]} text-xs font-semibold text-white`}>
                         {i + 1}
                       </span>
-                      <span className="text-base text-neutral-600">
+                      <span className="text-base text-[#6B687D]">
                         {prompt}
                       </span>
                     </li>
@@ -237,10 +250,10 @@ export default function DesignPage({
 
               {/* Color Palette */}
               <Border className="mt-10 pt-10">
-                <h2 className="font-display text-xl font-semibold text-neutral-950">
+                <h2 className="font-display text-xl font-semibold text-[#2D2B3D]">
                   Color Palette
                 </h2>
-                <p className="mt-2 text-sm text-neutral-600">
+                <p className="mt-2 text-sm text-[#6B687D]">
                   The dominant colors in this watercolor background:
                 </p>
                 <div className="mt-4 flex flex-wrap gap-4">
@@ -257,7 +270,7 @@ export default function DesignPage({
                     {design.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center rounded-full bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600 ring-1 ring-inset ring-neutral-200"
+                        className="inline-flex items-center rounded-full bg-[#F8F6FF] px-3 py-1 text-xs font-medium text-[#4A3F6B] ring-1 ring-inset ring-[#9B7BC7]/15"
                       >
                         {tag}
                       </span>

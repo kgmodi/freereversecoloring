@@ -13,21 +13,37 @@ import designs from '@/data/designs.json'
 
 function HeroSection() {
   return (
-    <Container className="mt-24 sm:mt-32 md:mt-56">
-      <FadeIn className="max-w-3xl">
-        <h1 className="font-display text-5xl font-medium tracking-tight text-balance text-neutral-950 sm:text-7xl">
-          Beautiful Watercolor Backgrounds. Your Lines. Your Art.
-        </h1>
-        <p className="mt-6 text-xl text-neutral-600">
-          Every week, we send you a free AI-generated watercolor background. You
-          print it, grab a pen, and draw your own outlines. It&apos;s coloring
-          &mdash; reversed.
-        </p>
-        <div id="signup" className="mt-10">
-          <SignupForm />
-        </div>
-      </FadeIn>
-    </Container>
+    <div className="relative overflow-hidden">
+      {/* Watercolor gradient background */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 20% 60%, rgba(106, 172, 184, 0.15), transparent),
+            radial-gradient(ellipse 60% 50% at 70% 30%, rgba(155, 123, 199, 0.12), transparent),
+            radial-gradient(ellipse 50% 40% at 50% 80%, rgba(232, 136, 155, 0.1), transparent)
+          `,
+        }}
+      />
+      <Container className="mt-24 sm:mt-32 md:mt-56">
+        <FadeIn className="max-w-3xl">
+          <h1 className="font-display text-5xl font-medium tracking-tight text-balance text-[#2D2B3D] sm:text-7xl">
+            Beautiful Watercolor Backgrounds.{' '}
+            <span className="bg-gradient-to-r from-[#6AACB8] via-[#9B7BC7] to-[#E8889B] bg-clip-text text-transparent">
+              Your Lines. Your Art.
+            </span>
+          </h1>
+          <p className="mt-6 text-xl text-[#6B687D]">
+            Every week, we send you a free AI-generated watercolor background. You
+            print it, grab a pen, and draw your own outlines. It&apos;s coloring
+            &mdash; reversed.
+          </p>
+          <div id="signup" className="mt-10">
+            <SignupForm />
+          </div>
+        </FadeIn>
+      </Container>
+    </div>
   )
 }
 
@@ -38,6 +54,7 @@ const steps = [
     description:
       'Enter your email to get free weekly reverse coloring pages. No credit card, no catch — just beautiful art in your inbox every Wednesday.',
     icon: EnvelopeIcon,
+    color: 'bg-[#6AACB8]',
   },
   {
     number: '02',
@@ -45,6 +62,7 @@ const steps = [
     description:
       'Download and print the AI-generated watercolor backgrounds. Each design is unique and crafted to inspire creativity on any paper type.',
     icon: PrinterIcon,
+    color: 'bg-[#9B7BC7]',
   },
   {
     number: '03',
@@ -52,6 +70,7 @@ const steps = [
     description:
       'Add your own outlines and bring the art to life. Use pen, pencil, marker, or any medium you love. The background is your canvas.',
     icon: PencilIcon,
+    color: 'bg-[#E8889B]',
   },
 ]
 
@@ -130,19 +149,19 @@ function HowItWorks() {
         <FadeInStagger className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {steps.map((step) => (
             <FadeIn key={step.number} className="flex">
-              <article className="relative flex w-full flex-col rounded-3xl p-8 ring-1 ring-neutral-950/5 transition hover:bg-neutral-50">
+              <article className="relative flex w-full flex-col rounded-3xl p-8 ring-1 ring-[#9B7BC7]/10 transition hover:bg-[#F8F6FF] hover:shadow-lg hover:shadow-[#9B7BC7]/5">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-950">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${step.color}`}>
                     <step.icon className="h-6 w-6 text-white" />
                   </div>
-                  <span className="font-display text-sm font-semibold text-neutral-950">
+                  <span className="font-display text-sm font-semibold text-[#4A3F6B]">
                     Step {step.number}
                   </span>
                 </div>
-                <h3 className="mt-6 font-display text-2xl font-semibold text-neutral-950">
+                <h3 className="mt-6 font-display text-2xl font-semibold text-[#2D2B3D]">
                   {step.title}
                 </h3>
-                <p className="mt-4 text-base text-neutral-600">
+                <p className="mt-4 text-base text-[#6B687D]">
                   {step.description}
                 </p>
               </article>
@@ -183,9 +202,9 @@ function FeaturedDesigns() {
             <FadeIn key={design.designId} className="flex">
               <Link
                 href={`/gallery/${design.slug}`}
-                className="group relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-neutral-950/5 transition hover:ring-neutral-950/15"
+                className="group relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-[#9B7BC7]/10 transition hover:ring-[#9B7BC7]/25 hover:shadow-lg hover:shadow-[#9B7BC7]/10"
               >
-                <div className="relative h-64 w-full overflow-hidden bg-neutral-100">
+                <div className="relative h-64 w-full overflow-hidden bg-[#F8F6FF]">
                   <Image
                     src={design.imagePath}
                     alt={`${design.title} watercolor background preview`}
@@ -196,7 +215,7 @@ function FeaturedDesigns() {
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
+                    <span className="inline-flex items-center rounded-full bg-[#9B7BC7]/10 px-3 py-1 text-xs font-semibold text-[#4A3F6B]">
                       {formatTheme(design.theme)}
                     </span>
                     <span
@@ -213,10 +232,10 @@ function FeaturedDesigns() {
                         design.difficulty.slice(1)}
                     </span>
                   </div>
-                  <h3 className="mt-4 font-display text-xl font-semibold text-neutral-950">
+                  <h3 className="mt-4 font-display text-xl font-semibold text-[#2D2B3D]">
                     {design.title}
                   </h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-neutral-600">
+                  <p className="mt-2 line-clamp-2 text-sm text-[#6B687D]">
                     {design.description}
                   </p>
                 </div>
@@ -227,7 +246,7 @@ function FeaturedDesigns() {
         <FadeIn className="mt-10 flex justify-center">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2 font-display text-sm font-semibold text-neutral-950 transition hover:text-neutral-700"
+            className="inline-flex items-center gap-2 font-display text-sm font-semibold text-[#4A3F6B] transition hover:text-[#9B7BC7]"
           >
             View Full Gallery
             <span aria-hidden="true">&rarr;</span>
@@ -241,13 +260,20 @@ function FeaturedDesigns() {
 function CtaBanner() {
   return (
     <Container className="mt-24 sm:mt-32 lg:mt-40">
-      <FadeIn className="-mx-6 rounded-4xl bg-neutral-950 px-6 py-20 sm:mx-0 sm:py-32 md:px-12">
+      <FadeIn
+        className="-mx-6 rounded-4xl px-6 py-20 sm:mx-0 sm:py-32 md:px-12"
+        style={{
+          background: `
+            linear-gradient(135deg, #4A3F6B 0%, #6AACB8 50%, #9B7BC7 100%)
+          `,
+        }}
+      >
         <div className="mx-auto max-w-4xl">
           <div className="max-w-xl">
             <h2 className="font-display text-3xl font-medium text-balance text-white sm:text-4xl">
               Start creating today — completely free.
             </h2>
-            <p className="mt-4 text-lg text-neutral-300">
+            <p className="mt-4 text-lg text-white/80">
               Sign up and get your first set of reverse coloring pages this
               Wednesday. No account needed — just your email.
             </p>
@@ -329,10 +355,10 @@ function FAQ() {
             {faqs.map((faq) => (
               <FadeIn key={faq.question}>
                 <Border className="pt-8 first:pt-0 first:before:hidden first:after:hidden">
-                  <dt className="font-display text-lg font-semibold text-neutral-950">
+                  <dt className="font-display text-lg font-semibold text-[#2D2B3D]">
                     {faq.question}
                   </dt>
-                  <dd className="mt-4 text-base text-neutral-600 whitespace-pre-line">
+                  <dd className="mt-4 text-base text-[#6B687D] whitespace-pre-line">
                     {faq.answer}
                   </dd>
                 </Border>
@@ -347,13 +373,18 @@ function FAQ() {
 
 function Stats() {
   return (
-    <div className="mt-24 rounded-4xl bg-neutral-950 py-20 sm:mt-32 sm:py-32 lg:mt-56">
+    <div
+      className="mt-24 rounded-4xl py-20 sm:mt-32 sm:py-32 lg:mt-56"
+      style={{
+        background: 'linear-gradient(135deg, #4A3F6B 0%, #2D2B3D 40%, #4A3F6B 100%)',
+      }}
+    >
       <Container>
         <FadeIn className="flex items-center gap-x-8">
           <h2 className="text-center font-display text-sm font-semibold tracking-wider text-white sm:text-left">
             A new way to create art
           </h2>
-          <div className="h-px flex-auto bg-neutral-800" />
+          <div className="h-px flex-auto bg-white/20" />
         </FadeIn>
         <FadeInStagger faster>
           <dl className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -367,7 +398,7 @@ function Stats() {
                   <dd className="font-display text-4xl font-semibold text-white sm:text-5xl">
                     {stat.value}
                   </dd>
-                  <dt className="text-sm text-neutral-400">{stat.label}</dt>
+                  <dt className="text-sm text-white/60">{stat.label}</dt>
                 </div>
               </FadeIn>
             ))}

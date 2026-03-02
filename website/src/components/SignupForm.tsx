@@ -97,13 +97,13 @@ export function SignupForm({
         <CheckIcon
           className={clsx(
             'h-6 w-6 shrink-0',
-            isDark ? 'text-green-400' : 'text-green-600',
+            isDark ? 'text-[#7BC77B]' : 'text-[#7BC77B]',
           )}
         />
         <p
           className={clsx(
             'text-sm font-semibold',
-            isDark ? 'text-white' : 'text-neutral-950',
+            isDark ? 'text-white' : 'text-[#2D2B3D]',
           )}
         >
           You are subscribed! Check your email to confirm.
@@ -128,10 +128,10 @@ export function SignupForm({
             aria-label="Email address"
             disabled={formState === 'submitting'}
             className={clsx(
-              'block w-full rounded-2xl border py-4 pr-20 pl-6 text-base/6 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:outline-hidden',
+              'block w-full rounded-2xl border py-4 pr-20 pl-6 text-base/6 ring-4 ring-transparent transition placeholder:text-[#6B687D]/60 focus:outline-hidden',
               isDark
                 ? 'border-white/20 bg-white/5 text-white focus:border-white focus:ring-white/10'
-                : 'border-neutral-300 bg-transparent text-neutral-950 focus:border-neutral-950 focus:ring-neutral-950/5',
+                : 'border-[#9B7BC7]/20 bg-transparent text-[#2D2B3D] focus:border-[#9B7BC7] focus:ring-[#9B7BC7]/10',
               formState === 'submitting' && 'opacity-60',
             )}
           />
@@ -143,8 +143,8 @@ export function SignupForm({
               className={clsx(
                 'flex aspect-square h-full items-center justify-center rounded-xl transition',
                 isDark
-                  ? 'bg-white text-neutral-950 hover:bg-neutral-200'
-                  : 'bg-neutral-950 text-white hover:bg-neutral-800',
+                  ? 'bg-white text-[#4A3F6B] hover:bg-neutral-100'
+                  : 'bg-[#F4845F] text-white hover:bg-[#e5734e]',
                 formState === 'submitting' && 'opacity-60',
               )}
             >
@@ -188,7 +188,7 @@ export function SignupForm({
       <p
         className={clsx(
           'mt-3 text-xs',
-          isDark ? 'text-neutral-400' : 'text-neutral-500',
+          isDark ? 'text-white/50' : 'text-[#6B687D]',
         )}
       >
         Free forever. No spam. Unsubscribe anytime.

@@ -49,7 +49,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full bg-neutral-950 text-base antialiased">
+    <html lang="en" className="h-full bg-[#2D2B3D] text-base antialiased">
       <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ERGD1FQ73M"

@@ -40,4 +40,17 @@
   --font-display--font-variation-settings: 'wdth' 125;
 
   --font-display-length: 2;
+
+  /* Brand colors — watercolor-inspired palette */
+  --color-brand-blue: #6AACB8;
+  --color-brand-purple: #9B7BC7;
+  --color-brand-pink: #E8889B;
+  --color-brand-coral: #F4845F;
+  --color-brand-green: #7BC77B;
+  --color-brand-indigo: #4A3F6B;
+
+  /* Warm neutrals (replace pure black/gray) */
+  --color-brand-dark: #2D2B3D;
+  --color-brand-gray: #6B687D;
+  --color-brand-light: #F8F6FF;
 }
