@@ -20,5 +20,10 @@ ReverseColoringAppAI/images/
 # CDK
 CdkFreeReverseColoringRepo/cdk.out/
 
+# Website (Next.js)
+website/node_modules/
+website/.next/
+website/out/
+
 # Claude internal
 .claude/
