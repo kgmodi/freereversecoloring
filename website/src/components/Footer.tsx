@@ -10,25 +10,19 @@ const navigation = [
     title: 'Explore',
     links: [
       { title: 'Gallery', href: '/gallery' },
-      { title: 'How It Works', href: '/process' },
-      { title: 'Blog', href: '/blog' },
-      {
-        title: (
-          <>
-            View all designs <span aria-hidden="true">&rarr;</span>
-          </>
-        ),
-        href: '/gallery',
-      },
+      { title: 'How It Works', href: '/#how-it-works' },
+      { title: 'FAQ', href: '/#faq' },
     ],
   },
   {
-    title: 'Company',
+    title: 'Legal',
     links: [
-      { title: 'About', href: '/about' },
-      { title: 'Contact', href: '/contact' },
-      { title: 'Privacy Policy', href: '/about' },
-      { title: 'Terms of Service', href: '/about' },
+      { title: 'Privacy Policy', href: '/privacy.html' },
+      { title: 'Terms of Service', href: '/terms-of-service.html' },
+      {
+        title: 'hello@freereversecoloring.com',
+        href: 'mailto:hello@freereversecoloring.com',
+      },
     ],
   },
 ]
@@ -73,7 +67,7 @@ export function Footer() {
                 Get free weekly designs
               </h2>
               <p className="mt-4 text-sm text-neutral-700">
-                Subscribe to receive a new AI-generated reverse coloring page
+                Subscribe to receive new AI-generated reverse coloring pages
                 every week. Completely free.
               </p>
               <div className="mt-6">
@@ -87,8 +81,8 @@ export function Footer() {
             <Logo className="h-8" fillOnHover />
           </Link>
           <p className="text-sm text-neutral-700">
-            &copy; FreeReverseColoring {new Date().getFullYear()}. All rights
-            reserved.
+            &copy; 2024-{new Date().getFullYear()} FreeReverseColoring.com. All
+            rights reserved.
           </p>
         </div>
       </FadeIn>

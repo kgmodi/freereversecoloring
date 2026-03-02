@@ -18,8 +18,6 @@ import { Container } from '@/components/Container'
 import { Footer } from '@/components/Footer'
 import { GridPattern } from '@/components/GridPattern'
 import { Logo, Logomark } from '@/components/Logo'
-import { Offices } from '@/components/Offices'
-import { SocialMedia } from '@/components/SocialMedia'
 
 const RootLayoutContext = createContext<{
   logoHovered: boolean
@@ -81,8 +79,8 @@ function Header({
           />
         </Link>
         <div className="flex items-center gap-x-8">
-          <Button href="/contact" invert={invert}>
-            Contact us
+          <Button href="/#signup" invert={invert}>
+            Get Free Designs
           </Button>
           <button
             ref={toggleRef}
@@ -144,11 +142,11 @@ function Navigation() {
     <nav className="mt-px font-display text-5xl font-medium tracking-tight text-white">
       <NavigationRow>
         <NavigationItem href="/gallery">Gallery</NavigationItem>
-        <NavigationItem href="/about">About Us</NavigationItem>
+        <NavigationItem href="/#how-it-works">How It Works</NavigationItem>
       </NavigationRow>
       <NavigationRow>
-        <NavigationItem href="/process">How It Works</NavigationItem>
-        <NavigationItem href="/blog">Blog</NavigationItem>
+        <NavigationItem href="/#faq">FAQ</NavigationItem>
+        <NavigationItem href="/#signup">Get Free Designs</NavigationItem>
       </NavigationRow>
     </nav>
   )
@@ -239,18 +237,13 @@ function RootLayoutInner({ children }: { children: React.ReactNode }) {
                 <div className="grid grid-cols-1 gap-y-10 pt-10 pb-16 sm:grid-cols-2 sm:pt-16">
                   <div>
                     <h2 className="font-display text-base font-semibold text-white">
-                      Our offices
+                      Contact
                     </h2>
-                    <Offices
-                      invert
-                      className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2"
-                    />
-                  </div>
-                  <div className="sm:border-l sm:border-transparent sm:pl-16">
-                    <h2 className="font-display text-base font-semibold text-white">
-                      Follow us
-                    </h2>
-                    <SocialMedia className="mt-6" invert />
+                    <p className="mt-4 text-sm text-neutral-300">
+                      <a href="mailto:hello@freereversecoloring.com" className="hover:text-white transition">
+                        hello@freereversecoloring.com
+                      </a>
+                    </p>
                   </div>
                 </div>
               </Container>

@@ -19,10 +19,11 @@ function HeroSection() {
           Beautiful Watercolor Backgrounds. Your Lines. Your Art.
         </h1>
         <p className="mt-6 text-xl text-neutral-600">
-          Get free AI-generated reverse coloring pages delivered to your inbox
-          every week. Print, draw your outlines, and create something beautiful.
+          Every week, we send you a free AI-generated watercolor background. You
+          print it, grab a pen, and draw your own outlines. It&apos;s coloring
+          &mdash; reversed.
         </p>
-        <div className="mt-10">
+        <div id="signup" className="mt-10">
           <SignupForm />
         </div>
       </FadeIn>
@@ -114,6 +115,7 @@ function PencilIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 function HowItWorks() {
   return (
     <>
+      <div id="how-it-works" />
       <SectionIntro
         eyebrow="How It Works"
         title="Three simple steps to your own reverse coloring masterpiece."
@@ -199,7 +201,8 @@ function FeaturedDesigns() {
                     </span>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${
-                        design.difficulty === 'easy'
+                        design.difficulty === 'easy' ||
+                        design.difficulty === 'beginner'
                           ? 'bg-green-50 text-green-700 ring-green-600/20'
                           : design.difficulty === 'medium'
                             ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
@@ -245,8 +248,8 @@ function CtaBanner() {
               Start creating today — completely free.
             </h2>
             <p className="mt-4 text-lg text-neutral-300">
-              Join thousands of artists, educators, and coloring enthusiasts who
-              look forward to a new design every Wednesday.
+              Sign up and get your first set of reverse coloring pages this
+              Wednesday. No account needed — just your email.
             </p>
             <div className="mt-8">
               <SignupForm variant="dark" />
@@ -262,38 +265,54 @@ const faqs = [
   {
     question: 'What is reverse coloring?',
     answer:
-      'Traditional coloring pages give you black outlines to fill in with color. Reverse coloring flips the concept: you receive a pre-colored watercolor background and draw your own outlines on top. It is a creative, relaxing activity that produces stunning artwork — even if you do not consider yourself an artist.',
+      'Reverse coloring is a unique twist on traditional coloring books. Instead of starting with white pages featuring black outlines to fill in with color, reverse coloring presents pre-colored pages. These vibrant backgrounds set the stage for you to add your own patterns, details, and outlines. The process encourages a different kind of creativity, where you define the shapes and bring structure to a colorful canvas, effectively "coloring" with lines and forms instead of different hues. It\'s a creative challenge that flips the usual coloring approach, pushing the boundaries of imagination and artistic expression.',
   },
   {
-    question: 'How often do I get new designs?',
+    question: 'How do I start?',
     answer:
-      'Every Wednesday, a brand-new AI-generated watercolor background is delivered straight to your inbox. Each design is unique and crafted with GPT-4o and gpt-image-1 to ensure vibrant, print-ready quality.',
+      'Choose Your Page: Select a pre-colored page from our collection that inspires you. Look for colors and gradients that spark your imagination, then print it out.\n\nGather Your Tools: You\'ll need pens, pencils, markers, or any drawing tool you prefer for adding lines and details.\n\nAdd Your Lines: Begin drawing directly on your reverse coloring page. You can outline areas to define shapes or add patterns and textures.\n\nEmbrace Imperfections: Don\'t worry about making mistakes. Every line adds character and makes your design uniquely yours.\n\nEnjoy the Process: Remember, the goal is to relax and enjoy the creative journey. There\'s no right or wrong way to do it!',
   },
   {
     question: 'Is it really free?',
     answer:
-      'Yes, completely free — forever. There is no premium tier, no paywall, and no credit card required. We believe everyone should have access to creative tools that spark joy. Sign up and start creating right away.',
+      'Yes, completely free. No credit card, no hidden fees, no catch. Sign up, get designs, print, and draw.',
   },
   {
-    question: 'How do I print the designs?',
+    question: 'What are the best pens for reverse coloring?',
     answer:
-      'Each design is delivered as a high-resolution image optimized for standard letter paper (8.5" x 11"). Simply download the image from the email, open it on your computer, and print it on any home or office printer. For best results, use thicker paper or cardstock — it handles the watercolor look beautifully and provides a better surface for drawing.',
+      'For reverse coloring, where you\'re drawing lines or adding details to pre-colored pages, the best pens have precision, a variety of line widths, and vibrant ink that stands out on colored backgrounds.\n\nMicron Pens: Celebrated for their precision and archival-quality ink. They come in various sizes, allowing for fine detail work as well as bolder lines. The ink is waterproof and fade-resistant.\n\nFaber-Castell Pitt Artist Pens: Known for their high-quality pigmented India ink, these offer excellent opacity and smooth application. Great for overlaying lines on colored backgrounds.\n\nUni-ball Signo Gel Pens: Particularly good for their range of colors, including white, which is excellent for highlighting or drawing on dark backgrounds. The ink flows smoothly for crisp lines.\n\nSakura Gelly Roll Pens: Ideal for adding decorative touches or highlights. They come in white, metallic, and glitter variants that add a unique dimension to your artwork.\n\nStaedtler Triplus Fineliners: Fine-tipped pens perfect for detail work, with water-based ink that doesn\'t bleed through pages. Wide range of colors available.\n\nStabilo Point 88 Fineliner Pens: Known for their fine tips and vibrant ink, great for precision and adding colorful details that stand out.\n\nPilot FriXion Pens: If you\'re nervous about making permanent marks, these erasable gel pens allow for corrections and adjustments as you define your artwork.',
   },
   {
-    question: 'What should I use to draw on the prints?',
+    question: 'How often do I get new designs?',
     answer:
-      'Anything you like! Fine-tip markers, gel pens, and felt-tip pens work especially well on printed pages. Pencils and colored pencils are also great choices. The beauty of reverse coloring is that there are no rules — experiment with different tools to discover your style.',
+      'Every Wednesday. Three brand-new AI-generated watercolor backgrounds arrive in your inbox, each with a unique theme and color palette. They\'re designed to be printed on standard letter paper.',
+  },
+  {
+    question: 'What happens when adults do coloring books?',
+    answer:
+      'Engaging in coloring books offers adults a range of benefits that encompass mental, emotional, and cognitive health.\n\nMental Health: Coloring can significantly reduce stress and anxiety, fostering a state of mindfulness and presence. It acts as a form of meditation, redirecting focus from stressors and improving mood and concentration.\n\nCreativity and Cognitive Skills: It encourages creativity within structured lines, offering a unique outlet for expressing imagination. The activity also helps in enhancing fine motor skills and hand-eye coordination.\n\nSocial and Emotional Well-being: Adult coloring cultivates a sense of community through sharing artwork and experiences, reducing feelings of isolation. It serves as a therapeutic outlet for non-verbal expression of emotions and can be particularly effective in managing anxiety.\n\nPhysical Benefits: The relaxation induced by coloring has been linked to lower blood pressure, highlighting its physical health benefits.\n\nAccessibility: Coloring is an easily accessible hobby that doesn\'t require special skills or expensive materials, making it a versatile option for stress relief and creative expression at any time and place.',
+  },
+  {
+    question: 'How long does it take to complete a page?',
+    answer:
+      'The time varies depending on the complexity of the design, the tools you use, the level of detail you want, and your personal pace. For simpler designs, you might spend an hour or less. More intricate designs could take several hours or spread over multiple sessions.\n\nFor beginners, a less detailed page might take 1-3 hours as you explore techniques and combinations. More experienced artists working on highly detailed pages might spend 5-10 hours or more to achieve the depth and detail they desire.\n\nReverse coloring pages can add an extra layer of creative exploration compared to traditional coloring, especially if you\'re aiming for smooth gradients or detailed shading in your outlines.',
   },
   {
     question: 'Can I share my finished artwork?',
     answer:
-      'Absolutely! We encourage you to share your creations. A community gallery feature is coming soon where you can upload your finished pieces and see how others interpreted the same background. In the meantime, share on social media and tag us.',
+      'We\'d love to see what you create! A community gallery is coming soon. For now, share on social media — we\'re building something special for artists like you.',
+  },
+  {
+    question: 'I have feedback or questions. How do I contact you?',
+    answer:
+      'Email us at hello@freereversecoloring.com — we read every message.',
   },
 ]
 
 function FAQ() {
   return (
     <>
+      <div id="faq" />
       <SectionIntro
         eyebrow="FAQ"
         title="Frequently asked questions"
@@ -313,7 +332,7 @@ function FAQ() {
                   <dt className="font-display text-lg font-semibold text-neutral-950">
                     {faq.question}
                   </dt>
-                  <dd className="mt-4 text-base text-neutral-600">
+                  <dd className="mt-4 text-base text-neutral-600 whitespace-pre-line">
                     {faq.answer}
                   </dd>
                 </Border>
@@ -332,16 +351,16 @@ function Stats() {
       <Container>
         <FadeIn className="flex items-center gap-x-8">
           <h2 className="text-center font-display text-sm font-semibold tracking-wider text-white sm:text-left">
-            Trusted by artists, educators, and coloring enthusiasts
+            A new way to create art
           </h2>
           <div className="h-px flex-auto bg-neutral-800" />
         </FadeIn>
         <FadeInStagger faster>
           <dl className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {[
-              { value: '100%', label: 'Free forever' },
-              { value: 'Weekly', label: 'New designs every Wednesday' },
-              { value: 'AI-Powered', label: 'Unique watercolor art' },
+              { value: 'Free', label: 'Always, no catch' },
+              { value: 'Weekly', label: 'Fresh designs every Wednesday' },
+              { value: '3 Designs', label: 'Unique watercolors each week' },
             ].map((stat) => (
               <FadeIn key={stat.label}>
                 <div className="flex flex-col items-center gap-2 text-center">

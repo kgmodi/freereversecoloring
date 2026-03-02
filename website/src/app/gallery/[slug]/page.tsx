@@ -45,12 +45,14 @@ function formatTheme(theme: string): string {
 function DifficultyBadge({ difficulty }: { difficulty: string }) {
   const colors: Record<string, string> = {
     easy: 'bg-green-50 text-green-700 ring-green-600/20',
+    beginner: 'bg-green-50 text-green-700 ring-green-600/20',
     medium: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
     advanced: 'bg-red-50 text-red-700 ring-red-600/20',
   }
 
   const labels: Record<string, string> = {
     easy: 'Beginner Friendly',
+    beginner: 'Beginner Friendly',
     medium: 'Intermediate',
     advanced: 'Advanced',
   }
