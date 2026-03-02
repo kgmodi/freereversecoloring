@@ -30,7 +30,7 @@ Before defining requirements, here is a verified inventory of what exists today.
 | Asset | State | Location |
 |-------|-------|----------|
 | **Static website** | Live on S3/CloudFront. Mobirise-generated HTML. 6 hardcoded designs with Print/Download buttons. Substack iframe for email signup. FAQs. No user accounts, no gallery, no database. | `ReverseColoringWebsiteRepo/index.html` |
-| **CDK stack** | S3 bucket (public read), CloudFront distribution (120s cache TTL), CodePipeline from CodeCommit, Route53 DNS (freereversecoloring.com + www), ACM wildcard cert. No Lambda, no DynamoDB, no API Gateway, no SES, no EventBridge. | `CdkFreeReverseColoringRepo/lib/cdk_free_reverse_coloring_repo-stack.ts` |
+| **CDK stack** | S3 bucket (public read), CloudFront distribution (120s cache TTL), Route53 DNS (freereversecoloring.com + www), ACM wildcard cert. GitHub Actions CI/CD for deployment (S3 sync + CloudFront invalidation + gated CDK deploy). No Lambda, no DynamoDB, no API Gateway, no SES, no EventBridge. | `CdkFreeReverseColoringRepo/lib/cdk_free_reverse_coloring_repo-stack.ts` |
 | **AI generation script** | Local Node.js script (`index.mjs`). Uses the OpenAI SDK directly with GPT-4o (structured JSON outputs) for theme/description generation and gpt-image-1 for native image generation. Runs manually from CLI. Has generated 12 weeks of themes, ~30 painting descriptions (JSON files in `data/week-N/`), and images for weeks 1-2, 4, 6-12 (PNG files in `images/week-N/`). Dependencies: openai ^4.80.0, axios, dotenv. | `ReverseColoringAppAI/index.mjs` |
 | **Generated content** | 12 theme-weeks defined in `themes.json`. ~2-5 painting descriptions per week (JSON). ~3-5 images per week (PNG). Total: ~30 descriptions, ~40 images. | `ReverseColoringAppAI/data/` and `images/` |
 | **Substack newsletter** | 3 published issues, stopped May 2024. Subscriber count unknown (locked in Substack). | `reversecoloring.substack.com` |
@@ -1292,7 +1292,7 @@ Before defining requirements, here is a verified inventory of what exists today.
 - Effort: L
 - Done when:
   - Next.js project initialized with TypeScript, Tailwind CSS, deployed to S3/CloudFront
-  - Build pipeline: CodeCommit push -> CodePipeline -> build -> deploy to S3
+  - Build pipeline: GitHub push -> GitHub Actions -> build -> deploy to S3 -> CloudFront invalidation
   - Homepage renders: hero section, featured designs (from Designs API), how-it-works, signup form (calls Subscribe API), FAQ
   - Lighthouse: Performance > 90, SEO > 95, Accessibility > 90
   - Mobile responsive: tested on iPhone SE, iPhone 15, iPad

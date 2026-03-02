@@ -64,7 +64,7 @@ What we have today:
 - **Second domain (freereversecoloringpages.com):** Nearly identical static site with its own Google Analytics property. Uses a Formoid form instead of Substack for email collection. Unclear where those emails go.
 - **Newsletter (reversecoloring.substack.com):** 3 published issues, then stopped in May 2024. Substack owns the subscriber relationship -- we cannot export emails freely, we cannot customize the email template, and we pay Substack a cut if we ever monetize.
 - **AI Generation Pipeline (ReverseColoringAppAI):** Node.js script using the OpenAI SDK with GPT-4o (structured outputs) + gpt-image-1 (native image generation). Generates themed descriptions (12-week plan with themes like Ocean Life, Tropical Forest, Desert Landscapes) and then generates watercolor paintings from those descriptions. Currently runs manually from the command line. Has generated content for 12 weeks of themes across ~30 painting descriptions and images.
-- **Infrastructure (CdkFreeReverseColoringRepo):** AWS CDK stack with S3 bucket, CloudFront distribution, CodePipeline from CodeCommit, Route53 DNS, ACM certificate. Solid foundation but only serves static content.
+- **Infrastructure (CdkFreeReverseColoringRepo):** AWS CDK stack with S3 bucket, CloudFront distribution, Route53 DNS, ACM certificate. GitHub Actions CI/CD pipeline for deployment. Solid foundation but only serves static content.
 - **Revenue:** $0.
 - **Active subscribers:** Unknown (locked in Substack).
 

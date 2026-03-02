@@ -1789,7 +1789,7 @@ CdkFreeReverseColoringRepo/
 |   +-- frc-stack.ts                           (main stack)
 |   +-- constructs/
 |   |   +-- dns-and-certificates.ts            (Route53, ACM)
-|   |   +-- website-hosting.ts                 (S3 website bucket, CloudFront, CodePipeline)
+|   |   +-- website-hosting.ts                 (S3 website bucket, CloudFront)
 |   |   +-- content-storage.ts                 (S3 content bucket, content CloudFront)
 |   |   +-- database.ts                        (all DynamoDB tables + GSIs)
 |   |   +-- api.ts                             (API Gateway + all route-Lambda wiring)
@@ -1982,9 +1982,8 @@ All estimates assume us-east-1 pricing. Costs are monthly.
 | **OpenAI (gpt-image-1)** | ~12 images/month at $0.04-0.08/image (high quality) | $0.96 |
 | **OpenAI (GPT-4o)** | ~12 text generations at ~$0.01/call | $0.12 |
 | **ACM** | 2 certificates | $0.00 |
-| **CodePipeline** | 1 pipeline | $1.00 |
 | | | |
-| **Total** | | **~$9.21/month** |
+| **Total** | | **~$8.21/month** |
 
 ---
 
@@ -2006,9 +2005,8 @@ All estimates assume us-east-1 pricing. Costs are monthly.
 | **OpenAI (gpt-image-1)** | ~40 images/month (free + premium) at $0.08 | $3.20 |
 | **OpenAI (GPT-4o)** | ~40 calls at ~$0.01 | $0.40 |
 | **ACM** | 2 certificates | $0.00 |
-| **CodePipeline** | 1 pipeline | $1.00 |
 | | | |
-| **Total** | | **~$28.80/month** |
+| **Total** | | **~$27.80/month** |
 
 ---
 
@@ -2030,9 +2028,8 @@ All estimates assume us-east-1 pricing. Costs are monthly.
 | **OpenAI (gpt-image-1)** | ~100 images/month at $0.08 | $8.00 |
 | **OpenAI (GPT-4o)** | ~100 calls at ~$0.01 | $1.00 |
 | **ACM** | 2 certificates | $0.00 |
-| **CodePipeline** | 1 pipeline | $1.00 |
 | | | |
-| **Total** | | **~$83.00/month** |
+| **Total** | | **~$82.00/month** |
 
 ### 9.4 Cost vs Revenue Summary
 
@@ -2249,11 +2246,11 @@ console.log(JSON.stringify({
 |-----------|--------------|-------------|
 | Website hosting | S3 + CloudFront with Mobirise HTML | S3 + CloudFront with Next.js static export |
 | DNS | Route 53 hosted zone (exists) | Same, add content subdomain + API subdomain |
-| CDK stack | Single stack with S3 + CloudFront + CodePipeline | Expanded stack with all services |
+| CDK stack | Single stack with S3 + CloudFront (GitHub Actions CI/CD) | Expanded stack with all services |
 | AI pipeline | Local Node.js script with dotenv/OpenAI SDK | Lambda function with Secrets Manager/OpenAI SDK |
 | Email | Substack iframe embed | SES with DynamoDB subscriber management |
 | Subscriber data | Substack (not owned) | DynamoDB (owned) |
-| CodeCommit repos | 2 repos (CDK + Website) | Keep, add Lambda code to CDK repo |
+| Source control | GitHub (kgmodi/freereversecoloring) | Same, add Lambda code to CDK repo |
 
 ### Migration steps
 
@@ -2263,9 +2260,9 @@ console.log(JSON.stringify({
 
 3. **Migrate Substack subscribers.** Export CSV from Substack. Send "we're moving" email via Substack with link to re-confirm on the new system. Import confirmed subscribers to DynamoDB.
 
-4. **Switch the website.** Once the Next.js site is built and tested, deploy it to the existing S3 website bucket via the existing CodePipeline. Update CloudFront to add API Gateway origin behavior.
+4. **Switch the website.** Once the Next.js site is built and tested, deploy it to the existing S3 website bucket via GitHub Actions. Update CloudFront to add API Gateway origin behavior.
 
-5. **Retire the Mobirise site.** No rollback needed -- the old HTML is version-controlled in CodeCommit.
+5. **Retire the Mobirise site.** No rollback needed -- the old HTML is version-controlled in GitHub.
 
 ---
 

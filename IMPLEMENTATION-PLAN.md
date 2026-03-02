@@ -469,10 +469,10 @@ find out -name "*.html" -path "*/designs/*" | wc -l
 
 ### Milestone 3.4: Deploy Website to S3/CloudFront
 
-**What:** Update CDK stack and CodePipeline to deploy the Next.js static site instead of the old Mobirise site.
+**What:** Update GitHub Actions deploy workflow to build and deploy the Next.js static site instead of the old Mobirise site.
 
 **Tasks:**
-- [ ] Update CodePipeline source to new website build output
+- [ ] Update GitHub Actions deploy workflow to build Next.js and sync to S3
 - [ ] Add CloudFront behavior for `/api/*` → API Gateway
 - [ ] Add cache invalidation on deploy
 - [ ] Deploy to staging subdomain first (staging.freereversecoloring.com)

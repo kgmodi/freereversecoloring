@@ -83,7 +83,7 @@ FreeReverseColoring.com is an AI-powered reverse coloring page platform. Users r
 
 - S3 bucket for static website (public read, Mobirise HTML)
 - CloudFront distribution (freereversecoloring.com + www)
-- CodePipeline: CodeCommit → S3 deploy
+- GitHub Actions: CI/CD pipeline (validate → deploy to S3 → CloudFront invalidation)
 - Route53 hosted zone with A record + CNAME (www)
 - ACM wildcard certificate (*.freereversecoloring.com)
 - SES: sandbox mode (200/day), freereversecoloring.com NOT yet verified
