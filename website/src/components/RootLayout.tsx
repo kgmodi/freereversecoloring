@@ -64,18 +64,14 @@ function Header({
         <Link
           href="/"
           aria-label="Home"
-          onMouseEnter={() => setLogoHovered(true)}
-          onMouseLeave={() => setLogoHovered(false)}
         >
           <Logomark
-            className="h-8 sm:hidden"
+            className="h-8 w-8 sm:hidden"
             invert={invert}
-            filled={logoHovered}
           />
           <Logo
-            className="hidden h-8 sm:block"
+            className="hidden sm:flex"
             invert={invert}
-            filled={logoHovered}
           />
         </Link>
         <div className="flex items-center gap-x-8">

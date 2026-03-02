@@ -219,7 +219,7 @@ export default async function DesignPage({
                   <DownloadIcon className="h-5 w-5" />
                   Download
                 </a>
-                <PrintButton>
+                <PrintButton imageSrc={design.imagePath} title={design.title}>
                   <PrinterIcon className="h-5 w-5" />
                   Print
                 </PrintButton>

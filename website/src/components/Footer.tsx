@@ -78,7 +78,7 @@ export function Footer() {
         </div>
         <div className="mt-24 mb-20 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-[#9B7BC7]/10 pt-12">
           <Link href="/" aria-label="Home">
-            <Logo className="h-8" fillOnHover />
+            <Logo />
           </Link>
           <p className="text-sm text-[#6B687D]">
             &copy; 2024-{new Date().getFullYear()} FreeReverseColoring.com. All
