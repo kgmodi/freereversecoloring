@@ -54,8 +54,8 @@ test('No CodePipeline pipelines exist', () => {
 // DynamoDB Tables
 // =========================================================================
 
-test('Three DynamoDB tables exist', () => {
-  template.resourceCountIs('AWS::DynamoDB::Table', 3);
+test('Four DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends)', () => {
+  template.resourceCountIs('AWS::DynamoDB::Table', 4);
 });
 
 test('Subscribers table has correct key schema and 4 GSIs', () => {
@@ -145,6 +145,27 @@ test('Theme backlog table has correct key schema and 1 GSI', () => {
         KeySchema: [
           { AttributeName: 'status', KeyType: 'HASH' },
           { AttributeName: 'season', KeyType: 'RANGE' },
+        ],
+        Projection: { ProjectionType: 'ALL' },
+      },
+    ],
+  });
+});
+
+test('Email sends table has correct key schema and 1 GSI', () => {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
+    TableName: 'frc-email-sends',
+    KeySchema: [
+      { AttributeName: 'sendId', KeyType: 'HASH' },
+      { AttributeName: 'sentAt', KeyType: 'RANGE' },
+    ],
+    BillingMode: 'PAY_PER_REQUEST',
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'WeekIndex',
+        KeySchema: [
+          { AttributeName: 'weekId', KeyType: 'HASH' },
+          { AttributeName: 'sentAt', KeyType: 'RANGE' },
         ],
         Projection: { ProjectionType: 'ALL' },
       },
@@ -280,8 +301,45 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Three Lambda functions exist (subscribe + confirm + generate-content)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 3);
+test('Five Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + send-weekly-email)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 5);
+});
+
+// =========================================================================
+// Lambda — Unsubscribe Handler
+// =========================================================================
+
+test('Unsubscribe Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-unsubscribe-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Unsubscribe Lambda has 10-second timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-unsubscribe-handler',
+    Timeout: 10,
+  });
+});
+
+test('Unsubscribe Lambda has 256 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-unsubscribe-handler',
+    MemorySize: 256,
+  });
+});
+
+test('Unsubscribe Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-unsubscribe-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SUBSCRIBERS_TABLE: Match.anyValue(),
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
+  });
 });
 
 // =========================================================================
@@ -335,5 +393,97 @@ test('Generate content Lambda has required environment variables', () => {
         CONTENT_BUCKET: Match.anyValue(),
       }),
     },
+  });
+});
+
+// =========================================================================
+// EventBridge — Weekly Generation Schedule
+// =========================================================================
+
+test('Two EventBridge rules exist (weekly generation + weekly email send)', () => {
+  template.resourceCountIs('AWS::Events::Rule', 2);
+});
+
+test('Weekly generation rule has correct schedule and name', () => {
+  template.hasResourceProperties('AWS::Events::Rule', {
+    Name: 'frc-weekly-generation',
+    ScheduleExpression: 'cron(0 6 ? * MON *)',
+    State: 'ENABLED',
+  });
+});
+
+test('Weekly generation rule targets the generate-content Lambda', () => {
+  template.hasResourceProperties('AWS::Events::Rule', {
+    Name: 'frc-weekly-generation',
+    Targets: Match.arrayWith([
+      Match.objectLike({
+        Arn: Match.anyValue(),
+      }),
+    ]),
+  });
+});
+
+// =========================================================================
+// Lambda — Send Weekly Email Handler
+// =========================================================================
+
+test('Send weekly email Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-send-weekly-email-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Send weekly email Lambda has 5-minute timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-send-weekly-email-handler',
+    Timeout: 300,
+  });
+});
+
+test('Send weekly email Lambda has 512 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-send-weekly-email-handler',
+    MemorySize: 512,
+  });
+});
+
+test('Send weekly email Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-send-weekly-email-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SUBSCRIBERS_TABLE: Match.anyValue(),
+        DESIGNS_TABLE: Match.anyValue(),
+        EMAIL_SENDS_TABLE: Match.anyValue(),
+        CONTENT_BUCKET: Match.anyValue(),
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
+  });
+});
+
+// =========================================================================
+// EventBridge — Weekly Email Send Schedule
+// =========================================================================
+
+test('Weekly email send rule has correct schedule and name', () => {
+  template.hasResourceProperties('AWS::Events::Rule', {
+    Name: 'frc-weekly-email-send',
+    ScheduleExpression: 'cron(0 14 ? * WED *)',
+    State: 'ENABLED',
+  });
+});
+
+test('Weekly email send rule targets the send-weekly-email Lambda with weekId input', () => {
+  template.hasResourceProperties('AWS::Events::Rule', {
+    Name: 'frc-weekly-email-send',
+    Targets: Match.arrayWith([
+      Match.objectLike({
+        Arn: Match.anyValue(),
+        Input: '{"weekId":"auto"}',
+      }),
+    ]),
   });
 });

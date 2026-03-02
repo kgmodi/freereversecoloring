@@ -15,6 +15,8 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
 import * as path from 'path';
 
 export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
@@ -284,6 +286,36 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     );
 
     // =========================================================================
+    // Lambda — Unsubscribe Handler
+    // =========================================================================
+
+    const unsubscribeHandler = new lambdaNodejs.NodejsFunction(this, 'UnsubscribeHandler', {
+      functionName: 'frc-unsubscribe-handler',
+      entry: path.join(__dirname, '..', 'lambda', 'unsubscribe', 'index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      environment: {
+        SUBSCRIBERS_TABLE: subscribersTable.tableName,
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
+      },
+    });
+
+    // Grant DynamoDB permissions: read (Query on EmailIndex) + write (UpdateItem)
+    subscribersTable.grantReadWriteData(unsubscribeHandler);
+
+    // Wire up GET /api/unsubscribe
+    const unsubscribeResource = apiResource.addResource('unsubscribe');
+    unsubscribeResource.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(unsubscribeHandler),
+    );
+
+    // =========================================================================
     // Update Subscribe Lambda with actual API Gateway URL
     // =========================================================================
 
@@ -353,6 +385,116 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     themeBacklogTable.grantReadWriteData(generateContentHandler);
     contentBucket.grantPut(generateContentHandler);
     openaiApiKeySecret.grantRead(generateContentHandler);
+
+    // =========================================================================
+    // EventBridge — Weekly Content Generation Schedule
+    // =========================================================================
+
+    // Triggers content generation every Monday at 6 AM UTC.
+    // The Lambda determines the current week ID at invocation time,
+    // so no payload is needed from the rule.
+    const weeklyGenerationRule = new events.Rule(this, 'WeeklyGenerationRule', {
+      ruleName: 'frc-weekly-generation',
+      description: 'Triggers AI content generation every Monday at 6 AM UTC',
+      schedule: events.Schedule.expression('cron(0 6 ? * MON *)'),
+    });
+
+    weeklyGenerationRule.addTarget(
+      new eventsTargets.LambdaFunction(generateContentHandler),
+    );
+
+    // =========================================================================
+    // DynamoDB — Email Sends Table
+    // =========================================================================
+
+    const emailSendsTable = new dynamodb.Table(this, 'EmailSendsTable', {
+      tableName: 'frc-email-sends',
+      partitionKey: { name: 'sendId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'sentAt', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    emailSendsTable.addGlobalSecondaryIndex({
+      indexName: 'WeekIndex',
+      partitionKey: { name: 'weekId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'sentAt', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    // =========================================================================
+    // Lambda — Send Weekly Email Handler
+    // =========================================================================
+
+    const sendWeeklyEmailHandler = new lambdaNodejs.NodejsFunction(this, 'SendWeeklyEmailHandler', {
+      functionName: 'frc-send-weekly-email-handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'send-weekly-email', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.minutes(5),
+      memorySize: 512,
+      environment: {
+        SUBSCRIBERS_TABLE: subscribersTable.tableName,
+        DESIGNS_TABLE: designsTable.tableName,
+        EMAIL_SENDS_TABLE: emailSendsTable.tableName,
+        CONTENT_BUCKET: contentBucket.bucketName,
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        API_BASE_URL: api.urlForPath('/'),  // overridden below
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        minify: false,
+        sourceMap: true,
+        // Do NOT externalize AWS SDK — bundle everything including
+        // @aws-sdk/s3-request-presigner which is not in the Lambda runtime.
+      },
+    });
+
+    // IAM permissions
+    subscribersTable.grantReadData(sendWeeklyEmailHandler);
+    designsTable.grantReadData(sendWeeklyEmailHandler);
+    emailSendsTable.grantReadWriteData(sendWeeklyEmailHandler);
+    contentBucket.grantRead(sendWeeklyEmailHandler);
+
+    // SES SendEmail permission
+    sendWeeklyEmailHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      }),
+    );
+
+    // Override API_BASE_URL with the actual API Gateway URL (same pattern as subscribe handler)
+    const cfnSendWeeklyEmailFunction = sendWeeklyEmailHandler.node.defaultChild as lambda.CfnFunction;
+    cfnSendWeeklyEmailFunction.addPropertyOverride(
+      'Environment.Variables.API_BASE_URL',
+      cdk.Fn.join('', [
+        'https://',
+        api.restApiId,
+        '.execute-api.',
+        this.region,
+        '.amazonaws.com/prod',
+      ]),
+    );
+
+    // =========================================================================
+    // EventBridge — Weekly Email Send Schedule (Wednesday 10 AM ET)
+    // =========================================================================
+
+    const weeklyEmailSendRule = new events.Rule(this, 'WeeklyEmailSendRule', {
+      ruleName: 'frc-weekly-email-send',
+      description: 'Sends weekly reverse coloring email every Wednesday at 10 AM ET (14:00 UTC)',
+      schedule: events.Schedule.expression('cron(0 14 ? * WED *)'),
+    });
+
+    // Pass weekId: "auto" so the Lambda computes the current ISO week at invocation time
+    weeklyEmailSendRule.addTarget(
+      new eventsTargets.LambdaFunction(sendWeeklyEmailHandler, {
+        event: events.RuleTargetInput.fromObject({
+          weekId: 'auto',
+        }),
+      }),
+    );
 
     // =========================================================================
     // Stack Outputs
