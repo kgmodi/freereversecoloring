@@ -1,0 +1,110 @@
+[
+  {
+    "designId": "design-mm9m0p4l-u0epu1xr",
+    "weekId": "2026-W11",
+    "title": "Spring's First Drizzle",
+    "description": "Infused with bright, cheerful tones of soft blue and lively green, this painting suggests the gentle arrival of a spring drizzle. The colors merge playfully, forming simple shapes that call to mind budding leaves and gentle rain. The overall effect is light and breezy, echoing the freshness of early spring.",
+    "theme": "april_showers",
+    "slug": "springs-first-drizzle",
+    "imagePath": "/designs/springs-first-drizzle.png",
+    "status": "pending_review",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw budding leaves and flowers emerging from the color swirls",
+      "Outline playful raindrops trickling down",
+      "Create a silhouette of a person joyfully embracing the rain"
+    ],
+    "colorPalette": [
+      "#b0d8a4",
+      "#bde0fe",
+      "#b1e6a6",
+      "#8ecae6",
+      "#e5f7ee"
+    ],
+    "tags": [
+      "easy",
+      "spring",
+      "drizzle",
+      "breezy",
+      "fresh",
+      "nature",
+      "light"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T20:07:35.503Z"
+  },
+  {
+    "designId": "design-mm9lzoqd-9an4dt15",
+    "weekId": "2026-W11",
+    "title": "Puddle Reflection",
+    "description": "This piece features expansive washes of soft grays and deep blues, evoking the moody atmosphere of a spring shower. Hinting at the reflective nature of puddles, the painting invites viewers to explore the interplay of water and light. The contrasting hues of vibrant greens add a touch of life, suggesting the rebirth of spring.",
+    "theme": "april_showers",
+    "slug": "puddle-reflection",
+    "imagePath": "/designs/puddle-reflection.png",
+    "status": "pending_review",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Illustrate the silhouettes of trees reflected in puddles",
+      "Create patterns of raindrops creating ripples in water",
+      "Add outlines of umbrellas in a distant storm scene"
+    ],
+    "colorPalette": [
+      "#4f6272",
+      "#7a8a94",
+      "#bbd9c9",
+      "#4d6d7d",
+      "#c3d7df"
+    ],
+    "tags": [
+      "abstract",
+      "rain",
+      "reflection",
+      "moody",
+      "spring",
+      "advanced",
+      "water"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T20:06:41.196Z"
+  },
+  {
+    "designId": "design-mm9lyju1-w5b5z9p1",
+    "weekId": "2026-W11",
+    "title": "Raindrop Serenade",
+    "description": "Soft swirls of muted blues and gentle grays intermingle with hints of verdant green, suggesting the fresh growth of spring. The painting captures the quiet elegance of raindrops cascading and forming ephemeral puddles. The juxtaposition of light and shadow creates a soothing, peaceful mood.",
+    "theme": "april_showers",
+    "slug": "raindrop-serenade",
+    "imagePath": "/designs/raindrop-serenade.png",
+    "status": "pending_review",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Outline the shapes of dancing raindrops",
+      "Draw delicate branches reaching towards the rain",
+      "Sketch the silhouettes of small birds perched among the droplets"
+    ],
+    "colorPalette": [
+      "#a1c3d1",
+      "#8ca0b3",
+      "#dcedc1",
+      "#acc5d4",
+      "#6b909e"
+    ],
+    "tags": [
+      "spring",
+      "watercolor",
+      "rain",
+      "serene",
+      "nature",
+      "green",
+      "blue"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2026-03-02T20:05:54.012Z"
+  }
+]

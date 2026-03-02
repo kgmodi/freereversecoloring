@@ -51,6 +51,7 @@ const CONTENT_BUCKET = process.env.CONTENT_BUCKET!;
 const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL!;
 const API_BASE_URL = process.env.API_BASE_URL!;
 const SITE_URL = process.env.SITE_URL!;
+const SES_CONFIGURATION_SET = process.env.SES_CONFIGURATION_SET;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -463,6 +464,7 @@ async function sendEmail(
           },
         },
       },
+      ConfigurationSetName: SES_CONFIGURATION_SET,
     }),
   );
 }

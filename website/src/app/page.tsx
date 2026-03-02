@@ -1,4 +1,5 @@
 import { type Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { Container } from '@/components/Container'
@@ -7,6 +8,8 @@ import { SectionIntro } from '@/components/SectionIntro'
 import { SignupForm } from '@/components/SignupForm'
 import { Border } from '@/components/Border'
 import { RootLayout } from '@/components/RootLayout'
+
+import designs from '@/data/designs.json'
 
 function HeroSection() {
   return (
@@ -149,29 +152,15 @@ function HowItWorks() {
   )
 }
 
-const featuredDesigns = [
-  {
-    title: 'Ocean Sunset',
-    theme: 'Nature',
-    gradient: 'from-orange-300 via-rose-400 to-purple-500',
-    description:
-      'Warm golden hues blending into deep violet — perfect for drawing a seaside scene.',
-  },
-  {
-    title: 'Forest Morning',
-    theme: 'Landscape',
-    gradient: 'from-emerald-300 via-teal-400 to-cyan-500',
-    description:
-      'Lush greens and cool blues evoking a misty morning deep in the woods.',
-  },
-  {
-    title: 'Spring Garden',
-    theme: 'Floral',
-    gradient: 'from-pink-300 via-fuchsia-400 to-violet-500',
-    description:
-      'Soft pinks and vibrant purples — an ideal canvas for flowers and butterflies.',
-  },
-]
+// Use the 3 most recent designs from the exported data
+const featuredDesigns = designs.slice(0, 3)
+
+function formatTheme(theme: string): string {
+  return theme
+    .split('_')
+    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
 
 function FeaturedDesigns() {
   return (
@@ -189,36 +178,55 @@ function FeaturedDesigns() {
       <Container className="mt-16">
         <FadeInStagger className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {featuredDesigns.map((design) => (
-            <FadeIn key={design.title} className="flex">
-              <article className="relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-neutral-950/5 transition hover:ring-neutral-950/10">
-                <div
-                  className={`h-64 w-full bg-gradient-to-br ${design.gradient}`}
-                  role="img"
-                  aria-label={`${design.title} watercolor background preview`}
-                />
+            <FadeIn key={design.designId} className="flex">
+              <Link
+                href={`/gallery/${design.slug}`}
+                className="group relative flex w-full flex-col overflow-hidden rounded-3xl ring-1 ring-neutral-950/5 transition hover:ring-neutral-950/15"
+              >
+                <div className="relative h-64 w-full overflow-hidden bg-neutral-100">
+                  <Image
+                    src={design.imagePath}
+                    alt={`${design.title} watercolor background preview`}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
-                      {design.theme}
+                      {formatTheme(design.theme)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${
+                        design.difficulty === 'easy'
+                          ? 'bg-green-50 text-green-700 ring-green-600/20'
+                          : design.difficulty === 'medium'
+                            ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
+                            : 'bg-red-50 text-red-700 ring-red-600/20'
+                      }`}
+                    >
+                      {design.difficulty.charAt(0).toUpperCase() +
+                        design.difficulty.slice(1)}
                     </span>
                   </div>
                   <h3 className="mt-4 font-display text-xl font-semibold text-neutral-950">
                     {design.title}
                   </h3>
-                  <p className="mt-2 text-sm text-neutral-600">
+                  <p className="mt-2 line-clamp-2 text-sm text-neutral-600">
                     {design.description}
                   </p>
                 </div>
-              </article>
+              </Link>
             </FadeIn>
           ))}
         </FadeInStagger>
         <FadeIn className="mt-10 flex justify-center">
           <Link
-            href="/work"
+            href="/gallery"
             className="inline-flex items-center gap-2 font-display text-sm font-semibold text-neutral-950 transition hover:text-neutral-700"
           >
-            View Gallery
+            View Full Gallery
             <span aria-hidden="true">&rarr;</span>
           </Link>
         </FadeIn>

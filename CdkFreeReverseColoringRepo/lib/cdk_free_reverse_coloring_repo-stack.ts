@@ -17,6 +17,8 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as path from 'path';
 
 export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
@@ -231,6 +233,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
         API_BASE_URL: api.urlForPath('/'),  // will be replaced with actual URL after deploy
         SITE_URL: 'https://freereversecoloring.com',
+        SES_CONFIGURATION_SET: 'frc-ses-config',
       },
       bundling: {
         externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
@@ -441,6 +444,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
         API_BASE_URL: api.urlForPath('/'),  // overridden below
         SITE_URL: 'https://freereversecoloring.com',
+        SES_CONFIGURATION_SET: 'frc-ses-config',
       },
       bundling: {
         minify: false,
@@ -495,6 +499,61 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         }),
       }),
     );
+
+    // =========================================================================
+    // SNS — SES Event Notifications (Bounces & Complaints)
+    // =========================================================================
+
+    const sesEventsTopic = new sns.Topic(this, 'SesEventsTopic', {
+      topicName: 'frc-ses-events',
+      displayName: 'FRC SES Bounce & Complaint Notifications',
+    });
+
+    // =========================================================================
+    // Lambda — SES Event Handler (Bounces & Complaints)
+    // =========================================================================
+
+    const sesEventHandler = new lambdaNodejs.NodejsFunction(this, 'SesEventHandler', {
+      functionName: 'frc-ses-event-handler',
+      entry: path.join(__dirname, '..', 'lambda', 'ses-events', 'index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(30),
+      memorySize: 256,
+      environment: {
+        SUBSCRIBERS_TABLE: subscribersTable.tableName,
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
+      },
+    });
+
+    // Grant DynamoDB permissions: read (Query on EmailIndex) + write (UpdateItem)
+    subscribersTable.grantReadWriteData(sesEventHandler);
+
+    // Subscribe the Lambda to the SNS topic
+    sesEventsTopic.addSubscription(
+      new snsSubscriptions.LambdaSubscription(sesEventHandler),
+    );
+
+    // =========================================================================
+    // SES — Configuration Set & Event Destination (Bounces/Complaints -> SNS)
+    // =========================================================================
+
+    // Create an SES configuration set for tracking bounce/complaint events
+    const sesConfigSet = new ses.ConfigurationSet(this, 'SesConfigurationSet', {
+      configurationSetName: 'frc-ses-config',
+    });
+
+    // Event destination: route bounce and complaint events to the SNS topic
+    new ses.ConfigurationSetEventDestination(this, 'SesEventDestination', {
+      configurationSet: sesConfigSet,
+      destination: ses.EventDestination.snsTopic(sesEventsTopic),
+      events: [
+        ses.EmailSendingEvent.BOUNCE,
+        ses.EmailSendingEvent.COMPLAINT,
+      ],
+    });
 
     // =========================================================================
     // Stack Outputs

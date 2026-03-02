@@ -301,8 +301,8 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Five Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + send-weekly-email)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 5);
+test('Six Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + send-weekly-email + ses-event-handler)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 6);
 });
 
 // =========================================================================
@@ -485,5 +485,108 @@ test('Weekly email send rule targets the send-weekly-email Lambda with weekId in
         Input: '{"weekId":"auto"}',
       }),
     ]),
+  });
+});
+
+// =========================================================================
+// SNS — SES Event Notifications
+// =========================================================================
+
+test('SNS topic exists for SES events', () => {
+  template.hasResourceProperties('AWS::SNS::Topic', {
+    TopicName: 'frc-ses-events',
+  });
+});
+
+test('One SNS topic exists', () => {
+  template.resourceCountIs('AWS::SNS::Topic', 1);
+});
+
+test('SNS topic has a Lambda subscription', () => {
+  template.hasResourceProperties('AWS::SNS::Subscription', {
+    Protocol: 'lambda',
+  });
+});
+
+// =========================================================================
+// Lambda — SES Event Handler
+// =========================================================================
+
+test('SES event handler Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-ses-event-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('SES event handler Lambda has 30-second timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-ses-event-handler',
+    Timeout: 30,
+  });
+});
+
+test('SES event handler Lambda has 256 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-ses-event-handler',
+    MemorySize: 256,
+  });
+});
+
+test('SES event handler Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-ses-event-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SUBSCRIBERS_TABLE: Match.anyValue(),
+      }),
+    },
+  });
+});
+
+// =========================================================================
+// SES — Configuration Set & Event Destination
+// =========================================================================
+
+test('SES ConfigurationSet exists with correct name', () => {
+  template.hasResourceProperties('AWS::SES::ConfigurationSet', {
+    Name: 'frc-ses-config',
+  });
+});
+
+test('SES ConfigurationSetEventDestination routes bounce and complaint events to SNS', () => {
+  template.hasResourceProperties('AWS::SES::ConfigurationSetEventDestination', {
+    EventDestination: Match.objectLike({
+      MatchingEventTypes: Match.arrayWith(['bounce', 'complaint']),
+      SnsDestination: Match.objectLike({
+        TopicARN: Match.anyValue(),
+      }),
+    }),
+  });
+});
+
+// =========================================================================
+// Subscribe Lambda includes SES_CONFIGURATION_SET env var
+// =========================================================================
+
+test('Subscribe Lambda has SES_CONFIGURATION_SET environment variable', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-subscribe-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SES_CONFIGURATION_SET: 'frc-ses-config',
+      }),
+    },
+  });
+});
+
+test('Send weekly email Lambda has SES_CONFIGURATION_SET environment variable', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-send-weekly-email-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SES_CONFIGURATION_SET: 'frc-ses-config',
+      }),
+    },
   });
 });

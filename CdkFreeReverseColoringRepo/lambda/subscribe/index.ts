@@ -25,6 +25,7 @@ const SUBSCRIBERS_TABLE = process.env.SUBSCRIBERS_TABLE!;
 const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL!;
 const API_BASE_URL = process.env.API_BASE_URL!;
 const SITE_URL = process.env.SITE_URL!;
+const SES_CONFIGURATION_SET = process.env.SES_CONFIGURATION_SET;
 
 // =========================================================================
 // Helpers
@@ -139,6 +140,7 @@ async function sendConfirmationEmail(email: string, name: string, token: string)
           },
         },
       },
+      ConfigurationSetName: SES_CONFIGURATION_SET,
     }),
   );
 }

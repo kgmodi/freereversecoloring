@@ -9,7 +9,7 @@ const navigation = [
   {
     title: 'Explore',
     links: [
-      { title: 'Gallery', href: '/work' },
+      { title: 'Gallery', href: '/gallery' },
       { title: 'How It Works', href: '/process' },
       { title: 'Blog', href: '/blog' },
       {
@@ -18,7 +18,7 @@ const navigation = [
             View all designs <span aria-hidden="true">&rarr;</span>
           </>
         ),
-        href: '/work',
+        href: '/gallery',
       },
     ],
   },
