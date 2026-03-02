@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Generated images (large binaries, not tracked)
+ReverseColoringAppAI/images/
+
+# CDK
+CdkFreeReverseColoringRepo/cdk.out/
+
+# Claude internal
+.claude/

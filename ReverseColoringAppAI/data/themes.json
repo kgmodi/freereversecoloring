@@ -1,0 +1,69 @@
+{
+    "newsletterPlan": {
+      "title": "Weekly Reverse Coloring Newsletter",
+      "description": "Receive unique reverse coloring designs every week directly to your inbox. Print and start outlining to transform pre-colored canvases into your own masterpieces.",
+      "duration": "12 weeks",
+      "weeklyThemes": [
+        {
+          "week": 1,
+          "theme": "Ocean Life",
+          "description": "Start your journey with vibrant underwater scenes."
+        },
+        {
+          "week": 2,
+          "theme": "Tropical Forest",
+          "description": "Explore the lush, dense layers of tropical foliage."
+        },
+        {
+          "week": 3,
+          "theme": "Desert Landscapes",
+          "description": "Discover the subtle beauty of desert colors and forms."
+        },
+        {
+          "week": 4,
+          "theme": "Cityscapes at Night",
+          "description": "Outline the bright lights and dark shadows of city life after sunset."
+        },
+        {
+          "week": 5,
+          "theme": "Mountain Ranges",
+          "description": "Capture the majesty of towering peaks and valleys."
+        },
+        {
+          "week": 6,
+          "theme": "Wildlife",
+          "description": "Bring intricate animal patterns to life."
+        },
+        {
+          "week": 7,
+          "theme": "Floral Gardens",
+          "description": "Focus on the intricate details of various flowers."
+        },
+        {
+          "week": 8,
+          "theme": "Oceanic Reefs",
+          "description": "Color detailed coral reefs bustling with marine life."
+        },
+        {
+          "week": 9,
+          "theme": "Abstract Art",
+          "description": "Let your creativity flow with abstract patterns and swirls."
+        },
+        {
+          "week": 10,
+          "theme": "Space and Galaxies",
+          "description": "Journey through the stars and the mysteries of the cosmos."
+        },
+        {
+          "week": 11,
+          "theme": "Famous Landmarks",
+          "description": "Explore famous sites from around the world through your colors."
+        },
+        {
+          "week": 12,
+          "theme": "Seasonal Scenery",
+          "description": "End your journey with the distinct colors of the four seasons."
+        }
+      ]
+    }
+  }

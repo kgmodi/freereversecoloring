@@ -1,0 +1,20 @@
+{
+  "name": "reversecoloringappai",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "themes": "node index.mjs themes",
+    "describe": "node index.mjs describe",
+    "generate": "node index.mjs generate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "AI-powered reverse coloring page generator using OpenAI GPT-4o + gpt-image-1",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.5",
+    "openai": "^4.80.0"
+  }
+}

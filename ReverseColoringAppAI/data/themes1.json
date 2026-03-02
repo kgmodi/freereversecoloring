@@ -1,0 +1,69 @@
+{
+  "newsletter_schedule": {
+    "description": "12-week Reverse Coloring Newsletter",
+    "intro": "Each week, get ready to unleash your creativity with our unique reverse coloring designs! Just print your weekly design from the email and start transforming pre-colored canvases into your own artistic creations.",
+    "frequency": "Weekly",
+    "details": [
+      {
+        "week": 1,
+        "theme": "Ocean Wonders",
+        "delivery_date": "2023-04-03"
+      },
+      {
+        "week": 2,
+        "theme": "Enchanted Forest",
+        "delivery_date": "2023-04-10"
+      },
+      {
+        "week": 3,
+        "theme": "Abstract Artistry",
+        "delivery_date": "2023-04-17"
+      },
+      {
+        "week": 4,
+        "theme": "Vintage Vignettes",
+        "delivery_date": "2023-04-24"
+      },
+      {
+        "week": 5,
+        "theme": "City Skylines",
+        "delivery_date": "2023-05-01"
+      },
+      {
+        "week": 6,
+        "theme": "Floral Fantasy",
+        "delivery_date": "2023-05-08"
+      },
+      {
+        "week": 7,
+        "theme": "Patterns of Zen",
+        "delivery_date": "2023-05-15"
+      },
+      {
+        "week": 8,
+        "theme": "Celestial Sights",
+        "delivery_date": "2023-05-22"
+      },
+      {
+        "week": 9,
+        "theme": "Wildlife Wonders",
+        "delivery_date": "2023-05-29"
+      },
+      {
+        "week": 10,
+        "theme": "Mythological Magic",
+        "delivery_date": "2023-06-05"
+      },
+      {
+        "week": 11,
+        "theme": "Historic Landmarks",
+        "delivery_date": "2023-06-12"
+      },
+      {
+        "week": 12,
+        "theme": "Galactic Journeys",
+        "delivery_date": "2023-06-19"
+      }
+    ]
+  }
+}
