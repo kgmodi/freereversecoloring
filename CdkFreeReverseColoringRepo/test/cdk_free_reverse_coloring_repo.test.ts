@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { CdkFreeReverseColoringRepoStack } from '../lib/cdk_free_reverse_coloring_repo-stack';
 
 let template: Template;
@@ -20,8 +20,8 @@ test('S3 bucket is created with website hosting', () => {
   });
 });
 
-test('Only one S3 bucket exists', () => {
-  template.resourceCountIs('AWS::S3::Bucket', 1);
+test('Two S3 buckets exist (website + content)', () => {
+  template.resourceCountIs('AWS::S3::Bucket', 2);
 });
 
 test('CloudFront distribution is created with custom domain', () => {
@@ -186,5 +186,154 @@ test('DMARC TXT record exists in Route53', () => {
     Name: '_dmarc.freereversecoloring.com.',
     Type: 'TXT',
     ResourceRecords: ['"v=DMARC1; p=quarantine; rct=100; fo=1"'],
+  });
+});
+
+// =========================================================================
+// API Gateway — REST API
+// =========================================================================
+
+test('API Gateway REST API exists with correct name', () => {
+  template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+    Name: 'frc-api',
+  });
+});
+
+test('API Gateway has a prod deployment stage', () => {
+  template.hasResourceProperties('AWS::ApiGateway::Stage', {
+    StageName: 'prod',
+  });
+});
+
+// =========================================================================
+// Lambda — Subscribe Handler
+// =========================================================================
+
+test('Subscribe Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-subscribe-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Subscribe Lambda has 10-second timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-subscribe-handler',
+    Timeout: 10,
+  });
+});
+
+test('Subscribe Lambda has 256 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-subscribe-handler',
+    MemorySize: 256,
+  });
+});
+
+test('Subscribe Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-subscribe-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SUBSCRIBERS_TABLE: Match.anyValue(),
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
+  });
+});
+
+// =========================================================================
+// Lambda — Confirm Subscription Handler
+// =========================================================================
+
+test('Confirm Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-confirm-subscription-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Confirm Lambda has 10-second timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-confirm-subscription-handler',
+    Timeout: 10,
+  });
+});
+
+test('Confirm Lambda has 256 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-confirm-subscription-handler',
+    MemorySize: 256,
+  });
+});
+
+test('Confirm Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-confirm-subscription-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        SUBSCRIBERS_TABLE: Match.anyValue(),
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
+  });
+});
+
+test('Three Lambda functions exist (subscribe + confirm + generate-content)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 3);
+});
+
+// =========================================================================
+// S3 — Content Bucket
+// =========================================================================
+
+test('Content S3 bucket exists with BLOCK_ALL public access', () => {
+  template.hasResourceProperties('AWS::S3::Bucket', {
+    BucketName: 'frc-content-186669525308',
+    PublicAccessBlockConfiguration: {
+      BlockPublicAcls: true,
+      BlockPublicPolicy: true,
+      IgnorePublicAcls: true,
+      RestrictPublicBuckets: true,
+    },
+  });
+});
+
+// =========================================================================
+// Lambda — Content Generation
+// =========================================================================
+
+test('Generate content Lambda function exists with correct name', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-generate-content-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Generate content Lambda has 5-minute timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-generate-content-handler',
+    Timeout: 300,
+  });
+});
+
+test('Generate content Lambda has 1024 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-generate-content-handler',
+    MemorySize: 1024,
+  });
+});
+
+test('Generate content Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-generate-content-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        DESIGNS_TABLE: Match.anyValue(),
+        THEME_BACKLOG_TABLE: Match.anyValue(),
+        CONTENT_BUCKET: Match.anyValue(),
+      }),
+    },
   });
 });

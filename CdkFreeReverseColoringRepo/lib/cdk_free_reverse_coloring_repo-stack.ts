@@ -11,6 +11,11 @@ import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as ses from 'aws-cdk-lib/aws-ses';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as path from 'path';
 
 export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -182,6 +187,185 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       recordName: '_dmarc',
       values: ['v=DMARC1; p=quarantine; rct=100; fo=1'],
       ttl: Duration.minutes(60),
+    });
+
+    // =========================================================================
+    // API Gateway — REST API
+    // =========================================================================
+
+    const api = new apigateway.RestApi(this, 'FrcApi', {
+      restApiName: 'frc-api',
+      description: 'FreeReverseColoring API — subscribe, confirm, and manage subscribers',
+      deployOptions: {
+        stageName: 'prod',
+      },
+      defaultCorsPreflightOptions: {
+        allowOrigins: [
+          'https://freereversecoloring.com',
+          'https://www.freereversecoloring.com',
+          'http://localhost:3000',
+        ],
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['Content-Type'],
+      },
+    });
+
+    // /api resource
+    const apiResource = api.root.addResource('api');
+
+    // =========================================================================
+    // Lambda — Subscribe Handler
+    // =========================================================================
+
+    const subscribeHandler = new lambdaNodejs.NodejsFunction(this, 'SubscribeHandler', {
+      functionName: 'frc-subscribe-handler',
+      entry: path.join(__dirname, '..', 'lambda', 'subscribe', 'index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      environment: {
+        SUBSCRIBERS_TABLE: subscribersTable.tableName,
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        API_BASE_URL: api.urlForPath('/'),  // will be replaced with actual URL after deploy
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
+      },
+    });
+
+    // Grant DynamoDB permissions: read (Query on EmailIndex) + write (PutItem, UpdateItem)
+    subscribersTable.grantReadWriteData(subscribeHandler);
+
+    // Grant SES SendEmail permission
+    subscribeHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'], // SES does not support resource-level permissions for SendEmail
+      }),
+    );
+
+    // Wire up POST /api/subscribe
+    const subscribeResource = apiResource.addResource('subscribe');
+    subscribeResource.addMethod(
+      'POST',
+      new apigateway.LambdaIntegration(subscribeHandler),
+    );
+
+    // =========================================================================
+    // Lambda — Confirm Subscription Handler
+    // =========================================================================
+
+    const confirmHandler = new lambdaNodejs.NodejsFunction(this, 'ConfirmHandler', {
+      functionName: 'frc-confirm-subscription-handler',
+      entry: path.join(__dirname, '..', 'lambda', 'confirm', 'index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      environment: {
+        SUBSCRIBERS_TABLE: subscribersTable.tableName,
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
+      },
+    });
+
+    // Grant DynamoDB permissions: read (Query on ConfirmationTokenIndex, GetItem) + write (UpdateItem)
+    subscribersTable.grantReadWriteData(confirmHandler);
+
+    // Wire up GET /api/confirm
+    const confirmResource = apiResource.addResource('confirm');
+    confirmResource.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(confirmHandler),
+    );
+
+    // =========================================================================
+    // Update Subscribe Lambda with actual API Gateway URL
+    // =========================================================================
+
+    // Override the API_BASE_URL env var now that the API is created.
+    // The api.url includes the stage name (e.g., https://xxx.execute-api.us-east-1.amazonaws.com/prod/)
+    // We need it without trailing slash for clean URL construction.
+    const cfnSubscribeFunction = subscribeHandler.node.defaultChild as lambda.CfnFunction;
+    cfnSubscribeFunction.addPropertyOverride(
+      'Environment.Variables.API_BASE_URL',
+      cdk.Fn.join('', [
+        'https://',
+        api.restApiId,
+        '.execute-api.',
+        this.region,
+        '.amazonaws.com/prod',
+      ]),
+    );
+
+    // =========================================================================
+    // S3 — Content Bucket (generated images, thumbnails, etc.)
+    // =========================================================================
+
+    const contentBucket = new s3.Bucket(this, 'ContentBucket', {
+      bucketName: `frc-content-${this.account}`,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      cors: [
+        {
+          allowedOrigins: [
+            'https://freereversecoloring.com',
+            'https://www.freereversecoloring.com',
+          ],
+          allowedMethods: [s3.HttpMethods.GET],
+          allowedHeaders: ['*'],
+          maxAge: 86400,
+        },
+      ],
+    });
+
+    // =========================================================================
+    // Lambda — Content Generation (GPT-4o + gpt-image-1)
+    // =========================================================================
+
+    const generateContentHandler = new lambdaNodejs.NodejsFunction(this, 'GenerateContentHandler', {
+      functionName: 'frc-generate-content-handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'generate-content', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.minutes(5),
+      memorySize: 1024,
+      environment: {
+        DESIGNS_TABLE: designsTable.tableName,
+        THEME_BACKLOG_TABLE: themeBacklogTable.tableName,
+        CONTENT_BUCKET: contentBucket.bucketName,
+        OPENAI_SECRET_ARN: openaiApiKeySecret.secretArn,
+      },
+      bundling: {
+        minify: false,
+        sourceMap: true,
+        // Do NOT externalize AWS SDK — let esbuild bundle it so we get
+        // consistent versions. The openai package is also bundled.
+      },
+    });
+
+    // IAM permissions for the content generation Lambda
+    designsTable.grantReadWriteData(generateContentHandler);
+    themeBacklogTable.grantReadWriteData(generateContentHandler);
+    contentBucket.grantPut(generateContentHandler);
+    openaiApiKeySecret.grantRead(generateContentHandler);
+
+    // =========================================================================
+    // Stack Outputs
+    // =========================================================================
+
+    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+      value: api.url,
+      description: 'FRC API Gateway base URL',
+    });
+
+    new cdk.CfnOutput(this, 'ContentBucketName', {
+      value: contentBucket.bucketName,
+      description: 'S3 content bucket for generated designs',
     });
 
   }
