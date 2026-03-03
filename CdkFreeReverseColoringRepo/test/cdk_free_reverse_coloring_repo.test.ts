@@ -20,8 +20,8 @@ test('S3 bucket is created with website hosting', () => {
   });
 });
 
-test('Two S3 buckets exist (website + content)', () => {
-  template.resourceCountIs('AWS::S3::Bucket', 2);
+test('Three S3 buckets exist (website + content + redirect)', () => {
+  template.resourceCountIs('AWS::S3::Bucket', 3);
 });
 
 test('CloudFront distribution is created with custom domain', () => {
@@ -32,8 +32,8 @@ test('CloudFront distribution is created with custom domain', () => {
   });
 });
 
-test('Route53 records exist (2 site + 3 DKIM + 1 MX + 1 SPF + 1 DMARC = 8)', () => {
-  template.resourceCountIs('AWS::Route53::RecordSet', 8);
+test('Route53 records exist (2 site + 3 DKIM + 1 MX + 1 SPF + 1 DMARC + 2 redirect = 10)', () => {
+  template.resourceCountIs('AWS::Route53::RecordSet', 10);
 });
 
 test('ACM certificate is created for wildcard domain', () => {
@@ -301,8 +301,8 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Six Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + send-weekly-email + ses-event-handler)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 6);
+test('Eight Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 8);
 });
 
 // =========================================================================
@@ -400,8 +400,8 @@ test('Generate content Lambda has required environment variables', () => {
 // EventBridge — Weekly Generation Schedule
 // =========================================================================
 
-test('Two EventBridge rules exist (weekly generation + weekly email send)', () => {
-  template.resourceCountIs('AWS::Events::Rule', 2);
+test('Three EventBridge rules exist (weekly generation + weekly email send + Tuesday approval reminder)', () => {
+  template.resourceCountIs('AWS::Events::Rule', 3);
 });
 
 test('Weekly generation rule has correct schedule and name', () => {
@@ -498,8 +498,8 @@ test('SNS topic exists for SES events', () => {
   });
 });
 
-test('One SNS topic exists', () => {
-  template.resourceCountIs('AWS::SNS::Topic', 1);
+test('Two SNS topics exist (SES events + CloudWatch alarms)', () => {
+  template.resourceCountIs('AWS::SNS::Topic', 2);
 });
 
 test('SNS topic has a Lambda subscription', () => {
