@@ -530,26 +530,31 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
 
     const approvalReminderHandler = new lambdaNodejs.NodejsFunction(this, 'ApprovalReminderHandler', {
       functionName: 'frc-approval-reminder-handler',
-      description: 'Sends admin reminder if designs are still pending_review on Tuesday morning',
+      description: 'Sends admin reminder with image previews if designs are still pending_review on Tuesday morning',
       runtime: lambda.Runtime.NODEJS_18_X,
       entry: path.join(__dirname, '..', 'lambda', 'approval-reminder', 'index.ts'),
       handler: 'handler',
-      timeout: Duration.seconds(15),
+      timeout: Duration.seconds(30),
       memorySize: 256,
       environment: {
         DESIGNS_TABLE: designsTable.tableName,
+        CONTENT_BUCKET: contentBucket.bucketName,
         ADMIN_EMAIL: 'kgmodi@gmail.com',
         SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
         API_BASE_URL: '', // overridden below
         ADMIN_TOKEN: adminToken,
       },
       bundling: {
-        externalModules: ['@aws-sdk/*'],
+        minify: false,
+        sourceMap: true,
+        // Do NOT externalize AWS SDK — bundle everything including
+        // @aws-sdk/s3-request-presigner which is not in the Lambda runtime.
       },
     });
 
-    // Permissions: read designs table, send email via SES
+    // Permissions: read designs table, read S3 for presigned URLs, send email via SES
     designsTable.grantReadData(approvalReminderHandler);
+    contentBucket.grantRead(approvalReminderHandler);
     approvalReminderHandler.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
