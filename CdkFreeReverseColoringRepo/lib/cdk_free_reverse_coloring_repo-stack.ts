@@ -525,6 +525,63 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     );
 
     // =========================================================================
+    // Lambda — Approval Reminder (Tuesday morning)
+    // =========================================================================
+
+    const approvalReminderHandler = new lambdaNodejs.NodejsFunction(this, 'ApprovalReminderHandler', {
+      functionName: 'frc-approval-reminder-handler',
+      description: 'Sends admin reminder if designs are still pending_review on Tuesday morning',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'approval-reminder', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.seconds(15),
+      memorySize: 256,
+      environment: {
+        DESIGNS_TABLE: designsTable.tableName,
+        ADMIN_EMAIL: 'kgmodi@gmail.com',
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        API_BASE_URL: '', // overridden below
+        ADMIN_TOKEN: adminToken,
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+      },
+    });
+
+    // Permissions: read designs table, send email via SES
+    designsTable.grantReadData(approvalReminderHandler);
+    approvalReminderHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      }),
+    );
+
+    // Override API_BASE_URL with actual API Gateway URL
+    const cfnApprovalReminderFunction = approvalReminderHandler.node.defaultChild as lambda.CfnFunction;
+    cfnApprovalReminderFunction.addPropertyOverride(
+      'Environment.Variables.API_BASE_URL',
+      cdk.Fn.join('', [
+        'https://',
+        api.restApiId,
+        '.execute-api.',
+        this.region,
+        '.amazonaws.com/prod',
+      ]),
+    );
+
+    // EventBridge: Tuesday 10 AM ET (14:00 UTC) — one day before Wednesday email
+    const tuesdayReminderRule = new events.Rule(this, 'TuesdayApprovalReminderRule', {
+      ruleName: 'frc-tuesday-approval-reminder',
+      description: 'Reminds admin to approve designs every Tuesday at 10 AM ET (14:00 UTC)',
+      schedule: events.Schedule.expression('cron(0 14 ? * TUE *)'),
+    });
+
+    tuesdayReminderRule.addTarget(
+      new eventsTargets.LambdaFunction(approvalReminderHandler),
+    );
+
+    // =========================================================================
     // DynamoDB — Email Sends Table
     // =========================================================================
 
