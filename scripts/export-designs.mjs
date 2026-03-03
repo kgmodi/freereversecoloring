@@ -114,7 +114,8 @@ async function main() {
       theme: d.theme,
       slug: d.slug,
       imagePath: `/designs/${d.slug}.png`,
-      s3Key: d.s3Key,
+      // Pipeline designs store s3Key explicitly; legacy designs need it derived
+      s3Key: d.s3Key || `designs/${d.weekId}/${d.slug}.png`,
       status: d.status,
       difficulty: d.difficulty,
       drawingPrompts: d.drawingPrompts || [],

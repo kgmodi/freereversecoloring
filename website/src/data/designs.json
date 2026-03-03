@@ -7,7 +7,7 @@
     "theme": "mystical_forest",
     "slug": "mystical-dawn",
     "imagePath": "/designs/mystical-dawn.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "advanced",
     "drawingPrompts": [
       "Illustrate intricate patterns of mythical flowers.",
@@ -41,7 +41,7 @@
     "theme": "butterfly_meadow",
     "slug": "ethereal-meadow-dance",
     "imagePath": "/designs/ethereal-meadow-dance.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "advanced",
     "drawingPrompts": [
       "Create detailed butterfly wing patterns amid the dark purple areas.",
@@ -77,7 +77,7 @@
     "theme": "mystical_forest",
     "slug": "twilight-paths",
     "imagePath": "/designs/twilight-paths.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "easy",
     "drawingPrompts": [
       "Outline the glow of mystical lanterns along a path.",
@@ -111,7 +111,7 @@
     "theme": "mystical_forest",
     "slug": "enchanted-canopy",
     "imagePath": "/designs/enchanted-canopy.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "medium",
     "drawingPrompts": [
       "Draw a hidden fairy perched on a branch.",
@@ -145,7 +145,7 @@
     "theme": "butterfly_meadow",
     "slug": "fluttering-harmony",
     "imagePath": "/designs/fluttering-harmony.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "medium",
     "drawingPrompts": [
       "Outline the silhouettes of butterflies taking off or landing.",
@@ -180,7 +180,7 @@
     "theme": "butterfly_meadow",
     "slug": "butterfly-serenade",
     "imagePath": "/designs/butterfly-serenade.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "easy",
     "drawingPrompts": [
       "Draw the outlines of butterflies wings using the purple accents as guides.",
@@ -216,7 +216,7 @@
     "theme": "april_showers",
     "slug": "springs-first-drizzle",
     "imagePath": "/designs/springs-first-drizzle.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "easy",
     "drawingPrompts": [
       "Draw budding leaves and flowers emerging from the color swirls",
@@ -252,7 +252,7 @@
     "theme": "april_showers",
     "slug": "puddle-reflection",
     "imagePath": "/designs/puddle-reflection.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "advanced",
     "drawingPrompts": [
       "Illustrate the silhouettes of trees reflected in puddles",
@@ -288,7 +288,7 @@
     "theme": "april_showers",
     "slug": "raindrop-serenade",
     "imagePath": "/designs/raindrop-serenade.png",
-    "status": "pending_review",
+    "status": "approved",
     "difficulty": "medium",
     "drawingPrompts": [
       "Outline the shapes of dancing raindrops",
@@ -315,5 +315,867 @@
     "width": 1024,
     "height": 1536,
     "createdAt": "2026-03-02T20:05:54.012Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjqi1-314e68f2",
+    "weekId": "2024-W25",
+    "title": "Seasonal Symphony",
+    "description": "The painting 'Seasonal Symphony' captures the essence of the four seasons transitioning seamlessly into each other, using the fluid and expressive medium of watercolor. The artwork avoids the use of outlines to emphasize the ephemeral and interconnected nature of the seasons. To achieve this, the composition is divided into four sections, each representing a distinct season, but instead of clear boundaries, the sections blend into one another with a gradient effect that symbolizes the cyclic and smooth flow of time.",
+    "theme": "seasonal_scenery",
+    "slug": "seasonal-symphony",
+    "imagePath": "/designs/seasonal-symphony.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "seasonal",
+      "scenery",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-17T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjoc5-a4cba012",
+    "weekId": "2024-W24",
+    "title": "Vivid Voyages",
+    "description": "",
+    "theme": "famous_landmarks",
+    "slug": "vivid-voyages",
+    "imagePath": "/designs/vivid-voyages.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "famous",
+      "landmarks",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-10T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjncs-bfbe01d3",
+    "weekId": "2024-W24",
+    "title": "Chromatic Journey: Scenes from Earth",
+    "description": "The abstract watercolor painting, under the theme 'Famous Landmarks', captures the essence of renowned sites globally in a harmonious blend of colors that flow freely without the constraint of outlines. Each landmark is represented not by its precise physical details but by specific colors and movements that evoke its unique atmosphere and cultural significance. This exploration of famous sites will be mesmerizing on a reverse color page, providing viewers a unique perspective of recognizing the landmarks through color shifts and interactions.",
+    "theme": "famous_landmarks",
+    "slug": "chromatic-journey-scenes-from-earth",
+    "imagePath": "/designs/chromatic-journey-scenes-from-earth.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "famous",
+      "landmarks",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-10T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjpdv-411adaa6",
+    "weekId": "2024-W24",
+    "title": "Whispers of the World",
+    "description": "",
+    "theme": "famous_landmarks",
+    "slug": "whispers-of-the-world",
+    "imagePath": "/designs/whispers-of-the-world.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "famous",
+      "landmarks",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-10T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjkgw-144c12d8",
+    "weekId": "2024-W23",
+    "title": "Celestial Voyage",
+    "description": "The painting 'Celestial Voyage' encapsulates the ethereal and boundless beauty of the cosmos, adopting a watercolor technique that embraces fluidity and transcends defined borders to mimic the vastness of space. The theme revolves around a dynamic journey through galaxies and stars, portrayed with a spectrum of deep blues, purples, and blacks enhanced by speckles of white and silver to represent distant celestial bodies and stardust.",
+    "theme": "space_and_galaxies",
+    "slug": "celestial-voyage",
+    "imagePath": "/designs/celestial-voyage.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "space",
+      "and",
+      "galaxies",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-03T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjlhb-c6b12f66",
+    "weekId": "2024-W23",
+    "title": "Cosmic Voyage",
+    "description": "",
+    "theme": "space_and_galaxies",
+    "slug": "cosmic-voyage",
+    "imagePath": "/designs/cosmic-voyage.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "space",
+      "and",
+      "galaxies",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-06-03T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjgwy-9a399197",
+    "weekId": "2024-W22",
+    "title": "Ephemeral Swirls",
+    "description": "",
+    "theme": "abstract_art",
+    "slug": "ephemeral-swirls",
+    "imagePath": "/designs/ephemeral-swirls.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "abstract",
+      "art",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-27T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vji62-bb67bf01",
+    "weekId": "2024-W22",
+    "title": "Nebulous Drifts",
+    "description": "Imagine creating an abstract watercolor painting titled 'Nebulous Drifts,' where colors merge and flow into each other without the confinement of outlines. Begin by selecting a palette of soft pastels intertwined with bursts of vibrant hues to represent the spontaneity and fluidity of creativity. Focus on using techniques like wet-on-wet, where watercolors are applied onto a damp surface to encourage the paint to bloom and spread into dream-like, swirling patterns.",
+    "theme": "abstract_art",
+    "slug": "nebulous-drifts",
+    "imagePath": "/designs/nebulous-drifts.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "abstract",
+      "art",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-27T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjjaf-099d7548",
+    "weekId": "2024-W22",
+    "title": "Swirling Serenity",
+    "description": "",
+    "theme": "abstract_art",
+    "slug": "swirling-serenity",
+    "imagePath": "/designs/swirling-serenity.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "abstract",
+      "art",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-27T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjd26-f823c0b5",
+    "weekId": "2024-W21",
+    "title": "Vibrant Depths: An Abstract Oceanic Reverie",
+    "description": "",
+    "theme": "oceanic_reefs",
+    "slug": "vibrant-depths-an-abstract-oceanic-reverie",
+    "imagePath": "/designs/vibrant-depths-an-abstract-oceanic-reverie.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "oceanic",
+      "reefs",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-20T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjfag-7f4e4d70",
+    "weekId": "2024-W21",
+    "title": "Vivid Depths: A Symphony of Oceanic Reefs",
+    "description": "",
+    "theme": "oceanic_reefs",
+    "slug": "vivid-depths-a-symphony-of-oceanic-reefs",
+    "imagePath": "/designs/vivid-depths-a-symphony-of-oceanic-reefs.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "oceanic",
+      "reefs",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-20T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vje3y-e9c9dde1",
+    "weekId": "2024-W21",
+    "title": "Vivid Depths",
+    "description": "",
+    "theme": "oceanic_reefs",
+    "slug": "vivid-depths",
+    "imagePath": "/designs/vivid-depths.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "oceanic",
+      "reefs",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-20T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vja1y-5356d2c3",
+    "weekId": "2024-W20",
+    "title": "Whispering Petals",
+    "description": "",
+    "theme": "floral_gardens",
+    "slug": "whispering-petals",
+    "imagePath": "/designs/whispering-petals.png",
+    "status": "approved",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "floral",
+      "gardens",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-13T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj7vz-eff60ed3",
+    "weekId": "2024-W20",
+    "title": "Whispering Blossoms",
+    "description": "",
+    "theme": "floral_gardens",
+    "slug": "whispering-blossoms",
+    "imagePath": "/designs/whispering-blossoms.png",
+    "status": "approved",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "floral",
+      "gardens",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-13T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vjbxq-2c0866ab",
+    "weekId": "2024-W20",
+    "title": "Whispers of Bloom",
+    "description": "",
+    "theme": "floral_gardens",
+    "slug": "whispers-of-bloom",
+    "imagePath": "/designs/whispers-of-bloom.png",
+    "status": "approved",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "floral",
+      "gardens",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-13T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj519-d4114311",
+    "weekId": "2024-W19",
+    "title": "Whispering Wilds",
+    "description": "The abstract watercolor painting 'Whispering Wilds' is designed to capture the essence of wildlife through the intricate patterns found in animal coats and skins, alluding to their majestic yet elusive nature. The focus will be on the fluid, intermingling colors that suggest the forms and textures of various animals such as a tiger's stripes, a leopard's spots, and the iridescent shimmer of a peacock's feathers.",
+    "theme": "wildlife",
+    "slug": "whispering-wilds",
+    "imagePath": "/designs/whispering-wilds.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "wildlife",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-06T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj3y9-8a88c847",
+    "weekId": "2024-W19",
+    "title": "Ephemeral Wild",
+    "description": "",
+    "theme": "wildlife",
+    "slug": "ephemeral-wild",
+    "imagePath": "/designs/ephemeral-wild.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "wildlife",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-05-06T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj08j-637fd417",
+    "weekId": "2024-W17",
+    "title": "Nocturnal Hues: Cityscape Reflections",
+    "description": "",
+    "theme": "cityscapes_at_night",
+    "slug": "nocturnal-hues-cityscape-reflections",
+    "imagePath": "/designs/nocturnal-hues-cityscape-reflections.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "cityscapes",
+      "at",
+      "night",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-22T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj2of-4fd2c4f6",
+    "weekId": "2024-W17",
+    "title": "Nocturnal Vibrance",
+    "description": "",
+    "theme": "cityscapes_at_night",
+    "slug": "nocturnal-vibrance",
+    "imagePath": "/designs/nocturnal-vibrance.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "cityscapes",
+      "at",
+      "night",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-22T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vj1kb-0b54d6c7",
+    "weekId": "2024-W17",
+    "title": "Nocturnal Hues: Shadow & Luminescence",
+    "description": "",
+    "theme": "cityscapes_at_night",
+    "slug": "nocturnal-hues-shadow-luminescence",
+    "imagePath": "/designs/nocturnal-hues-shadow-luminescence.png",
+    "status": "approved",
+    "difficulty": "advanced",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "cityscapes",
+      "at",
+      "night",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-22T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9viz3r-eb754fb6",
+    "weekId": "2024-W15",
+    "title": "Verdant Whispers",
+    "description": "",
+    "theme": "tropical_forest",
+    "slug": "verdant-whispers",
+    "imagePath": "/designs/verdant-whispers.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "tropical",
+      "forest",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-08T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vix8w-2f82f208",
+    "weekId": "2024-W15",
+    "title": "Veiled Verdure",
+    "description": "",
+    "theme": "tropical_forest",
+    "slug": "veiled-verdure",
+    "imagePath": "/designs/veiled-verdure.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "tropical",
+      "forest",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-08T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9viw2x-5661982e",
+    "weekId": "2024-W15",
+    "title": "Veiled Verdancy",
+    "description": "",
+    "theme": "tropical_forest",
+    "slug": "veiled-verdancy",
+    "imagePath": "/designs/veiled-verdancy.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "tropical",
+      "forest",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-08T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vits2-c479453c",
+    "weekId": "2024-W15",
+    "title": "Veiled Canopy Whispers",
+    "description": "The painting, titled 'Veiled Canopy Whispers,' aims to capture the essence of a tropical forest's diverse and dense ecosystem through the use of abstract watercolor techniques. The approach is designed to embrace the chaotic beauty of the forest, highlighting its multifaceted layers without the constriction of solid outlines, thus allowing the viewer's eye to meander through the soft swirls and organic shapes reminiscent of large tropical leaves, hanging vines, and the play of light through densely packed foliage.",
+    "theme": "tropical_forest",
+    "slug": "veiled-canopy-whispers",
+    "imagePath": "/designs/veiled-canopy-whispers.png",
+    "status": "approved",
+    "difficulty": "medium",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "tropical",
+      "forest",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-08T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9vismj-2eef82d7",
+    "weekId": "2024-W14",
+    "title": "Vibrant Depths",
+    "description": "",
+    "theme": "ocean_life",
+    "slug": "vibrant-depths",
+    "imagePath": "/designs/vibrant-depths.png",
+    "status": "approved",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "Draw outlines on the color regions to reveal hidden shapes",
+      "Add details and patterns following the color boundaries",
+      "Create your own interpretation of the scene"
+    ],
+    "colorPalette": [
+      "#808080",
+      "#A0A0A0",
+      "#606060",
+      "#C0C0C0",
+      "#404040"
+    ],
+    "tags": [
+      "ocean",
+      "life",
+      "legacy",
+      "watercolor"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-01T12:00:00.000Z"
+  },
+  {
+    "designId": "design-legacy-mm9viqvs-65680172",
+    "weekId": "2024-W14",
+    "title": "Aqua Resonance",
+    "description": "The abstract watercolor painting 'Aqua Resonance' focuses on capturing the ethereal beauty of underwater scenes, emphasizing the dynamic and vibrant life within the ocean. The use of watercolors, known for their translucency and fluidity, perfectly mimics the ocean's vast and flowing nature. This piece will intentionally avoid outlines to blend colors and shapes seamlessly, portraying a dreamlike, immersive underwater world.",
+    "theme": "ocean_life",
+    "slug": "aqua-resonance",
+    "imagePath": "/designs/aqua-resonance.png",
+    "status": "approved",
+    "difficulty": "easy",
+    "drawingPrompts": [
+      "schools of abstract fish shapes",
+      "depict movement with flowing lines and curvatures"
+    ],
+    "colorPalette": [
+      "#003366",
+      "#40E0D0",
+      "#FF6F61",
+      "#93E9BE",
+      "#007B7F"
+    ],
+    "tags": [
+      "ocean",
+      "life",
+      "legacy",
+      "watercolor",
+      "blue",
+      "turquoise"
+    ],
+    "isPremium": false,
+    "width": 1024,
+    "height": 1536,
+    "createdAt": "2024-04-01T12:00:00.000Z"
   }
 ]
