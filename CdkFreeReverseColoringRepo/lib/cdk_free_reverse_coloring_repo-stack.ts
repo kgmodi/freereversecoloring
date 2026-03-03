@@ -78,6 +78,59 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     })
 
     // =========================================================================
+    // Domain Redirect: freereversecoloringbook.com → freereversecoloring.com
+    // =========================================================================
+
+    const bookHostedZone = route53.PublicHostedZone.fromPublicHostedZoneAttributes(this, 'BookZone', {
+      zoneName: 'freereversecoloringbook.com',
+      hostedZoneId: 'Z04794052S7L3909KUMLV',
+    });
+
+    // S3 bucket configured to redirect all requests
+    const bookRedirectBucket = new s3.Bucket(this, 'BookRedirectBucket', {
+      bucketName: 'freereversecoloringbook.com',
+      websiteRedirect: {
+        hostName: 'freereversecoloring.com',
+        protocol: s3.RedirectProtocol.HTTPS,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    // ACM certificate for the redirect domain
+    const bookCertificate = new acm.Certificate(this, 'BookRedirectCertificate', {
+      domainName: 'freereversecoloringbook.com',
+      subjectAlternativeNames: ['www.freereversecoloringbook.com'],
+      validation: acm.CertificateValidation.fromDns(bookHostedZone),
+    });
+
+    // CloudFront distribution for the redirect
+    const bookRedirectDistribution = new cloudfront.Distribution(this, 'BookRedirectDistribution', {
+      defaultBehavior: {
+        origin: new origins.HttpOrigin(
+          `freereversecoloringbook.com.s3-website-${this.region}.amazonaws.com`,
+          { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY },
+        ),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+      },
+      domainNames: ['freereversecoloringbook.com', 'www.freereversecoloringbook.com'],
+      certificate: bookCertificate,
+    });
+
+    // DNS records pointing to CloudFront
+    new route53.ARecord(this, 'BookRedirectARecord', {
+      zone: bookHostedZone,
+      target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(bookRedirectDistribution)),
+    });
+
+    new route53.CnameRecord(this, 'BookRedirectWwwRecord', {
+      zone: bookHostedZone,
+      recordName: 'www',
+      domainName: bookRedirectDistribution.domainName,
+      ttl: Duration.minutes(5),
+    });
+
+    // =========================================================================
     // DynamoDB Tables
     // =========================================================================
 
@@ -381,7 +434,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         THEME_BACKLOG_TABLE: themeBacklogTable.tableName,
         CONTENT_BUCKET: contentBucket.bucketName,
         OPENAI_SECRET_ARN: openaiApiKeySecret.secretArn,
-        ADMIN_EMAIL: 'kunal@soapnoteai.com',
+        ADMIN_EMAIL: 'kgmodi@gmail.com',
         SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
         API_BASE_URL: '', // overridden below after API is created
         ADMIN_TOKEN: adminToken,
@@ -631,7 +684,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       displayName: 'FRC CloudWatch Alarm Notifications',
     });
     alarmTopic.addSubscription(
-      new snsSubscriptions.EmailSubscription('kunal@soapnoteai.com'),
+      new snsSubscriptions.EmailSubscription('kgmodi@gmail.com'),
     );
 
     // --- Alarms ---

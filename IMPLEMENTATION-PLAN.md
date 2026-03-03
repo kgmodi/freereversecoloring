@@ -30,7 +30,7 @@ These are blocking items that agents cannot resolve autonomously.
 
 | # | Item | Why It's Needed | Action Required |
 |---|------|----------------|-----------------|
-| 6 | **Decision: freereversecoloringpages.com** | Need to redirect or drop it | Say "redirect to freereversecoloring.com" or "let it expire" |
+| 6 | **Domain redirects** | Consolidate traffic to freereversecoloring.com | DONE: freereversecoloringbook.com → 301 redirect. freereversecoloringpages.com not in AWS account — transfer or register if needed. |
 | 7 | **Review and approve website design** | Final sign-off before replacing the live site | Agent will deploy to a staging URL (staging.freereversecoloring.com) for review |
 
 ### Not Needed Until Phase 3

@@ -125,7 +125,7 @@ These items require the project owner's action and CANNOT be done by agents:
 2. **SES Production Access** — Requires manual request via AWS Console (Support Center > Service limit increase)
 3. **Substack Export** — Log into reversecoloring.substack.com and export subscriber CSV
 4. **Stripe Account** — Create Stripe account, get API keys (Phase 3)
-5. **Domain freereversecoloringpages.com** — Decide: redirect to freereversecoloring.com or let expire
+5. **Domain freereversecoloringpages.com** — Not in this AWS account; needs transfer/registration if redirect desired. freereversecoloringbook.com already redirects (301) to freereversecoloring.com.
 
 ## Agent Team Instructions
 
