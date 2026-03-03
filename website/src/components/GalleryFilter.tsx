@@ -127,7 +127,7 @@ export function GalleryFilter({
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center rounded-full bg-[#9B7BC7]/10 px-2.5 py-0.5 text-xs font-semibold text-[#4A3F6B]">
-                      {formatTheme(design.theme)}
+                      {formatTheme(design.theme ?? '')}
                     </span>
                     <DifficultyBadge difficulty={design.difficulty} />
                   </div>

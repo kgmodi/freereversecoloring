@@ -192,7 +192,7 @@ export default async function DesignPage({
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center rounded-full bg-[#9B7BC7]/10 px-3 py-1 text-sm font-semibold text-[#4A3F6B]">
-                    {formatTheme(design.theme)}
+                    {formatTheme(design.theme ?? '')}
                   </span>
                   <DifficultyBadge difficulty={design.difficulty} />
                   <span className="text-sm text-[#6B687D]">
