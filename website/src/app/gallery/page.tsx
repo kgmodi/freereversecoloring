@@ -9,7 +9,7 @@ import { RootLayout } from '@/components/RootLayout'
 import { Border } from '@/components/Border'
 import { GalleryFilter } from '@/components/GalleryFilter'
 
-import designs from '@/data/designs.json'
+import designs from '@/data/designs'
 
 export const metadata: Metadata = {
   title: 'Gallery',

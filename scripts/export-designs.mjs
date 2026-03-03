@@ -104,28 +104,37 @@ async function main() {
   }
 
   // 2. Unmarshall and transform into the shape the website expects
-  const designs = items.map((item) => {
+  const allDesigns = items.map((item) => {
     const d = unmarshall(item);
     return {
-      designId: d.designId,
-      weekId: d.weekId,
-      title: d.title,
-      description: d.description,
-      theme: d.theme,
-      slug: d.slug,
-      imagePath: `/designs/${d.slug}.png`,
+      designId: d.designId || '',
+      weekId: d.weekId || '',
+      title: d.title || '',
+      description: d.description || '',
+      theme: d.theme || '',
+      slug: d.slug || '',
+      imagePath: `/designs/${d.slug || 'unknown'}.png`,
       // Pipeline designs store s3Key explicitly; legacy designs need it derived
       s3Key: d.s3Key || `designs/${d.weekId}/${d.slug}.png`,
-      status: d.status,
-      difficulty: d.difficulty,
+      status: d.status || '',
+      difficulty: d.difficulty || 'medium',
       drawingPrompts: d.drawingPrompts || [],
       colorPalette: d.colorPalette || [],
       tags: d.tags || [],
       isPremium: d.isPremium || false,
-      width: d.width,
-      height: d.height,
-      createdAt: d.createdAt,
+      width: d.width || 1024,
+      height: d.height || 1536,
+      createdAt: d.createdAt || new Date().toISOString(),
     };
+  });
+
+  // Filter out designs missing required fields (slug, title, designId)
+  const designs = allDesigns.filter((d) => {
+    if (!d.slug || !d.title || !d.designId) {
+      console.log(`  [skip] design ${d.designId || '(no id)'} — missing slug or title`);
+      return false;
+    }
+    return true;
   });
 
   // Sort by createdAt descending (newest first)
