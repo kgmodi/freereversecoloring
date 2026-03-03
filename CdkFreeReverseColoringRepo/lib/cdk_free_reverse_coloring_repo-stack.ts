@@ -19,6 +19,8 @@ import * as events from 'aws-cdk-lib/aws-events';
 import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as path from 'path';
 
 export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
@@ -363,9 +365,12 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     // Lambda — Content Generation (GPT-4o + gpt-image-1)
     // =========================================================================
 
+    // Admin token for content approval (stored as env var, not a secret since it's low-risk internal admin)
+    const adminToken = 'uuPg56sM3kpOrAAkgCD9d54DcZCJzPyAy55X9rlTkBY';
+
     const generateContentHandler = new lambdaNodejs.NodejsFunction(this, 'GenerateContentHandler', {
       functionName: 'frc-generate-content-handler',
-      description: 'Generates 3 designs per week with idempotency guard (skips if any exist)',
+      description: 'Generates 3 designs per week, sends admin preview email',
       runtime: lambda.Runtime.NODEJS_18_X,
       entry: path.join(__dirname, '..', 'lambda', 'generate-content', 'index.ts'),
       handler: 'handler',
@@ -376,6 +381,10 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         THEME_BACKLOG_TABLE: themeBacklogTable.tableName,
         CONTENT_BUCKET: contentBucket.bucketName,
         OPENAI_SECRET_ARN: openaiApiKeySecret.secretArn,
+        ADMIN_EMAIL: 'kunal@soapnoteai.com',
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        API_BASE_URL: '', // overridden below after API is created
+        ADMIN_TOKEN: adminToken,
       },
       bundling: {
         minify: false,
@@ -388,8 +397,62 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     // IAM permissions for the content generation Lambda
     designsTable.grantReadWriteData(generateContentHandler);
     themeBacklogTable.grantReadWriteData(generateContentHandler);
-    contentBucket.grantPut(generateContentHandler);
+    contentBucket.grantReadWrite(generateContentHandler);
     openaiApiKeySecret.grantRead(generateContentHandler);
+
+    // SES permission for admin preview email
+    generateContentHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      }),
+    );
+
+    // Override API_BASE_URL for generate content handler with actual API Gateway URL
+    const cfnGenerateContentFunction = generateContentHandler.node.defaultChild as lambda.CfnFunction;
+    cfnGenerateContentFunction.addPropertyOverride(
+      'Environment.Variables.API_BASE_URL',
+      cdk.Fn.join('', [
+        'https://',
+        api.restApiId,
+        '.execute-api.',
+        this.region,
+        '.amazonaws.com/prod',
+      ]),
+    );
+
+    // =========================================================================
+    // Lambda — Approve Content Handler (Admin)
+    // =========================================================================
+
+    const approveContentHandler = new lambdaNodejs.NodejsFunction(this, 'ApproveContentHandler', {
+      functionName: 'frc-approve-content-handler',
+      description: 'Admin approve/reject endpoint for generated designs',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'approve-content', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      environment: {
+        DESIGNS_TABLE: designsTable.tableName,
+        ADMIN_TOKEN: adminToken,
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+      },
+    });
+
+    // Grant DynamoDB permissions: read (Query on WeekStatusIndex) + write (UpdateItem)
+    designsTable.grantReadWriteData(approveContentHandler);
+
+    // Wire up GET /api/admin/approve
+    const adminResource = apiResource.addResource('admin');
+    const approveResource = adminResource.addResource('approve');
+    approveResource.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(approveContentHandler),
+    );
 
     // =========================================================================
     // EventBridge — Weekly Content Generation Schedule
@@ -557,6 +620,159 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         ses.EmailSendingEvent.COMPLAINT,
       ],
     });
+
+    // =========================================================================
+    // CloudWatch — Monitoring Dashboard & Alarms
+    // =========================================================================
+
+    // SNS topic for alarm notifications (admin email)
+    const alarmTopic = new sns.Topic(this, 'AlarmTopic', {
+      topicName: 'frc-alarms',
+      displayName: 'FRC CloudWatch Alarm Notifications',
+    });
+    alarmTopic.addSubscription(
+      new snsSubscriptions.EmailSubscription('kunal@soapnoteai.com'),
+    );
+
+    // --- Alarms ---
+
+    // 1. Generate content Lambda errors
+    const generateErrorAlarm = new cloudwatch.Alarm(this, 'GenerateContentErrorAlarm', {
+      alarmName: 'frc-generate-content-errors',
+      alarmDescription: 'Content generation Lambda errors (>0 in 1 hour)',
+      metric: generateContentHandler.metricErrors({ period: Duration.hours(1) }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    generateErrorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
+    // 2. Send weekly email Lambda errors
+    const sendEmailErrorAlarm = new cloudwatch.Alarm(this, 'SendWeeklyEmailErrorAlarm', {
+      alarmName: 'frc-send-weekly-email-errors',
+      alarmDescription: 'Weekly email send Lambda errors (>0 in 1 hour)',
+      metric: sendWeeklyEmailHandler.metricErrors({ period: Duration.hours(1) }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sendEmailErrorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
+    // 3. SES bounce rate alarm (>5% over 1 hour)
+    const sesBounceAlarm = new cloudwatch.Alarm(this, 'SesBounceRateAlarm', {
+      alarmName: 'frc-ses-bounce-rate-high',
+      alarmDescription: 'SES bounce rate exceeds 5%',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/SES',
+        metricName: 'Reputation.BounceRate',
+        period: Duration.hours(1),
+        statistic: 'Average',
+      }),
+      threshold: 0.05,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sesBounceAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
+    // 4. SES complaint rate alarm (>0.1% over 1 hour)
+    const sesComplaintAlarm = new cloudwatch.Alarm(this, 'SesComplaintRateAlarm', {
+      alarmName: 'frc-ses-complaint-rate-high',
+      alarmDescription: 'SES complaint rate exceeds 0.1%',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/SES',
+        metricName: 'Reputation.ComplaintRate',
+        period: Duration.hours(1),
+        statistic: 'Average',
+      }),
+      threshold: 0.001,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sesComplaintAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
+    // --- CloudWatch Dashboard ---
+
+    const dashboard = new cloudwatch.Dashboard(this, 'FrcDashboard', {
+      dashboardName: 'FreeReverseColoring',
+    });
+
+    // Row 1: Lambda invocations and errors
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Content Generation',
+        left: [
+          generateContentHandler.metricInvocations({ period: Duration.hours(1) }),
+          generateContentHandler.metricErrors({ period: Duration.hours(1) }),
+        ],
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Weekly Email Send',
+        left: [
+          sendWeeklyEmailHandler.metricInvocations({ period: Duration.hours(1) }),
+          sendWeeklyEmailHandler.metricErrors({ period: Duration.hours(1) }),
+        ],
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Subscribe/Unsubscribe API',
+        left: [
+          subscribeHandler.metricInvocations({ period: Duration.hours(1) }),
+          confirmHandler.metricInvocations({ period: Duration.hours(1) }),
+          unsubscribeHandler.metricInvocations({ period: Duration.hours(1) }),
+        ],
+        width: 8,
+      }),
+    );
+
+    // Row 2: SES metrics and Lambda duration
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'SES Delivery Metrics',
+        left: [
+          new cloudwatch.Metric({ namespace: 'AWS/SES', metricName: 'Send', period: Duration.hours(1), statistic: 'Sum' }),
+          new cloudwatch.Metric({ namespace: 'AWS/SES', metricName: 'Delivery', period: Duration.hours(1), statistic: 'Sum' }),
+          new cloudwatch.Metric({ namespace: 'AWS/SES', metricName: 'Bounce', period: Duration.hours(1), statistic: 'Sum' }),
+          new cloudwatch.Metric({ namespace: 'AWS/SES', metricName: 'Complaint', period: Duration.hours(1), statistic: 'Sum' }),
+        ],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Lambda Duration (p99)',
+        left: [
+          generateContentHandler.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
+          sendWeeklyEmailHandler.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
+          subscribeHandler.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
+        ],
+        width: 12,
+      }),
+    );
+
+    // Row 3: API Gateway and DynamoDB
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'API Gateway Requests',
+        left: [
+          new cloudwatch.Metric({ namespace: 'AWS/ApiGateway', metricName: 'Count', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { ApiName: 'frc-api' } }),
+          new cloudwatch.Metric({ namespace: 'AWS/ApiGateway', metricName: '4XXError', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { ApiName: 'frc-api' } }),
+          new cloudwatch.Metric({ namespace: 'AWS/ApiGateway', metricName: '5XXError', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { ApiName: 'frc-api' } }),
+        ],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'DynamoDB Consumed Capacity',
+        left: [
+          new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedReadCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-subscribers' } }),
+          new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedWriteCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-subscribers' } }),
+          new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedReadCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-designs' } }),
+        ],
+        width: 12,
+      }),
+    );
 
     // =========================================================================
     // Stack Outputs

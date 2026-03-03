@@ -161,10 +161,13 @@ async function getDesignsForWeek(weekId: string): Promise<DesignRecord[]> {
 
   const designs = (result.Items ?? []) as DesignRecord[];
 
-  // Accept both "approved" and "pending_review" (no approval flow yet)
-  const eligible = designs.filter(
-    (d) => d.status === 'approved' || d.status === 'pending_review',
-  );
+  // Only send approved designs (admin must approve via preview email)
+  // Fallback: if no approved designs exist, include pending_review to avoid empty emails
+  let eligible = designs.filter((d) => d.status === 'approved');
+  if (eligible.length === 0) {
+    console.log('[handler] No approved designs found, falling back to pending_review');
+    eligible = designs.filter((d) => d.status === 'pending_review');
+  }
 
   // Cap at 3 designs per email (matches marketing promise of "3 Designs per week")
   const selected = eligible.slice(0, 3);

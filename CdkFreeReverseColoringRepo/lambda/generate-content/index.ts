@@ -20,7 +20,9 @@ import {
   PutCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import {
   generateDesignDescriptions,
   generateImage,
@@ -40,6 +42,7 @@ const dynamoClient = DynamoDBDocumentClient.from(
 );
 
 const s3Client = new S3Client({ region: 'us-east-1' });
+const sesClient = new SESv2Client({ region: 'us-east-1' });
 
 // ---------------------------------------------------------------------------
 // Environment variables
@@ -48,6 +51,10 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 const DESIGNS_TABLE = process.env.DESIGNS_TABLE!;
 const THEME_BACKLOG_TABLE = process.env.THEME_BACKLOG_TABLE!;
 const CONTENT_BUCKET = process.env.CONTENT_BUCKET!;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL || '';
+const API_BASE_URL = process.env.API_BASE_URL || '';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -252,6 +259,99 @@ async function uploadImageToS3(
 }
 
 // ---------------------------------------------------------------------------
+// Admin Preview Email
+// ---------------------------------------------------------------------------
+
+async function sendAdminPreviewEmail(
+  weekId: string,
+  themeName: string,
+  designIds: string[],
+  descriptions: DesignDescription[],
+): Promise<void> {
+  // Generate presigned URLs for the design images
+  const imageUrls: string[] = [];
+  const year = weekId.substring(0, 4);
+  const weekNum = weekId.substring(5);
+
+  for (const desc of descriptions) {
+    const s3Key = `designs/${year}/${weekNum}/${desc.slug}.png`;
+    const url = await getSignedUrl(s3Client, new GetObjectCommand({
+      Bucket: CONTENT_BUCKET,
+      Key: s3Key,
+    }), { expiresIn: 604800 }); // 7 days
+    imageUrls.push(url);
+  }
+
+  const displayTheme = themeName
+    .split('_')
+    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+
+  const approveAllUrl = `${API_BASE_URL}/api/admin/approve?weekId=${weekId}&action=approve-all&token=${ADMIN_TOKEN}`;
+
+  const designCardsHtml = descriptions.map((d, i) => {
+    const designId = designIds[i];
+    const approveUrl = `${API_BASE_URL}/api/admin/approve?designId=${encodeURIComponent(designId)}&weekId=${weekId}&action=approve&token=${ADMIN_TOKEN}`;
+    const rejectUrl = `${API_BASE_URL}/api/admin/approve?designId=${encodeURIComponent(designId)}&weekId=${weekId}&action=reject&token=${ADMIN_TOKEN}`;
+
+    return `
+    <div style="margin-bottom: 32px; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <img src="${imageUrls[i]}" alt="${d.title}" style="width: 100%; max-width: 500px; border-radius: 8px; display: block;" />
+      <h3 style="margin: 12px 0 4px; color: #2D3748;">${d.title}</h3>
+      <span style="display: inline-block; padding: 2px 10px; background: ${d.difficulty === 'easy' ? '#C6F6D5' : d.difficulty === 'medium' ? '#FEFCBF' : '#FED7D7'}; border-radius: 12px; font-size: 12px; font-weight: 600;">${d.difficulty}</span>
+      <p style="margin: 8px 0; color: #4A5568; font-size: 14px;">${d.description}</p>
+      <div style="margin-top: 12px;">
+        <a href="${approveUrl}" style="display: inline-block; padding: 8px 20px; background: #48BB78; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px; margin-right: 8px;">Approve</a>
+        <a href="${rejectUrl}" style="display: inline-block; padding: 8px 20px; background: #FC8181; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Reject</a>
+      </div>
+    </div>`;
+  }).join('\n');
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Review: ${weekId} Designs</title></head>
+<body style="margin: 0; padding: 0; background: #F7FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; padding: 24px; background: linear-gradient(135deg, #6B46C1, #9F7AEA); border-radius: 12px; margin-bottom: 24px;">
+    <h1 style="margin: 0; color: white; font-size: 22px;">New Designs Ready for Review</h1>
+    <p style="margin: 8px 0 0; color: #E9D8FD; font-size: 14px;">${weekId} &middot; ${displayTheme} &middot; ${descriptions.length} designs</p>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 24px;">
+    <a href="${approveAllUrl}" style="display: inline-block; padding: 14px 32px; background: #48BB78; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">Approve All ${descriptions.length} Designs</a>
+  </div>
+
+  ${designCardsHtml}
+
+  <div style="text-align: center; margin-top: 24px; padding: 16px; color: #A0AEC0; font-size: 12px;">
+    FreeReverseColoring.com Admin &middot; ${weekId}
+  </div>
+</div>
+</body>
+</html>`;
+
+  const text = `New designs for ${weekId} (${displayTheme})\n\nApprove all: ${approveAllUrl}\n\n${descriptions.map((d, i) => `${i + 1}. ${d.title} (${d.difficulty})\n   ${d.description}`).join('\n\n')}`;
+
+  await sesClient.send(
+    new SendEmailCommand({
+      FromEmailAddress: SES_FROM_EMAIL,
+      Destination: { ToAddresses: [ADMIN_EMAIL] },
+      Content: {
+        Simple: {
+          Subject: { Data: `[FRC Admin] Review ${descriptions.length} new designs for ${weekId}`, Charset: 'UTF-8' },
+          Body: {
+            Html: { Data: html, Charset: 'UTF-8' },
+            Text: { Data: text, Charset: 'UTF-8' },
+          },
+        },
+      },
+    }),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Handler
 // ---------------------------------------------------------------------------
 
@@ -410,6 +510,18 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
     // -----------------------------------------------------------------------
     if (designIds.length > 0) {
       await markThemeAsUsed(theme.themeId, theme.createdAt, weekId);
+    }
+
+    // -----------------------------------------------------------------------
+    // Step 6: Send admin preview email (best-effort, don't fail generation)
+    // -----------------------------------------------------------------------
+    if (designIds.length > 0 && ADMIN_EMAIL && SES_FROM_EMAIL) {
+      try {
+        await sendAdminPreviewEmail(weekId, theme.theme, designIds, descriptions);
+        console.log(`[handler] Admin preview email sent to ${ADMIN_EMAIL}`);
+      } catch (err) {
+        console.error(`[handler] Failed to send admin preview (non-fatal):`, err);
+      }
     }
 
     // -----------------------------------------------------------------------
