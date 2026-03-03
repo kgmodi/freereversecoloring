@@ -227,8 +227,8 @@ function FeaturedDesigns() {
                             : 'bg-red-50 text-red-700 ring-red-600/20'
                       }`}
                     >
-                      {design.difficulty.charAt(0).toUpperCase() +
-                        design.difficulty.slice(1)}
+                      {(design.difficulty ?? '').charAt(0).toUpperCase() +
+                        (design.difficulty ?? '').slice(1)}
                     </span>
                   </div>
                   <h3 className="mt-4 font-display text-xl font-semibold text-[#2D2B3D]">
