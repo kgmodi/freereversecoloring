@@ -28,5 +28,8 @@ website/out/
 # Scripts
 scripts/node_modules/
 
+# Legal analysis (confidential, not for public repo)
+TRADEMARK-ANALYSIS.md
+
 # Claude internal
 .claude/

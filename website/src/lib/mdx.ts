@@ -31,10 +31,11 @@ export interface Article {
   date: string
   title: string
   description: string
+  heroImage?: string
   author: {
     name: string
     role: string
-    image: ImagePropsWithOptionalAlt
+    image?: ImagePropsWithOptionalAlt
   }
 }
 

@@ -1,3 +1,20 @@
 User-agent: *
 Allow: /
+
+# AI crawlers — explicitly allowed for content indexing
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 Sitemap: https://www.freereversecoloring.com/sitemap.xml

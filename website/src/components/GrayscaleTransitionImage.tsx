@@ -14,7 +14,7 @@ const MotionImage = motion(Image)
 export function GrayscaleTransitionImage(
   props: Pick<
     ImageProps,
-    'src' | 'quality' | 'className' | 'sizes' | 'priority'
+    'src' | 'quality' | 'className' | 'sizes' | 'priority' | 'width' | 'height' | 'fill'
   > & { alt?: string },
 ) {
   let ref = useRef<React.ElementRef<'div'>>(null)

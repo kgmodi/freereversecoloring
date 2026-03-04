@@ -1,4 +1,6 @@
 import clsx from 'clsx'
+import Image from 'next/image'
+import Link from 'next/link'
 
 import { Blockquote } from '@/components/Blockquote'
 import { Border } from '@/components/Border'
@@ -16,7 +18,7 @@ export const MDXComponents = {
   img: function Img({
     className,
     ...props
-  }: React.ComponentPropsWithoutRef<typeof GrayscaleTransitionImage>) {
+  }: React.ComponentPropsWithoutRef<'img'>) {
     return (
       <div
         className={clsx(
@@ -24,9 +26,9 @@ export const MDXComponents = {
           className,
         )}
       >
-        <GrayscaleTransitionImage
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           {...props}
-          sizes="(min-width: 768px) 42rem, 100vw"
           className="aspect-16/10 w-full object-cover"
         />
       </div>
@@ -65,6 +67,27 @@ export const MDXComponents = {
     return <TagList className={clsx('my-6', className)} {...props} />
   },
   TagListItem,
+  QuickAnswer({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    className?: string
+  }) {
+    return (
+      <div
+        className={clsx(
+          'my-10 rounded-2xl border-l-4 border-[#9B7BC7] bg-[#F5F0FF] px-8 py-6',
+          className,
+        )}
+      >
+        <p className="mb-2 text-xs font-bold tracking-widest text-[#9B7BC7] uppercase">
+          Quick Answer
+        </p>
+        <div className="text-lg/8 font-medium text-[#2D2B3D]">{children}</div>
+      </div>
+    )
+  },
   TopTip({
     children,
     className,
@@ -83,6 +106,91 @@ export const MDXComponents = {
   },
   Typography({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
     return <div className={clsx('typography', className)} {...props} />
+  },
+  PullQuote({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    className?: string
+  }) {
+    return (
+      <figure
+        className={clsx(
+          'my-16 max-w-xl! text-center',
+          className,
+        )}
+      >
+        <blockquote className="font-display text-2xl/10 font-medium tracking-tight text-[#9B7BC7] italic sm:text-3xl/10">
+          {children}
+        </blockquote>
+      </figure>
+    )
+  },
+  InlineCTA({
+    heading = 'Get free designs every week',
+    description = 'Beautiful watercolor backgrounds delivered to your inbox. Print, grab a pen, and draw.',
+    buttonText = 'Subscribe for Free →',
+    className,
+  }: {
+    heading?: string
+    description?: string
+    buttonText?: string
+    className?: string
+  }) {
+    return (
+      <div
+        className={clsx(
+          'my-14 max-w-none! rounded-3xl bg-[#F8F5FD] px-8 py-10 text-center sm:px-12',
+          className,
+        )}
+      >
+        <p className="font-display text-xl font-medium text-[#2D2B3D] sm:text-2xl">
+          {heading}
+        </p>
+        <p className="mt-2 text-sm text-[#6B687D]">{description}</p>
+        <Link
+          href="/#signup"
+          className="mt-5 inline-block rounded-full bg-[#9B7BC7] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8A6AB5]"
+        >
+          {buttonText}
+        </Link>
+      </div>
+    )
+  },
+  DesignSpotlight({
+    designs,
+    className,
+  }: {
+    designs: Array<{ src: string; caption?: string }>
+    className?: string
+  }) {
+    return (
+      <div
+        className={clsx(
+          'my-16 max-w-none! -mx-6 sm:mx-0',
+          className,
+        )}
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {designs.map((design, i) => (
+            <div key={i} className="group overflow-hidden rounded-3xl bg-neutral-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={design.src}
+                alt={design.caption || 'Watercolor design for reverse coloring'}
+                className="aspect-4/3 w-full object-cover"
+              />
+              {design.caption && (
+                <p className="px-4 py-3 text-center text-xs text-[#9B7BC7] italic">
+                  {design.caption}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
   },
   wrapper({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
     return (
