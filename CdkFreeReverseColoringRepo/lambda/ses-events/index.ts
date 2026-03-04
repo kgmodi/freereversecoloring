@@ -39,7 +39,9 @@ const SUBSCRIBERS_TABLE = process.env.SUBSCRIBERS_TABLE!;
 // =========================================================================
 
 interface SesNotification {
-  notificationType: 'Bounce' | 'Complaint' | 'Delivery';
+  // SES v1 uses notificationType, SES v2 uses eventType
+  notificationType?: 'Bounce' | 'Complaint' | 'Delivery';
+  eventType?: 'Bounce' | 'Complaint' | 'Delivery' | 'Send' | 'Open' | 'Click';
   bounce?: {
     bounceType: 'Permanent' | 'Transient' | 'Undetermined';
     bounceSubType: string;
@@ -265,7 +267,10 @@ export async function handler(event: SNSEvent): Promise<{ statusCode: number; bo
 
       const notification: SesNotification = JSON.parse(message);
 
-      switch (notification.notificationType) {
+      // SES v2 ConfigurationSet events use "eventType", SES v1 uses "notificationType"
+      const eventType = notification.eventType ?? notification.notificationType;
+
+      switch (eventType) {
         case 'Bounce':
           await processBounce(notification);
           processedCount++;
@@ -287,7 +292,7 @@ export async function handler(event: SNSEvent): Promise<{ statusCode: number; bo
 
         default:
           console.warn(
-            `[ses-events] Unknown notification type: ${notification.notificationType}`,
+            `[ses-events] Unknown or unhandled event type: ${eventType}`,
           );
           break;
       }
