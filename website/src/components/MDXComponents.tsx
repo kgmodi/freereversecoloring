@@ -7,6 +7,10 @@ import { Border } from '@/components/Border'
 import { GrayscaleTransitionImage } from '@/components/GrayscaleTransitionImage'
 import { StatList, StatListItem } from '@/components/StatList'
 import { InlineDrawingCanvas } from '@/components/InlineDrawingCanvas'
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
+import { ComparisonTable } from '@/components/ComparisonTable'
+import { VideoEmbed } from '@/components/VideoEmbed'
+import { PinterestImage } from '@/components/PinterestImage'
 import { TagList, TagListItem } from '@/components/TagList'
 
 export const MDXComponents = {
@@ -194,6 +198,10 @@ export const MDXComponents = {
     )
   },
   InlineDrawingCanvas,
+  BeforeAfterSlider,
+  ComparisonTable,
+  VideoEmbed,
+  PinterestImage,
   wrapper({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
     return (
       <div

@@ -103,16 +103,20 @@ This changes the experience in several ways.
 
 ## A Side-by-Side Comparison
 
-| | Adult Coloring Books | Reverse Coloring |
-|---|---|---|
-| Creative decisions | Made by the illustrator | Made by you |
-| Skill required | None | None |
-| Cost | $15–$30 per book | Free (FRC weekly delivery) |
-| What you produce | Someone else's drawing, colored | Your drawing, on someone else's colors |
-| Failure mode | "I used the wrong colors" | None — there are no wrong lines |
-| Replayability | Once colored, done | Same design, different drawing every time |
-| Creative confidence built | Minimal | Yes — you made real creative decisions |
-| Supplies needed | Colored pencils or markers | One pen |
+<ComparisonTable
+  headers={["", "Adult Coloring Books", "Reverse Coloring"]}
+  rows={[
+    { feature: "Creative decisions", values: ["Made by the illustrator", "Made by you"] },
+    { feature: "Skill required", values: ["None", "None"] },
+    { feature: "Cost", values: ["$15\u201330 per book", "Free (FRC weekly delivery)"] },
+    { feature: "What you produce", values: ["Someone else\u2019s drawing, colored", "Your drawing, on someone else\u2019s colors"] },
+    { feature: "Failure mode", values: ["\"I used the wrong colors\"", "None \u2014 there are no wrong lines"] },
+    { feature: "Replayability", values: ["Once colored, done", "Same design, different drawing every time"] },
+    { feature: "Creative confidence built", values: ["Minimal", "Yes \u2014 you made real creative decisions"] },
+    { feature: "Supplies needed", values: ["Colored pencils or markers", "One pen"] },
+  ]}
+  highlightColumn={2}
+/>
 
 ## The Stress Relief Mechanism, Compared
 
