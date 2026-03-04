@@ -306,7 +306,6 @@ export function ReverseColoringDemo() {
     return () => {
       cancelled = true
       clearPendingTimeout()
-      controls.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInView, cycle])
