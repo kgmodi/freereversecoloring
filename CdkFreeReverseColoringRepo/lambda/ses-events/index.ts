@@ -1,17 +1,12 @@
 /**
  * frc-ses-event-handler
  *
- * Processes SES bounce and complaint notifications delivered via SNS.
+ * Processes all SES engagement events delivered via SNS:
+ * - Send, Delivery, Bounce, Complaint, Open, Click, Reject
  *
- * Flow:
- * 1. SES detects a bounce or complaint
- * 2. SES publishes the event to the frc-ses-events SNS topic
- * 3. SNS invokes this Lambda with the SES notification as the message body
- * 4. Lambda parses the notification, looks up the subscriber by email, and
- *    updates their status accordingly (bounced / complained)
- *
- * This prevents future sends to addresses that have bounced or complained,
- * which is critical for maintaining SES sending reputation.
+ * Actions:
+ * 1. Records every event in frc-email-events table (for analytics)
+ * 2. For Bounce/Complaint: updates subscriber status to prevent future sends
  */
 
 import { SNSEvent } from 'aws-lambda';
@@ -20,10 +15,11 @@ import {
   DynamoDBDocumentClient,
   QueryCommand,
   UpdateCommand,
+  PutCommand,
 } from '@aws-sdk/lib-dynamodb';
 
 // =========================================================================
-// Clients (reused across warm invocations)
+// Clients
 // =========================================================================
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -33,15 +29,15 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 // =========================================================================
 
 const SUBSCRIBERS_TABLE = process.env.SUBSCRIBERS_TABLE!;
+const EMAIL_EVENTS_TABLE = process.env.EMAIL_EVENTS_TABLE!;
 
 // =========================================================================
-// Types — SES Notification Structure
+// Types
 // =========================================================================
 
 interface SesNotification {
-  // SES v1 uses notificationType, SES v2 uses eventType
-  notificationType?: 'Bounce' | 'Complaint' | 'Delivery';
-  eventType?: 'Bounce' | 'Complaint' | 'Delivery' | 'Send' | 'Open' | 'Click';
+  notificationType?: string;
+  eventType?: string;
   bounce?: {
     bounceType: 'Permanent' | 'Transient' | 'Undetermined';
     bounceSubType: string;
@@ -55,12 +51,21 @@ interface SesNotification {
     feedbackId: string;
   };
   complaint?: {
-    complainedRecipients: Array<{
-      emailAddress: string;
-    }>;
+    complainedRecipients: Array<{ emailAddress: string }>;
     complaintFeedbackType?: string;
     timestamp: string;
     feedbackId: string;
+  };
+  open?: {
+    timestamp: string;
+    ipAddress?: string;
+    userAgent?: string;
+  };
+  click?: {
+    timestamp: string;
+    ipAddress?: string;
+    userAgent?: string;
+    link: string;
   };
   mail: {
     timestamp: string;
@@ -71,13 +76,9 @@ interface SesNotification {
 }
 
 // =========================================================================
-// DynamoDB Operations
+// DynamoDB — Subscriber Operations
 // =========================================================================
 
-/**
- * Look up a subscriber by email address using the EmailIndex GSI.
- * Returns the first matching subscriber or null.
- */
 async function findSubscriberByEmail(
   email: string,
 ): Promise<{ subscriberId: string; createdAt: string; status: string } | null> {
@@ -93,9 +94,6 @@ async function findSubscriberByEmail(
   return (result.Items?.[0] as { subscriberId: string; createdAt: string; status: string }) ?? null;
 }
 
-/**
- * Update a subscriber's status to 'bounced' with bounce metadata.
- */
 async function markAsBounced(
   subscriberId: string,
   createdAt: string,
@@ -119,9 +117,6 @@ async function markAsBounced(
   );
 }
 
-/**
- * Update a subscriber's status to 'complained' with complaint metadata.
- */
 async function markAsComplained(
   subscriberId: string,
   createdAt: string,
@@ -144,110 +139,113 @@ async function markAsComplained(
 }
 
 // =========================================================================
-// Bounce Processing
+// DynamoDB — Event Recording
+// =========================================================================
+
+/** Record an engagement event. TTL = 90 days. */
+async function recordEvent(
+  messageId: string,
+  eventType: string,
+  timestamp: string,
+  recipient: string,
+  details?: Record<string, unknown>,
+): Promise<void> {
+  const ttl = Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60; // 90 days
+  await ddb.send(
+    new PutCommand({
+      TableName: EMAIL_EVENTS_TABLE,
+      Item: {
+        messageId,
+        eventTimestamp: `${timestamp}#${eventType}`,
+        eventType,
+        timestamp,
+        recipient,
+        ttl,
+        ...details,
+      },
+    }),
+  );
+}
+
+// =========================================================================
+// Event Processors
 // =========================================================================
 
 async function processBounce(notification: SesNotification): Promise<void> {
   const bounce = notification.bounce;
-  if (!bounce) {
-    console.warn('[ses-events] Bounce notification missing bounce details');
-    return;
-  }
-
-  const bounceType = bounce.bounceType;
-  console.log(
-    `[ses-events] Processing ${bounceType} bounce for ${bounce.bouncedRecipients.length} recipient(s)`,
-    JSON.stringify({
-      bounceType,
-      bounceSubType: bounce.bounceSubType,
-      feedbackId: bounce.feedbackId,
-      timestamp: bounce.timestamp,
-    }),
-  );
+  if (!bounce) return;
 
   for (const recipient of bounce.bouncedRecipients) {
     const email = recipient.emailAddress.toLowerCase();
-    console.log(
-      `[ses-events] Processing bounce for: ${email}`,
-      JSON.stringify({
-        action: recipient.action,
-        status: recipient.status,
-        diagnosticCode: recipient.diagnosticCode,
-      }),
-    );
+    console.log(`[ses-events] Bounce (${bounce.bounceType}): ${email}`);
+
+    await recordEvent(notification.mail.messageId, 'Bounce', bounce.timestamp, email, {
+      bounceType: bounce.bounceType,
+      bounceSubType: bounce.bounceSubType,
+      diagnosticCode: recipient.diagnosticCode,
+    });
 
     try {
       const subscriber = await findSubscriberByEmail(email);
-      if (!subscriber) {
-        console.warn(`[ses-events] No subscriber found for bounced email: ${email}`);
-        continue;
-      }
-
-      // Skip if already bounced or complained — no need to update again
-      if (subscriber.status === 'bounced' || subscriber.status === 'complained') {
-        console.log(
-          `[ses-events] Subscriber ${email} already has status '${subscriber.status}', skipping`,
-        );
-        continue;
-      }
-
-      await markAsBounced(subscriber.subscriberId, subscriber.createdAt, bounceType);
-      console.log(
-        `[ses-events] Marked subscriber ${email} as bounced (${bounceType})`,
-      );
+      if (!subscriber) continue;
+      if (subscriber.status === 'bounced' || subscriber.status === 'complained') continue;
+      await markAsBounced(subscriber.subscriberId, subscriber.createdAt, bounce.bounceType);
+      console.log(`[ses-events] Marked ${email} as bounced`);
     } catch (err) {
-      console.error(`[ses-events] Error processing bounce for ${email}:`, err);
-      // Continue processing other recipients even if one fails
+      console.error(`[ses-events] Error updating bounce for ${email}:`, err);
     }
   }
 }
 
-// =========================================================================
-// Complaint Processing
-// =========================================================================
-
 async function processComplaint(notification: SesNotification): Promise<void> {
   const complaint = notification.complaint;
-  if (!complaint) {
-    console.warn('[ses-events] Complaint notification missing complaint details');
-    return;
-  }
-
-  console.log(
-    `[ses-events] Processing complaint for ${complaint.complainedRecipients.length} recipient(s)`,
-    JSON.stringify({
-      complaintFeedbackType: complaint.complaintFeedbackType,
-      feedbackId: complaint.feedbackId,
-      timestamp: complaint.timestamp,
-    }),
-  );
+  if (!complaint) return;
 
   for (const recipient of complaint.complainedRecipients) {
     const email = recipient.emailAddress.toLowerCase();
-    console.log(`[ses-events] Processing complaint for: ${email}`);
+    console.log(`[ses-events] Complaint: ${email}`);
+
+    await recordEvent(notification.mail.messageId, 'Complaint', complaint.timestamp, email, {
+      complaintFeedbackType: complaint.complaintFeedbackType,
+    });
 
     try {
       const subscriber = await findSubscriberByEmail(email);
-      if (!subscriber) {
-        console.warn(`[ses-events] No subscriber found for complained email: ${email}`);
-        continue;
-      }
-
-      // Skip if already complained — no need to update again
-      if (subscriber.status === 'complained') {
-        console.log(
-          `[ses-events] Subscriber ${email} already has status 'complained', skipping`,
-        );
-        continue;
-      }
-
+      if (!subscriber) continue;
+      if (subscriber.status === 'complained') continue;
       await markAsComplained(subscriber.subscriberId, subscriber.createdAt);
-      console.log(`[ses-events] Marked subscriber ${email} as complained`);
+      console.log(`[ses-events] Marked ${email} as complained`);
     } catch (err) {
-      console.error(`[ses-events] Error processing complaint for ${email}:`, err);
-      // Continue processing other recipients even if one fails
+      console.error(`[ses-events] Error updating complaint for ${email}:`, err);
     }
   }
+}
+
+async function processOpen(notification: SesNotification): Promise<void> {
+  const open = notification.open;
+  if (!open) return;
+
+  const recipient = notification.mail.destination[0]?.toLowerCase() ?? 'unknown';
+  console.log(`[ses-events] Open: ${recipient}`);
+
+  await recordEvent(notification.mail.messageId, 'Open', open.timestamp, recipient, {
+    ipAddress: open.ipAddress,
+    userAgent: open.userAgent,
+  });
+}
+
+async function processClick(notification: SesNotification): Promise<void> {
+  const click = notification.click;
+  if (!click) return;
+
+  const recipient = notification.mail.destination[0]?.toLowerCase() ?? 'unknown';
+  console.log(`[ses-events] Click: ${recipient} -> ${click.link}`);
+
+  await recordEvent(notification.mail.messageId, 'Click', click.timestamp, recipient, {
+    link: click.link,
+    ipAddress: click.ipAddress,
+    userAgent: click.userAgent,
+  });
 }
 
 // =========================================================================
@@ -255,58 +253,56 @@ async function processComplaint(notification: SesNotification): Promise<void> {
 // =========================================================================
 
 export async function handler(event: SNSEvent): Promise<{ statusCode: number; body: string }> {
-  console.log('[ses-events] Received SNS event with', event.Records.length, 'record(s)');
+  console.log('[ses-events] Received', event.Records.length, 'record(s)');
 
   let processedCount = 0;
   let errorCount = 0;
 
   for (const record of event.Records) {
     try {
-      const message = record.Sns.Message;
-      console.log('[ses-events] Processing SNS message:', message);
-
-      const notification: SesNotification = JSON.parse(message);
-
-      // SES v2 ConfigurationSet events use "eventType", SES v1 uses "notificationType"
+      const notification: SesNotification = JSON.parse(record.Sns.Message);
       const eventType = notification.eventType ?? notification.notificationType;
+
+      // Record Send/Delivery/Reject as simple events
+      if (eventType === 'Send' || eventType === 'Delivery' || eventType === 'Reject') {
+        const recipient = notification.mail.destination[0]?.toLowerCase() ?? 'unknown';
+        await recordEvent(
+          notification.mail.messageId,
+          eventType,
+          notification.mail.timestamp,
+          recipient,
+        );
+        processedCount++;
+        continue;
+      }
 
       switch (eventType) {
         case 'Bounce':
           await processBounce(notification);
           processedCount++;
           break;
-
         case 'Complaint':
           await processComplaint(notification);
           processedCount++;
           break;
-
-        case 'Delivery':
-          // Delivery notifications are informational only — log and skip
-          console.log(
-            '[ses-events] Delivery notification received (no action needed):',
-            JSON.stringify(notification.mail),
-          );
+        case 'Open':
+          await processOpen(notification);
           processedCount++;
           break;
-
+        case 'Click':
+          await processClick(notification);
+          processedCount++;
+          break;
         default:
-          console.warn(
-            `[ses-events] Unknown or unhandled event type: ${eventType}`,
-          );
+          console.warn(`[ses-events] Unhandled event type: ${eventType}`);
           break;
       }
     } catch (err) {
-      console.error('[ses-events] Error processing SNS record:', err);
+      console.error('[ses-events] Error processing record:', err);
       errorCount++;
     }
   }
 
-  const summary = `Processed ${processedCount} notification(s), ${errorCount} error(s)`;
-  console.log(`[ses-events] ${summary}`);
-
-  return {
-    statusCode: 200,
-    body: summary,
-  };
+  console.log(`[ses-events] Done: ${processedCount} processed, ${errorCount} errors`);
+  return { statusCode: 200, body: `${processedCount} processed, ${errorCount} errors` };
 }

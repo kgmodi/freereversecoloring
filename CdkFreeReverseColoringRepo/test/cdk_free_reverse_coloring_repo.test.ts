@@ -54,8 +54,8 @@ test('No CodePipeline pipelines exist', () => {
 // DynamoDB Tables
 // =========================================================================
 
-test('Four DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends)', () => {
-  template.resourceCountIs('AWS::DynamoDB::Table', 4);
+test('Five DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends + email-events)', () => {
+  template.resourceCountIs('AWS::DynamoDB::Table', 5);
 });
 
 test('Subscribers table has correct key schema and 4 GSIs', () => {

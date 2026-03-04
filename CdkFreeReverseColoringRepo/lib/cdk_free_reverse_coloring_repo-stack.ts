@@ -605,6 +605,23 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // DynamoDB Table — Email engagement events (opens, clicks, bounces, complaints)
+    const emailEventsTable = new dynamodb.Table(this, 'EmailEventsTable', {
+      tableName: 'frc-email-events',
+      partitionKey: { name: 'messageId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'eventTimestamp', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      timeToLiveAttribute: 'ttl',
+    });
+
+    emailEventsTable.addGlobalSecondaryIndex({
+      indexName: 'EventTypeIndex',
+      partitionKey: { name: 'eventType', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'eventTimestamp', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // =========================================================================
     // Lambda — Send Weekly Email Handler
     // =========================================================================
@@ -703,14 +720,16 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       memorySize: 256,
       environment: {
         SUBSCRIBERS_TABLE: subscribersTable.tableName,
+        EMAIL_EVENTS_TABLE: emailEventsTable.tableName,
       },
       bundling: {
         externalModules: ['@aws-sdk/*'],  // available in Lambda runtime
       },
     });
 
-    // Grant DynamoDB permissions: read (Query on EmailIndex) + write (UpdateItem)
+    // Grant DynamoDB permissions
     subscribersTable.grantReadWriteData(sesEventHandler);
+    emailEventsTable.grantReadWriteData(sesEventHandler);
 
     // Subscribe the Lambda to the SNS topic
     sesEventsTopic.addSubscription(
@@ -726,13 +745,18 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       configurationSetName: 'frc-ses-config',
     });
 
-    // Event destination: route bounce and complaint events to the SNS topic
+    // Event destination: route all engagement events to the SNS topic
     new ses.ConfigurationSetEventDestination(this, 'SesEventDestination', {
       configurationSet: sesConfigSet,
       destination: ses.EventDestination.snsTopic(sesEventsTopic),
       events: [
         ses.EmailSendingEvent.BOUNCE,
         ses.EmailSendingEvent.COMPLAINT,
+        ses.EmailSendingEvent.OPEN,
+        ses.EmailSendingEvent.CLICK,
+        ses.EmailSendingEvent.SEND,
+        ses.EmailSendingEvent.DELIVERY,
+        ses.EmailSendingEvent.REJECT,
       ],
     });
 
