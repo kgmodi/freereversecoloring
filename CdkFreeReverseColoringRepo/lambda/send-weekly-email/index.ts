@@ -394,15 +394,12 @@ function buildWeeklyEmail(
                 Know someone who'd love this?
               </p>
               <p style="margin: 0 0 16px 0; font-size: 14px; color: #6B687D; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                Share your personal link &mdash; they'll get beautiful watercolor pages delivered free every week.
+                Forward this email to a friend and ask them to subscribe using the link below. They'll get free watercolor pages every week!
               </p>
               <a href="${referralUrl}"
-                 style="display: inline-block; padding: 12px 28px; border: 2px solid #9B7BC7; color: #9B7BC7; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                Share my link &rarr;
+                 style="display: inline-block; padding: 14px 32px; background-color: #9B7BC7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Subscribe for Free
               </a>
-              <p style="margin: 14px 0 0 0; font-size: 12px; color: #A0AEC0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                Or just forward this email &mdash; that works too!
-              </p>
             </td>
           </tr>
 
@@ -445,8 +442,8 @@ ${designsTextList}
 Browse all designs: ${SITE_URL}/gallery
 
 ---
-Know someone who'd love this? Share your personal link:
-${referralUrl}
+Know someone who'd love this? Forward this email!
+Your friend can subscribe here: ${referralUrl}
 
 ---
 You're receiving this because you subscribed at freereversecoloring.com.
