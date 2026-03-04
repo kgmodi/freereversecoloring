@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { SignupForm } from '@/components/SignupForm'
 import { Blockquote } from '@/components/Blockquote'
 import { Border } from '@/components/Border'
 import { GrayscaleTransitionImage } from '@/components/GrayscaleTransitionImage'
@@ -135,7 +136,6 @@ export const MDXComponents = {
   InlineCTA({
     heading = 'Get free designs every week',
     description = 'Beautiful watercolor backgrounds delivered to your inbox. Print, grab a pen, and draw.',
-    buttonText = 'Subscribe for Free →',
     className,
   }: {
     heading?: string
@@ -146,20 +146,19 @@ export const MDXComponents = {
     return (
       <div
         className={clsx(
-          'my-14 max-w-none! rounded-3xl bg-[#F8F5FD] px-8 py-10 text-center sm:px-12',
+          'my-14 max-w-none! rounded-3xl bg-[#F8F5FD] px-8 py-10 sm:px-12',
           className,
         )}
       >
-        <p className="font-display text-xl font-medium text-[#2D2B3D] sm:text-2xl">
-          {heading}
-        </p>
-        <p className="mt-2 text-sm text-[#6B687D]">{description}</p>
-        <Link
-          href="/#signup"
-          className="mt-5 inline-block rounded-full bg-[#9B7BC7] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8A6AB5]"
-        >
-          {buttonText}
-        </Link>
+        <div className="mx-auto max-w-md text-center">
+          <p className="font-display text-xl font-medium text-[#2D2B3D] sm:text-2xl">
+            {heading}
+          </p>
+          <p className="mt-2 text-sm text-[#6B687D]">{description}</p>
+          <div className="mt-6">
+            <SignupForm />
+          </div>
+        </div>
       </div>
     )
   },
