@@ -264,6 +264,8 @@ export function ReverseColoringDemo() {
   }
 
   useEffect(() => {
+    let cancelled = false
+
     if (!isInView) {
       clearPendingTimeout()
       controls.set('hidden')
@@ -271,30 +273,40 @@ export function ReverseColoringDemo() {
     }
 
     const runCycle = async () => {
-      // Drawing phase
-      await controls.start('drawing')
+      try {
+        // Drawing phase
+        await controls.start('drawing')
+        if (cancelled) return
 
-      // Hold the completed drawing
-      await new Promise<void>((resolve) => {
-        timeoutRef.current = setTimeout(resolve, HOLD_TIME * 1000)
-      })
+        // Hold the completed drawing
+        await new Promise<void>((resolve) => {
+          timeoutRef.current = setTimeout(resolve, HOLD_TIME * 1000)
+        })
+        if (cancelled) return
 
-      // Fade out
-      await controls.start('fadeOut')
+        // Fade out
+        await controls.start('fadeOut')
+        if (cancelled) return
 
-      // Pause before restart
-      await new Promise<void>((resolve) => {
-        timeoutRef.current = setTimeout(resolve, PAUSE_TIME * 1000)
-      })
+        // Pause before restart
+        await new Promise<void>((resolve) => {
+          timeoutRef.current = setTimeout(resolve, PAUSE_TIME * 1000)
+        })
+        if (cancelled) return
 
-      // Reset and start new cycle
-      setCycle((c) => c + 1)
+        // Reset and start new cycle
+        setCycle((c) => c + 1)
+      } catch {
+        // Animation interrupted (unmount or cleanup) — ignore
+      }
     }
 
     runCycle()
 
     return () => {
+      cancelled = true
       clearPendingTimeout()
+      controls.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInView, cycle])
