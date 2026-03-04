@@ -12,6 +12,8 @@ import { RootLayout } from '@/components/RootLayout'
 import { ReverseColoringDemo } from '@/components/ReverseColoringDemo'
 
 import designs from '@/data/designs'
+import { loadArticles } from '@/lib/mdx'
+import { formatDate } from '@/lib/formatDate'
 
 function HeroSection() {
   return (
@@ -256,6 +258,67 @@ function FeaturedDesigns() {
   )
 }
 
+async function BlogPreview() {
+  const articles = await loadArticles()
+  const recent = articles.slice(0, 3)
+
+  return (
+    <>
+      <SectionIntro
+        title="From the blog"
+        className="mt-24 sm:mt-32 lg:mt-40"
+      >
+        <p>
+          Tips, science, and inspiration for your creative practice.
+        </p>
+      </SectionIntro>
+      <Container className="mt-16">
+        <FadeInStagger className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {recent.map((article) => (
+            <FadeIn key={article.href} className="flex">
+              <Link
+                href={article.href}
+                className="group flex flex-col overflow-hidden rounded-3xl bg-neutral-100 transition hover:bg-neutral-200"
+              >
+                {article.heroImage && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={article.heroImage}
+                    alt={article.title}
+                    className="aspect-3/2 w-full object-cover"
+                  />
+                )}
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="text-sm text-[#9B7BC7]">
+                    <time dateTime={article.date}>
+                      {formatDate(article.date)}
+                    </time>
+                  </p>
+                  <h3 className="mt-2 font-display text-lg font-semibold text-[#2D2B3D] group-hover:text-[#9B7BC7]">
+                    {article.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-sm text-[#6B687D]">
+                    {article.description}
+                  </p>
+                </div>
+              </Link>
+            </FadeIn>
+          ))}
+        </FadeInStagger>
+        <FadeIn className="mt-10 flex justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 font-display text-sm font-semibold text-[#4A3F6B] transition hover:text-[#9B7BC7]"
+          >
+            View All Articles
+            <span aria-hidden="true">&rarr;</span>
+          </Link>
+        </FadeIn>
+      </Container>
+    </>
+  )
+}
+
 function CtaBanner() {
   return (
     <Container className="mt-24 sm:mt-32 lg:mt-40">
@@ -482,7 +545,7 @@ export const metadata: Metadata = {
     'Get free reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you add the lines.',
 }
 
-export default function Home() {
+export default async function Home() {
   return (
     <RootLayout>
       <HeroSection />
@@ -492,6 +555,8 @@ export default function Home() {
       <HowItWorks />
 
       <FeaturedDesigns />
+
+      <BlogPreview />
 
       <CtaBanner />
 
