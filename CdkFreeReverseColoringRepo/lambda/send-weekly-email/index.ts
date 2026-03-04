@@ -440,6 +440,7 @@ async function sendEmail(
   await sesClient.send(
     new SendEmailCommand({
       FromEmailAddress: SES_FROM_EMAIL,
+      ReplyToAddresses: ['hello@freereversecoloring.com'],
       Destination: { ToAddresses: [toEmail] },
       Content: {
         Simple: {
