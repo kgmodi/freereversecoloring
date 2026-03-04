@@ -12,6 +12,7 @@ import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { ComparisonTable } from '@/components/ComparisonTable'
 import { VideoEmbed } from '@/components/VideoEmbed'
 import { PinterestImage } from '@/components/PinterestImage'
+import { BlogDrawingDemo } from '@/components/BlogDrawingDemo'
 import { TagList, TagListItem } from '@/components/TagList'
 
 export const MDXComponents = {
@@ -198,6 +199,7 @@ export const MDXComponents = {
   },
   InlineDrawingCanvas,
   BeforeAfterSlider,
+  BlogDrawingDemo,
   ComparisonTable,
   VideoEmbed,
   PinterestImage,
