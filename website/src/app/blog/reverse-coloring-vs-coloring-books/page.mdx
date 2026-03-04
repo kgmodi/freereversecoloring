@@ -8,11 +8,33 @@ export const article = {
     name: 'FreeReverseColoring',
     role: 'Editorial',
   },
+  faqs: [
+    { question: 'Is reverse coloring harder than traditional coloring?', answer: 'It\'s more open, which some people experience as easier and others find briefly disorienting. Traditional coloring has implicit rules that provide structure even as they constrain you. Reverse coloring has no rules. Most people find their footing within the first few minutes.' },
+    { question: 'Do I need different art supplies for reverse coloring?', answer: 'You need less. Coloring books require colored pencils or markers. Reverse coloring requires a pen — any pen, including the most ordinary one in your desk drawer. It\'s actually less equipment-intensive than coloring books.' },
+    { question: 'Why do some people prefer coloring books even after trying reverse coloring?', answer: 'Some people genuinely prefer the meditative structure of fill-in coloring: the defined task, the clear rules, the predictable outcome. The passive quality is the appeal, not a limitation. Both reactions are legitimate.' },
+    { question: "What if I try reverse coloring and don't see anything in the colors?", answer: 'This is common on the first try. The skill of seeing shapes in abstract color develops with practice. A reliable starting technique: find the darkest part of the design and begin there. Dark areas almost always suggest depth or a boundary.' },
+  ],
 }
 
 export const metadata = {
   title: article.title,
   description: article.description,
+  alternates: { canonical: '/blog/reverse-coloring-vs-coloring-books/' },
+  openGraph: {
+    title: article.title,
+    description: article.description,
+    url: 'https://www.freereversecoloring.com/blog/reverse-coloring-vs-coloring-books/',
+    siteName: 'FreeReverseColoring',
+    images: [{ url: article.heroImage, width: 1024, height: 1024, alt: article.title }],
+    type: 'article',
+    publishedTime: article.date,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: article.title,
+    description: article.description,
+    images: [article.heroImage],
+  },
 }
 
 <QuickAnswer>

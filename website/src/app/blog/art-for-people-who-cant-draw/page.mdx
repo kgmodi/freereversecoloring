@@ -8,11 +8,34 @@ export const article = {
     name: 'FreeReverseColoring',
     role: 'Editorial',
   },
+  faqs: [
+    { question: 'What if I start drawing and it looks terrible?', answer: 'There is no "terrible" in reverse coloring because there are no predefined right answers. The purpose is not to produce gallery-worthy art but to experience the process of making something. Most people are surprised by what emerges when they stop trying to control the outcome.' },
+    { question: 'How old is too old to start drawing?', answer: 'There is no upper limit. Reverse coloring is used in senior care settings with residents in their 80s and 90s. The activity adapts to any physical ability — if you can hold a pen, you can do it.' },
+    { question: 'Can you actually learn to draw as an adult?', answer: 'Yes — drawing is a learnable skill at any age. But drawing skill is not required to experience the creative and psychological benefits of making art. Start with the experience. The skill develops naturally if you keep going.' },
+    { question: "What's the minimum I need to get started?", answer: 'A printer and a pen. Subscribe at FreeReverseColoring.com to receive a design. Print it. Pick up whatever pen is nearest. That\'s everything you need.' },
+    { question: "What if I try it and still feel like I can't draw?", answer: 'Try it again. The first session is the most self-conscious because it\'s unfamiliar. Most people who say it didn\'t work have tried once and evaluated the result immediately. Give it a few sessions before deciding.' },
+  ],
 }
 
 export const metadata = {
   title: article.title,
   description: article.description,
+  alternates: { canonical: '/blog/art-for-people-who-cant-draw/' },
+  openGraph: {
+    title: article.title,
+    description: article.description,
+    url: 'https://www.freereversecoloring.com/blog/art-for-people-who-cant-draw/',
+    siteName: 'FreeReverseColoring',
+    images: [{ url: article.heroImage, width: 1024, height: 1024, alt: article.title }],
+    type: 'article',
+    publishedTime: article.date,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: article.title,
+    description: article.description,
+    images: [article.heroImage],
+  },
 }
 
 <QuickAnswer>

@@ -71,8 +71,68 @@ export default async function BlogArticleWrapper({
     .filter(({ metadata }) => metadata !== article.metadata)
     .slice(0, 2)
 
+  const BASE_URL = 'https://www.freereversecoloring.com'
+
+  const jsonLdGraph: Record<string, unknown>[] = [
+    {
+      '@type': 'Article',
+      headline: article.title,
+      description: article.description,
+      datePublished: article.date,
+      author: {
+        '@type': 'Organization',
+        name: article.author.name,
+        url: BASE_URL,
+      },
+      publisher: {
+        '@id': `${BASE_URL}/#organization`,
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': `${BASE_URL}${article.href}`,
+      },
+      ...(article.heroImage
+        ? {
+            image: {
+              '@type': 'ImageObject',
+              url: `${BASE_URL}${article.heroImage}`,
+            },
+          }
+        : {}),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: BASE_URL + '/blog/' },
+        { '@type': 'ListItem', position: 3, name: article.title, item: `${BASE_URL}${article.href}` },
+      ],
+    },
+  ]
+
+  if (article.faqs && article.faqs.length > 0) {
+    jsonLdGraph.push({
+      '@type': 'FAQPage',
+      mainEntity: article.faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer,
+        },
+      })),
+    })
+  }
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': jsonLdGraph }
+
   return (
     <RootLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Hero image section */}
       {article.heroImage && (
         <div className="relative overflow-hidden bg-neutral-100">

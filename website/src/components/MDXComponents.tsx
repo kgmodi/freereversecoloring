@@ -6,6 +6,7 @@ import { Blockquote } from '@/components/Blockquote'
 import { Border } from '@/components/Border'
 import { GrayscaleTransitionImage } from '@/components/GrayscaleTransitionImage'
 import { StatList, StatListItem } from '@/components/StatList'
+import { InlineDrawingCanvas } from '@/components/InlineDrawingCanvas'
 import { TagList, TagListItem } from '@/components/TagList'
 
 export const MDXComponents = {
@@ -192,6 +193,7 @@ export const MDXComponents = {
       </div>
     )
   },
+  InlineDrawingCanvas,
   wrapper({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
     return (
       <div

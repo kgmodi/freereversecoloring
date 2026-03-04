@@ -37,6 +37,7 @@ export interface Article {
     role: string
     image?: ImagePropsWithOptionalAlt
   }
+  faqs?: Array<{ question: string; answer: string }>
 }
 
 export interface CaseStudy {

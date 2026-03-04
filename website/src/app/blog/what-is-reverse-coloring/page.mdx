@@ -8,11 +8,35 @@ export const article = {
     name: 'FreeReverseColoring',
     role: 'Editorial',
   },
+  faqs: [
+    { question: 'Do I need to be able to draw to try reverse coloring?', answer: 'No. Reverse coloring is specifically designed for people who don\'t consider themselves artists. The pre-colored background gives your eye a starting point, and since there are no predefined lines to stay within or replicate, any mark you make is valid.' },
+    { question: 'What kind of pen should I use?', answer: 'Any pen works. A standard ballpoint is completely fine for beginners. A fine-liner like a Micron 01 or 03 gives cleaner, more controlled lines. Gel pens produce a smooth, slightly glossy line. Avoid broad felt-tip markers that bleed through paper.' },
+    { question: 'Is reverse coloring the same as art therapy?', answer: 'Not clinically. Art therapy is a professional mental health treatment delivered by a licensed art therapist. Reverse coloring is a therapeutic art activity — self-directed, accessible, and supported by research on creative activity and wellbeing — but it is not a substitute for professional mental health care.' },
+    { question: 'Where can I find free reverse coloring pages?', answer: 'FreeReverseColoring.com delivers a new AI-generated watercolor design to your inbox every week, free. You can also browse the gallery on the site to download past designs at any time. No purchase required, ever.' },
+    { question: 'Can I use reverse coloring pages with a group?', answer: 'Yes — and it works exceptionally well in group settings. When everyone starts from the same design and produces something completely different, comparing the results becomes a natural and often surprising conversation.' },
+    { question: 'Is reverse coloring suitable for children?', answer: 'Yes, for children roughly five and up. Younger children can participate with guidance. Older children and teenagers often find reverse coloring more engaging than standard coloring books because it presents a genuine creative challenge.' },
+  ],
 }
 
 export const metadata = {
   title: article.title,
   description: article.description,
+  alternates: { canonical: '/blog/what-is-reverse-coloring/' },
+  openGraph: {
+    title: article.title,
+    description: article.description,
+    url: 'https://www.freereversecoloring.com/blog/what-is-reverse-coloring/',
+    siteName: 'FreeReverseColoring',
+    images: [{ url: article.heroImage, width: 1024, height: 1024, alt: article.title }],
+    type: 'article',
+    publishedTime: article.date,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: article.title,
+    description: article.description,
+    images: [article.heroImage],
+  },
 }
 
 <QuickAnswer>
@@ -107,6 +131,8 @@ Reverse coloring works for a wide range of people precisely because it asks noth
 6. **Stop when it feels complete.** There's no requirement to fill every part of the design. Some of the most satisfying results leave large areas of pure watercolor untouched, using drawn lines only where they add something.
 
 7. **Step back and look.** The thing you made didn't exist before you sat down. That's worth a moment.
+
+<InlineDrawingCanvas backgroundImage="/designs/fluttering-harmony.png" caption="Try it now — draw on this watercolor with your mouse or finger" />
 
 <InlineCTA heading="Try it this week — free design in your inbox" description="New watercolor background every week. Print, grab a pen, draw your outlines." />
 
