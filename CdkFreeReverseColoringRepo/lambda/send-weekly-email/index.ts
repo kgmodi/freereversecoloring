@@ -20,11 +20,6 @@ import {
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
-import {
-  S3Client,
-  GetObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // ---------------------------------------------------------------------------
 // AWS SDK Clients (reused across warm invocations)
@@ -38,7 +33,6 @@ const dynamoClient = DynamoDBDocumentClient.from(
 );
 
 const sesClient = new SESv2Client({ region: 'us-east-1' });
-const s3Client = new S3Client({ region: 'us-east-1' });
 
 // ---------------------------------------------------------------------------
 // Environment variables
@@ -47,7 +41,6 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 const SUBSCRIBERS_TABLE = process.env.SUBSCRIBERS_TABLE!;
 const DESIGNS_TABLE = process.env.DESIGNS_TABLE!;
 const EMAIL_SENDS_TABLE = process.env.EMAIL_SENDS_TABLE!;
-const CONTENT_BUCKET = process.env.CONTENT_BUCKET!;
 const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL!;
 const API_BASE_URL = process.env.API_BASE_URL!;
 const SITE_URL = process.env.SITE_URL!;
@@ -227,21 +220,6 @@ async function recordEmailSend(record: {
       Item: record,
     }),
   );
-}
-
-// ---------------------------------------------------------------------------
-// S3 — Presigned URLs
-// ---------------------------------------------------------------------------
-
-/** Generate a presigned URL for a design image (valid for 7 days). */
-async function getPresignedImageUrl(s3Key: string): Promise<string> {
-  const command = new GetObjectCommand({
-    Bucket: CONTENT_BUCKET,
-    Key: s3Key,
-  });
-
-  // 7-day expiry — covers the full week until the next email
-  return getSignedUrl(s3Client, command, { expiresIn: 604800 });
 }
 
 // ---------------------------------------------------------------------------
@@ -539,20 +517,18 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
     }
 
     // -----------------------------------------------------------------------
-    // Step 2: Generate presigned URLs for design images
+    // Step 2: Build design image URLs (public website URLs — never expire)
     // -----------------------------------------------------------------------
-    console.log(`[handler] Generating presigned URLs for ${designs.length} designs`);
+    console.log(`[handler] Building image URLs for ${designs.length} designs`);
 
-    const emailDesigns: EmailDesign[] = await Promise.all(
-      designs.map(async (d) => ({
-        title: d.title,
-        description: d.description,
-        imageUrl: await getPresignedImageUrl(d.s3Key),
-        slug: d.slug,
-        difficulty: d.difficulty,
-        drawingPrompts: d.drawingPrompts || [],
-      })),
-    );
+    const emailDesigns: EmailDesign[] = designs.map((d) => ({
+      title: d.title,
+      description: d.description,
+      imageUrl: `${SITE_URL}/designs/${d.slug}.png`,
+      slug: d.slug,
+      difficulty: d.difficulty,
+      drawingPrompts: d.drawingPrompts || [],
+    }));
 
     // Use the theme from the first design, formatted for display
     // e.g. "butterfly_meadow" → "Butterfly Meadow"

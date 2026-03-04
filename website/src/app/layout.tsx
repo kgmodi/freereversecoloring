@@ -47,10 +47,42 @@ export const metadata: Metadata = {
   },
 }
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://www.freereversecoloring.com/#organization',
+      name: 'FreeReverseColoring',
+      url: 'https://www.freereversecoloring.com/',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.freereversecoloring.com/designs/whispers-of-the-deep.webp',
+      },
+      sameAs: [],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.freereversecoloring.com/#website',
+      url: 'https://www.freereversecoloring.com/',
+      name: 'FreeReverseColoring',
+      description:
+        'Free reverse coloring pages delivered weekly. Beautiful watercolor backgrounds — you draw the outlines.',
+      publisher: {
+        '@id': 'https://www.freereversecoloring.com/#organization',
+      },
+    },
+  ],
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full bg-[#2D2B3D] text-base antialiased">
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ERGD1FQ73M"
           strategy="afterInteractive"

@@ -61,6 +61,9 @@ jobs:
           npm ci
           node export-designs.mjs
 
+      - name: Generate sitemap
+        run: node scripts/generate-sitemap.mjs
+
       - name: Install website dependencies
         working-directory: website
         run: npm ci

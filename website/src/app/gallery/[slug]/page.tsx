@@ -30,7 +30,37 @@ export async function generateMetadata({
 
   return {
     title: `${design.title} — Reverse Coloring Page`,
-    description: design.description,
+    description:
+      design.description ||
+      `Download "${design.title}" — a free reverse coloring page with a beautiful watercolor background. Print it out and draw your own outlines.`,
+    alternates: {
+      canonical: `/gallery/${design.slug}/`,
+    },
+    openGraph: {
+      title: `${design.title} — Free Reverse Coloring Page`,
+      description:
+        design.description ||
+        `Download "${design.title}" — a free reverse coloring page with a beautiful watercolor background.`,
+      url: `https://www.freereversecoloring.com/gallery/${design.slug}/`,
+      siteName: 'FreeReverseColoring',
+      images: [
+        {
+          url: design.imagePath,
+          width: design.width,
+          height: design.height,
+          alt: `${design.title} — reverse coloring page watercolor background`,
+        },
+      ],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${design.title} — Free Reverse Coloring Page`,
+      description:
+        design.description ||
+        `Download "${design.title}" — a free reverse coloring page.`,
+      images: [design.imagePath],
+    },
   }
 }
 
@@ -158,8 +188,53 @@ export default async function DesignPage({
     notFound()
   }
 
+  const designJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'ImageObject',
+        name: design.title,
+        description:
+          design.description ||
+          `Free reverse coloring page: ${design.title}`,
+        contentUrl: `https://www.freereversecoloring.com${design.imagePath}`,
+        thumbnailUrl: `https://www.freereversecoloring.com${design.imagePath}`,
+        width: design.width,
+        height: design.height,
+        encodingFormat: 'image/png',
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://www.freereversecoloring.com/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Gallery',
+            item: 'https://www.freereversecoloring.com/gallery/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: design.title,
+            item: `https://www.freereversecoloring.com/gallery/${design.slug}/`,
+          },
+        ],
+      },
+    ],
+  }
+
   return (
     <RootLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(designJsonLd) }}
+      />
       <Container className="mt-24 sm:mt-32 lg:mt-40">
         <FadeIn>
           {/* Back link */}
