@@ -88,6 +88,7 @@ interface SubscriberRecord {
   name: string;
   status: string;
   confirmationToken: string;
+  referralCode?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -239,7 +240,11 @@ function buildWeeklyEmail(
   themeName: string,
   designs: EmailDesign[],
   unsubscribeUrl: string,
+  referralCode?: string,
 ): { html: string; text: string } {
+  const referralUrl = referralCode
+    ? `${SITE_URL}/?ref=${encodeURIComponent(referralCode)}`
+    : `${SITE_URL}/#signup`;
   const designCardsHtml = designs
     .map(
       (d) => `
@@ -382,6 +387,25 @@ function buildWeeklyEmail(
             </td>
           </tr>
 
+          <!-- Share / Referral CTA -->
+          <tr>
+            <td style="background-color: #F8F5FD; padding: 28px 24px; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: #2D2B3D; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Know someone who'd love this?
+              </p>
+              <p style="margin: 0 0 16px 0; font-size: 14px; color: #6B687D; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Share your personal link &mdash; they'll get beautiful watercolor pages delivered free every week.
+              </p>
+              <a href="${referralUrl}"
+                 style="display: inline-block; padding: 12px 28px; border: 2px solid #9B7BC7; color: #9B7BC7; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Share my link &rarr;
+              </a>
+              <p style="margin: 14px 0 0 0; font-size: 12px; color: #A0AEC0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Or just forward this email &mdash; that works too!
+              </p>
+            </td>
+          </tr>
+
           <!-- Footer -->
           <tr>
             <td style="background-color: #F7FAFC; padding: 24px 20px; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -419,6 +443,10 @@ Print these watercolor backgrounds and draw your own outlines on top!
 ${designsTextList}
 
 Browse all designs: ${SITE_URL}/gallery
+
+---
+Know someone who'd love this? Share your personal link:
+${referralUrl}
 
 ---
 You're receiving this because you subscribed at freereversecoloring.com.
@@ -544,7 +572,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
     // -----------------------------------------------------------------------
     // Step 3: Get recipients
     // -----------------------------------------------------------------------
-    let recipients: Array<{ email: string; name: string; confirmationToken: string }>;
+    let recipients: Array<{ email: string; name: string; confirmationToken: string; referralCode?: string }>;
 
     if (testMode) {
       console.log(`[handler] Test mode: sending only to ${testEmail}`);
@@ -553,6 +581,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
           email: testEmail!,
           name: 'Test User',
           confirmationToken: 'test-token',
+          referralCode: 'TEST1234',
         },
       ];
     } else {
@@ -574,6 +603,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
         email: s.email,
         name: s.name || '',
         confirmationToken: s.confirmationToken,
+        referralCode: s.referralCode,
       }));
     }
 
@@ -604,6 +634,7 @@ export async function handler(event: HandlerInput): Promise<HandlerOutput> {
             themeName,
             emailDesigns,
             unsubscribeUrl,
+            recipient.referralCode,
           );
 
           await sendEmail(recipient.email, subject, html, text);
