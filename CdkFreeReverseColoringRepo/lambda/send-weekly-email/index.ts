@@ -328,38 +328,17 @@ function buildWeeklyEmail(
         <!-- Inner container (max 600px) -->
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
 
-          <!-- Header — Ink Indigo gradient, new brand palette v2 -->
+          <!-- Header — light background, branded wordmark -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1C2B35 0%, #2D4A5C 60%, #3D6070 100%); padding: 28px 20px; text-align: center;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                <tr>
-                  <td style="padding-right: 12px; vertical-align: middle;">
-                    <!-- Logomark: "The Emerging Line" — inline SVG, inverted for dark header -->
-                    <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-                      <!-- Watercolor wash — white, subtle on dark bg -->
-                      <ellipse cx="15" cy="18" rx="10.5" ry="9" transform="rotate(-8 15 18)" fill="white" fill-opacity="0.10"/>
-                      <ellipse cx="13" cy="15" rx="8.5" ry="7" transform="rotate(5 13 15)" fill="white" fill-opacity="0.08"/>
-                      <ellipse cx="20" cy="21" rx="6" ry="4.5" transform="rotate(-15 20 21)" fill="white" fill-opacity="0.06"/>
-                      <!-- The emerging pen line -->
-                      <path d="M7 10 C11 12, 14 16, 18 20 C20 22, 22 24, 25 26" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-                      <!-- Nib -->
-                      <path d="M7 10 L5.5 7.5 L7 5 L8.5 7.5 Z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
-                      <!-- Second stroke — sage tint -->
-                      <path d="M12 24 C15 21.5, 18 20, 22 18" stroke="#D4E4E0" stroke-opacity="0.55" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.5 2"/>
-                    </svg>
-                  </td>
-                  <td style="vertical-align: middle; text-align: left;">
-                    <!-- "FreeReverseColoring.com" — one word, "Reverse" lighter -->
-                    <span style="display: block; font-size: 20px; font-weight: 700; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.3px; line-height: 1.15;">
-                      Free<span style="color: rgba(255,255,255,0.7);">Reverse</span>Coloring<span style="color: rgba(255,255,255,0.5);">.com</span>
-                    </span>
-                    <!-- Tagline -->
-                    <span style="display: block; font-size: 10px; font-style: italic; color: rgba(255,255,255,0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.3px; margin-top: 4px;">
-                      The canvas is ready. You bring the story.
-                    </span>
-                  </td>
-                </tr>
-              </table>
+            <td style="background-color: #ffffff; padding: 28px 20px; text-align: center; border-bottom: 1px solid #E2E8F0;">
+              <!-- "FreeReverseColoring.com" — dark text, "Reverse" in brand purple -->
+              <span style="display: block; font-size: 26px; font-weight: 700; color: #2D2B3D; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.3px; line-height: 1.15;">
+                Free<span style="color: #9B7BC7;">Reverse</span>Coloring<span style="color: rgba(45,43,61,0.5);">.com</span>
+              </span>
+              <!-- Tagline -->
+              <span style="display: block; font-size: 13px; font-style: italic; color: #6B687D; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.2px; margin-top: 6px;">
+                The canvas is ready. You bring the story.
+              </span>
             </td>
           </tr>
 
