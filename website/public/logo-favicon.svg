@@ -1,0 +1,54 @@
+<!--
+  FreeReverseColoring — Favicon / App Icon
+  Concept: "The Paper Square" (v2) — as recommended by art expert
+
+  A rounded square (paper/page metaphor) with:
+    - Watercolor wash blobs filling the square
+    - A single crisp pen stroke crossing diagonally
+    - An "imperfect" pen border on the square itself (slightly inset, not perfectly aligned)
+    - The nib dot at top-left corner of the stroke
+
+  The imperfect border references the hand-drawn quality of the product.
+
+  Background: Parchment #FAF7F2 — warm, feels like paper
+  Use this SVG to generate favicon.ico at 16, 32, 48px.
+-->
+<svg
+  viewBox="0 0 32 32"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="FreeReverseColoring"
+>
+  <!-- Parchment background — the paper/page -->
+  <rect width="32" height="32" rx="6" fill="#FAF7F2"/>
+
+  <!-- Imperfect pen-drawn border — slightly inset, hand-drawn feel -->
+  <!-- Four segments drawn as separate paths to allow slight misalignment -->
+  <path d="M3 4 L29 3.5" stroke="#1C1917" stroke-width="0.7"
+        stroke-linecap="round" stroke-opacity="0.4"/>
+  <path d="M29 3.5 L29.2 28" stroke="#1C1917" stroke-width="0.7"
+        stroke-linecap="round" stroke-opacity="0.4"/>
+  <path d="M29.2 28 L3 28.3" stroke="#1C1917" stroke-width="0.7"
+        stroke-linecap="round" stroke-opacity="0.4"/>
+  <path d="M3 28.3 L3 4" stroke="#1C1917" stroke-width="0.7"
+        stroke-linecap="round" stroke-opacity="0.4"/>
+
+  <!-- Watercolor wash — fills most of the square -->
+  <ellipse cx="16" cy="18" rx="11" ry="10"
+           transform="rotate(-5 16 18)"
+           fill="#2D4A5C" fill-opacity="0.20"/>
+  <ellipse cx="14" cy="15" rx="9" ry="7.5"
+           transform="rotate(6 14 15)"
+           fill="#B8C9C4" fill-opacity="0.32"/>
+  <ellipse cx="20" cy="21" rx="6.5" ry="5"
+           transform="rotate(-12 20 21)"
+           fill="#A06D63" fill-opacity="0.18"/>
+
+  <!-- The pen stroke — bold, clearly readable at 16px -->
+  <path d="M6 8 C10 12, 14 17, 18 21 C20 23, 22 25, 26 27"
+        stroke="#1C1917" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Nib dot — just a circle at this scale, clearly visible -->
+  <circle cx="6" cy="8" r="1.5" fill="#2D4A5C"/>
+</svg>
