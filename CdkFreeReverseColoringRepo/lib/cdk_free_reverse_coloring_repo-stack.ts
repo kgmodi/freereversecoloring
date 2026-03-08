@@ -914,6 +914,99 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     );
 
     // =========================================================================
+    // DynamoDB — Custom Generations Table (rate-limited user generations)
+    // =========================================================================
+
+    const customGenerationsTable = new dynamodb.Table(this, 'CustomGenerationsTable', {
+      tableName: 'frc-custom-generations',
+      partitionKey: { name: 'generationId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'generatedAt', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // GSI for rate-limit queries: how many generations has this email done this month?
+    customGenerationsTable.addGlobalSecondaryIndex({
+      indexName: 'EmailMonthIndex',
+      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'monthKey', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.KEYS_ONLY,
+    });
+
+    // =========================================================================
+    // Lambda — Custom Reverse Coloring Page Generator
+    // =========================================================================
+
+    const customGenerateHandler = new lambdaNodejs.NodejsFunction(this, 'CustomGenerateHandler', {
+      functionName: 'frc-custom-generate-handler',
+      description: 'Custom reverse coloring page generator — user-prompted AI watercolor generation',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'custom-generate', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.minutes(5),
+      memorySize: 1024,
+      environment: {
+        CUSTOM_GENERATIONS_TABLE: customGenerationsTable.tableName,
+        CONTENT_BUCKET: contentBucket.bucketName,
+        OPENAI_SECRET_ARN: openaiApiKeySecret.secretArn,
+        MAX_FREE_PER_MONTH: '2',
+      },
+      bundling: {
+        minify: false,
+        sourceMap: true,
+        // Do NOT externalize AWS SDK — bundle everything including
+        // @aws-sdk/s3-request-presigner which is not in the Lambda runtime.
+      },
+    });
+
+    // IAM permissions for custom generation Lambda
+    customGenerationsTable.grantReadWriteData(customGenerateHandler);
+    contentBucket.grantReadWrite(customGenerateHandler);
+    openaiApiKeySecret.grantRead(customGenerateHandler);
+
+    // Wire up POST /api/custom-generate
+    const customGenerateResource = apiResource.addResource('custom-generate');
+    customGenerateResource.addMethod(
+      'POST',
+      new apigateway.LambdaIntegration(customGenerateHandler, {
+        timeout: Duration.seconds(29),  // API Gateway max is 29s
+      }),
+    );
+
+    // CloudWatch alarm for custom generation errors
+    const customGenerateErrorAlarm = new cloudwatch.Alarm(this, 'CustomGenerateErrorAlarm', {
+      alarmName: 'frc-custom-generate-errors',
+      alarmDescription: 'Custom page generation Lambda errors (>0 in 1 hour)',
+      metric: customGenerateHandler.metricErrors({ period: Duration.hours(1) }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    customGenerateErrorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
+    // Add custom generation metrics to the dashboard
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Custom Page Generator',
+        left: [
+          customGenerateHandler.metricInvocations({ period: Duration.hours(1) }),
+          customGenerateHandler.metricErrors({ period: Duration.hours(1) }),
+          customGenerateHandler.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
+        ],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Custom Generator DynamoDB',
+        left: [
+          new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedReadCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-custom-generations' } }),
+          new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedWriteCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-custom-generations' } }),
+        ],
+        width: 12,
+      }),
+    );
+
+    // =========================================================================
     // Stack Outputs
     // =========================================================================
 

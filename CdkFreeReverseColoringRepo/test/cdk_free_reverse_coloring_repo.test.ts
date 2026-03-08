@@ -54,8 +54,8 @@ test('No CodePipeline pipelines exist', () => {
 // DynamoDB Tables
 // =========================================================================
 
-test('Five DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends + email-events)', () => {
-  template.resourceCountIs('AWS::DynamoDB::Table', 5);
+test('Six DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends + email-events + custom-generations)', () => {
+  template.resourceCountIs('AWS::DynamoDB::Table', 6);
 });
 
 test('Subscribers table has correct key schema and 4 GSIs', () => {
@@ -301,8 +301,8 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Eight Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 8);
+test('Nine Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler + custom-generate)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 9);
 });
 
 // =========================================================================
@@ -588,5 +588,72 @@ test('Send weekly email Lambda has SES_CONFIGURATION_SET environment variable', 
         SES_CONFIGURATION_SET: 'frc-ses-config',
       }),
     },
+  });
+});
+
+// =========================================================================
+// Custom Reverse Coloring Page Generator
+// =========================================================================
+
+test('Custom generations table has correct key schema and EmailMonthIndex GSI', () => {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
+    TableName: 'frc-custom-generations',
+    KeySchema: [
+      { AttributeName: 'generationId', KeyType: 'HASH' },
+      { AttributeName: 'generatedAt', KeyType: 'RANGE' },
+    ],
+    BillingMode: 'PAY_PER_REQUEST',
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'EmailMonthIndex',
+        KeySchema: [
+          { AttributeName: 'email', KeyType: 'HASH' },
+          { AttributeName: 'monthKey', KeyType: 'RANGE' },
+        ],
+        Projection: { ProjectionType: 'KEYS_ONLY' },
+      },
+    ],
+  });
+});
+
+test('Custom generate Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Custom generate Lambda has 5-minute timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    Timeout: 300,
+  });
+});
+
+test('Custom generate Lambda has 1024 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    MemorySize: 1024,
+  });
+});
+
+test('Custom generate Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        CUSTOM_GENERATIONS_TABLE: Match.anyValue(),
+        CONTENT_BUCKET: Match.anyValue(),
+        MAX_FREE_PER_MONTH: '2',
+      }),
+    },
+  });
+});
+
+test('Custom generate error alarm exists', () => {
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    AlarmName: 'frc-custom-generate-errors',
+    MetricName: 'Errors',
+    Threshold: 1,
   });
 });

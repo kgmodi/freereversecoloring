@@ -138,10 +138,10 @@ function Navigation() {
     <nav className="mt-px font-display text-5xl font-medium tracking-tight text-white">
       <NavigationRow>
         <NavigationItem href="/gallery">Gallery</NavigationItem>
-        <NavigationItem href="/blog">Blog</NavigationItem>
+        <NavigationItem href="/create">Create</NavigationItem>
       </NavigationRow>
       <NavigationRow>
-        <NavigationItem href="/#how-it-works">How It Works</NavigationItem>
+        <NavigationItem href="/blog">Blog</NavigationItem>
         <NavigationItem href="/#signup">Get Free Designs</NavigationItem>
       </NavigationRow>
     </nav>
