@@ -141,7 +141,10 @@ function Navigation() {
         <NavigationItem href="/create">Create</NavigationItem>
       </NavigationRow>
       <NavigationRow>
+        <NavigationItem href="/#how-it-works">How It Works</NavigationItem>
         <NavigationItem href="/blog">Blog</NavigationItem>
+      </NavigationRow>
+      <NavigationRow>
         <NavigationItem href="/#signup">Get Free Designs</NavigationItem>
       </NavigationRow>
     </nav>
