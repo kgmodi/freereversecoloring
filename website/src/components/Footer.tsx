@@ -10,6 +10,7 @@ const navigation = [
     title: 'Explore',
     links: [
       { title: 'Gallery', href: '/gallery' },
+      { title: 'Create Custom Page', href: '/create' },
       { title: 'Blog', href: '/blog' },
       { title: 'How It Works', href: '/#how-it-works' },
       { title: 'FAQ', href: '/#faq' },

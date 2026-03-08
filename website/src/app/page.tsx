@@ -545,6 +545,68 @@ export const metadata: Metadata = {
     'Get free reverse coloring pages delivered to your inbox every week. Beautiful watercolor backgrounds — you add the lines.',
 }
 
+function CustomGeneratorPromo() {
+  return (
+    <Container className="mt-24 sm:mt-32 lg:mt-40">
+      <FadeIn>
+        <div className="relative overflow-hidden rounded-4xl">
+          {/* Background gradient */}
+          <div
+            className="absolute inset-0 -z-10"
+            style={{
+              background:
+                'linear-gradient(135deg, #F8F6FF 0%, #E8E0F8 40%, #D4EEF1 100%)',
+            }}
+          />
+          <div className="px-8 py-16 sm:px-16 sm:py-20 lg:flex lg:items-center lg:gap-x-16">
+            <div className="lg:max-w-lg">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#9B7BC7]/10 px-4 py-1.5 text-sm font-semibold text-[#6B46C1]">
+                <SparklesIcon className="h-4 w-4" />
+                New Tool
+              </span>
+              <h2 className="mt-6 font-display text-3xl font-medium tracking-tight text-[#2D2B3D] sm:text-4xl">
+                Create your own reverse coloring page
+              </h2>
+              <p className="mt-4 text-lg text-[#6B687D]">
+                Describe any theme — ocean sunsets, enchanted forests, mountain
+                lakes — and our AI will paint a unique watercolor background
+                just for you. 2 free per month.
+              </p>
+              <div className="mt-8">
+                <Link
+                  href="/create"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#F4845F] px-8 py-4 font-display text-sm font-semibold text-white shadow-sm transition hover:bg-[#e5734e]"
+                >
+                  Try the Generator
+                  <span aria-hidden="true">&rarr;</span>
+                </Link>
+              </div>
+            </div>
+            <div className="mt-10 lg:mt-0 lg:flex-1">
+              {/* Visual preview: stacked watercolor cards */}
+              <div className="relative mx-auto max-w-sm">
+                <div className="absolute top-4 right-4 left-4 h-64 rotate-3 rounded-2xl bg-gradient-to-br from-[#6AACB8]/30 to-[#9B7BC7]/20 shadow-sm" />
+                <div className="absolute top-2 right-2 left-2 h-64 -rotate-2 rounded-2xl bg-gradient-to-br from-[#E8889B]/30 to-[#6AACB8]/20 shadow-sm" />
+                <div className="relative h-64 rounded-2xl bg-gradient-to-br from-[#9B7BC7]/40 via-[#6AACB8]/30 to-[#E8889B]/20 p-8 shadow-lg ring-1 ring-white/50">
+                  <div className="flex h-full flex-col items-center justify-center text-center">
+                    <SparklesIcon className="h-10 w-10 text-[#6B46C1]/60" />
+                    <p className="mt-4 font-display text-lg font-semibold text-[#4A3F6B]/80">
+                      Your Theme Here
+                    </p>
+                    <p className="mt-1 text-sm text-[#6B687D]/70">
+                      AI-generated watercolor
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </FadeIn>
+    </Container>
+  )
+}
+
 export default async function Home() {
   return (
     <RootLayout>
@@ -555,6 +617,8 @@ export default async function Home() {
       <HowItWorks />
 
       <FeaturedDesigns />
+
+      <CustomGeneratorPromo />
 
       <BlogPreview />
 
