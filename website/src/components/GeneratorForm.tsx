@@ -124,6 +124,8 @@ export function GeneratorForm() {
   const pollGenerationStatus = useCallback(
     async (generationId: string, signal: AbortSignal) => {
       const startTime = Date.now()
+      let consecutiveErrors = 0
+      const MAX_CONSECUTIVE_ERRORS = 3
 
       while (!signal.aborted) {
         await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
@@ -136,27 +138,55 @@ export function GeneratorForm() {
           )
         }
 
-        const statusResponse = await fetch(
-          `${API_URL}/api/custom-generate/${generationId}`,
-          { signal },
-        )
-        const statusData = await statusResponse.json()
-
-        if (statusData.status === 'complete') {
-          setResult(statusData)
-          setFormState('success')
-          return
-        }
-
-        if (statusData.status === 'failed') {
-          throw new Error(
-            statusData.errorMessage || 'Generation failed. Please try again.',
+        try {
+          const statusResponse = await fetch(
+            `${API_URL}/api/custom-generate/${generationId}`,
+            { signal },
           )
-        }
+          const statusData = await statusResponse.json()
 
-        // Update progress UI based on backend status
-        if (statusData.status === 'processing') {
-          setFormState('generating_image')
+          // Reset error counter on successful response
+          consecutiveErrors = 0
+
+          if (statusData.status === 'complete') {
+            setResult(statusData)
+            setFormState('success')
+            return
+          }
+
+          if (statusData.status === 'failed') {
+            throw new Error(
+              statusData.errorMessage || 'Generation failed. Please try again.',
+            )
+          }
+
+          // Update progress UI based on backend status
+          if (statusData.status === 'processing') {
+            setFormState('generating_image')
+          }
+        } catch (pollErr) {
+          // Re-throw abort errors and application-level errors (non-TypeError)
+          if (pollErr instanceof DOMException && pollErr.name === 'AbortError') {
+            throw pollErr
+          }
+          // Network/CORS errors during polling are transient — retry a few times
+          if (
+            pollErr instanceof TypeError &&
+            (pollErr.message === 'Load failed' ||
+              pollErr.message === 'Failed to fetch' ||
+              pollErr.message === 'NetworkError when attempting to fetch resource.')
+          ) {
+            consecutiveErrors++
+            if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+              throw new Error(
+                'Lost connection to the server while generating your page. Please try again.',
+              )
+            }
+            // Continue polling — the generation may still be running on the server
+            continue
+          }
+          // Re-throw any other errors (e.g., JSON parse errors, application errors)
+          throw pollErr
         }
       }
     },
@@ -230,11 +260,25 @@ export function GeneratorForm() {
         return // User navigated away or started a new request
       }
       setFormState('error')
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'Something went wrong. Please try again.',
-      )
+
+      // Detect network/CORS errors (e.g., Safari "Load failed", Chrome "Failed to fetch")
+      // These occur when the browser can't reach the API or blocks a CORS-less error response.
+      if (
+        err instanceof TypeError &&
+        (err.message === 'Load failed' ||
+          err.message === 'Failed to fetch' ||
+          err.message === 'NetworkError when attempting to fetch resource.')
+      ) {
+        setErrorMessage(
+          'Unable to reach the server. This may be a temporary issue — please wait a moment and try again.',
+        )
+      } else {
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong. Please try again.',
+        )
+      }
     }
   }
 
