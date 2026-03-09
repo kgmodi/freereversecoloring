@@ -227,6 +227,36 @@ test('API Gateway has a prod deployment stage', () => {
 });
 
 // =========================================================================
+// API Gateway — Gateway Responses (CORS on error responses)
+// =========================================================================
+
+test('API Gateway has DEFAULT_4XX gateway response with CORS headers', () => {
+  template.hasResourceProperties('AWS::ApiGateway::GatewayResponse', {
+    ResponseType: 'DEFAULT_4XX',
+    ResponseParameters: Match.objectLike({
+      'gatewayresponse.header.Access-Control-Allow-Origin': Match.anyValue(),
+      'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type'",
+      'gatewayresponse.header.Access-Control-Allow-Methods': "'POST,GET,OPTIONS'",
+    }),
+  });
+});
+
+test('API Gateway has DEFAULT_5XX gateway response with CORS headers', () => {
+  template.hasResourceProperties('AWS::ApiGateway::GatewayResponse', {
+    ResponseType: 'DEFAULT_5XX',
+    ResponseParameters: Match.objectLike({
+      'gatewayresponse.header.Access-Control-Allow-Origin': Match.anyValue(),
+      'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type'",
+      'gatewayresponse.header.Access-Control-Allow-Methods': "'POST,GET,OPTIONS'",
+    }),
+  });
+});
+
+test('Two API Gateway GatewayResponse resources exist (4XX + 5XX)', () => {
+  template.resourceCountIs('AWS::ApiGateway::GatewayResponse', 2);
+});
+
+// =========================================================================
 // Lambda — Subscribe Handler
 // =========================================================================
 

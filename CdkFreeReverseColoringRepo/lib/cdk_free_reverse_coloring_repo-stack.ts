@@ -269,6 +269,38 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       },
     });
 
+    // -------------------------------------------------------------------------
+    // Gateway Responses — CORS headers on API Gateway-generated errors
+    // -------------------------------------------------------------------------
+    // When API Gateway itself generates error responses (e.g., 504 timeout,
+    // 403 missing auth, throttling), these responses lack CORS headers by default.
+    // Without these headers, the browser blocks the error response entirely,
+    // and Safari/iOS shows a generic "Load failed" (TypeError) message.
+    // Adding GatewayResponse for DEFAULT_4XX and DEFAULT_5XX ensures all
+    // gateway-generated errors include Access-Control-Allow-Origin.
+
+    const corsAllowOrigins = "'https://freereversecoloring.com, https://www.freereversecoloring.com, http://localhost:3000'";
+
+    new apigateway.GatewayResponse(this, 'GatewayResponseDefault4XX', {
+      restApi: api,
+      type: apigateway.ResponseType.DEFAULT_4XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': corsAllowOrigins,
+        'Access-Control-Allow-Headers': "'Content-Type'",
+        'Access-Control-Allow-Methods': "'POST,GET,OPTIONS'",
+      },
+    });
+
+    new apigateway.GatewayResponse(this, 'GatewayResponseDefault5XX', {
+      restApi: api,
+      type: apigateway.ResponseType.DEFAULT_5XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': corsAllowOrigins,
+        'Access-Control-Allow-Headers': "'Content-Type'",
+        'Access-Control-Allow-Methods': "'POST,GET,OPTIONS'",
+      },
+    });
+
     // /api resource
     const apiResource = api.root.addResource('api');
 
