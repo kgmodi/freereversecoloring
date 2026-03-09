@@ -301,8 +301,8 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Nine Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler + custom-generate)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 9);
+test('Ten Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler + custom-generate-handler + custom-generate-processor)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 10);
 });
 
 // =========================================================================
@@ -595,12 +595,11 @@ test('Send weekly email Lambda has SES_CONFIGURATION_SET environment variable', 
 // Custom Reverse Coloring Page Generator
 // =========================================================================
 
-test('Custom generations table has correct key schema and EmailMonthIndex GSI', () => {
+test('Custom generations table has correct key schema (no sort key) and EmailMonthIndex GSI', () => {
   template.hasResourceProperties('AWS::DynamoDB::Table', {
     TableName: 'frc-custom-generations',
     KeySchema: [
       { AttributeName: 'generationId', KeyType: 'HASH' },
-      { AttributeName: 'generatedAt', KeyType: 'RANGE' },
     ],
     BillingMode: 'PAY_PER_REQUEST',
     GlobalSecondaryIndexes: [
@@ -616,30 +615,69 @@ test('Custom generations table has correct key schema and EmailMonthIndex GSI', 
   });
 });
 
-test('Custom generate Lambda function exists with correct name and runtime', () => {
+// ---- Initiator + Status handler (POST /api/custom-generate, GET /api/custom-generate/{id}) ----
+
+test('Custom generate handler Lambda exists with correct name and correct runtime', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'frc-custom-generate-handler',
     Runtime: 'nodejs18.x',
   });
 });
 
-test('Custom generate Lambda has 5-minute timeout', () => {
+test('Custom generate handler Lambda has 29-second timeout (API Gateway compatible)', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'frc-custom-generate-handler',
+    Timeout: 29,
+  });
+});
+
+test('Custom generate handler Lambda has 512 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    MemorySize: 512,
+  });
+});
+
+test('Custom generate handler Lambda has required environment variables including PROCESSOR_FUNCTION_NAME', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        CUSTOM_GENERATIONS_TABLE: Match.anyValue(),
+        CONTENT_BUCKET: Match.anyValue(),
+        MAX_FREE_PER_MONTH: '2',
+        PROCESSOR_FUNCTION_NAME: Match.anyValue(),
+      }),
+    },
+  });
+});
+
+// ---- Processor Lambda (async, does the actual OpenAI generation) ----
+
+test('Custom generate processor Lambda exists with correct name and correct runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-processor',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Custom generate processor Lambda has 5-minute timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-processor',
     Timeout: 300,
   });
 });
 
-test('Custom generate Lambda has 1024 MB memory', () => {
+test('Custom generate processor Lambda has 1024 MB memory', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'frc-custom-generate-handler',
+    FunctionName: 'frc-custom-generate-processor',
     MemorySize: 1024,
   });
 });
 
-test('Custom generate Lambda has required environment variables', () => {
+test('Custom generate processor Lambda has required environment variables', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'frc-custom-generate-handler',
+    FunctionName: 'frc-custom-generate-processor',
     Environment: {
       Variables: Match.objectLike({
         CUSTOM_GENERATIONS_TABLE: Match.anyValue(),
@@ -650,9 +688,19 @@ test('Custom generate Lambda has required environment variables', () => {
   });
 });
 
-test('Custom generate error alarm exists', () => {
+// ---- Alarms ----
+
+test('Custom generate handler error alarm exists', () => {
   template.hasResourceProperties('AWS::CloudWatch::Alarm', {
     AlarmName: 'frc-custom-generate-errors',
+    MetricName: 'Errors',
+    Threshold: 1,
+  });
+});
+
+test('Custom generate processor error alarm exists', () => {
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    AlarmName: 'frc-custom-generate-processor-errors',
     MetricName: 'Errors',
     Threshold: 1,
   });

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, useCallback, type FormEvent } from 'react'
 import clsx from 'clsx'
 
 const API_URL =
@@ -38,6 +38,9 @@ const examplePrompts = [
   'Cozy autumn cabin in the woods',
   'Lavender fields under a summer sky',
 ]
+
+const POLL_INTERVAL_MS = 3000
+const MAX_POLL_TIME_MS = 120000 // 2 minutes
 
 function SparkleIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -77,6 +80,29 @@ function DownloadIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   )
 }
 
+/**
+ * Downloads a cross-origin image by fetching it as a blob.
+ * The `download` attribute on <a> tags is ignored for cross-origin URLs
+ * (e.g., presigned S3 URLs), so we must fetch-and-save via JS.
+ */
+async function handleBlobDownload(url: string, filename: string) {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+  } catch {
+    // Fallback: open in new tab if blob download fails
+    window.open(url, '_blank')
+  }
+}
+
 export function GeneratorForm() {
   const [email, setEmail] = useState('')
   const [prompt, setPrompt] = useState('')
@@ -88,18 +114,61 @@ export function GeneratorForm() {
   } | null>(null)
   const [honeypot, setHoneypot] = useState('')
   const [loadedAt] = useState(() => Date.now())
+  const abortRef = useRef<AbortController | null>(null)
 
   const isGenerating =
     formState === 'submitting' ||
     formState === 'generating_description' ||
     formState === 'generating_image'
 
+  const pollGenerationStatus = useCallback(
+    async (generationId: string, signal: AbortSignal) => {
+      const startTime = Date.now()
+
+      while (!signal.aborted) {
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
+
+        if (signal.aborted) return
+
+        if (Date.now() - startTime > MAX_POLL_TIME_MS) {
+          throw new Error(
+            'Generation is taking longer than expected. Please try again later.',
+          )
+        }
+
+        const statusResponse = await fetch(
+          `${API_URL}/api/custom-generate/${generationId}`,
+          { signal },
+        )
+        const statusData = await statusResponse.json()
+
+        if (statusData.status === 'complete') {
+          setResult(statusData)
+          setFormState('success')
+          return
+        }
+
+        if (statusData.status === 'failed') {
+          throw new Error(
+            statusData.errorMessage || 'Generation failed. Please try again.',
+          )
+        }
+
+        // Update progress UI based on backend status
+        if (statusData.status === 'processing') {
+          setFormState('generating_image')
+        }
+      }
+    },
+    [],
+  )
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    // Bot detection
+    // Bot detection: honeypot field filled or form submitted too quickly.
+    // Silently return without changing state to avoid revealing detection.
     if (honeypot || Date.now() - loadedAt < 2000) {
-      setFormState('success')
       return
     }
 
@@ -121,28 +190,22 @@ export function GeneratorForm() {
       return
     }
 
+    // Cancel any in-flight polling
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setFormState('submitting')
     setErrorMessage('')
     setResult(null)
 
-    // Show progress steps
-    setTimeout(() => {
-      setFormState((prev) =>
-        prev === 'submitting' ? 'generating_description' : prev,
-      )
-    }, 1500)
-
-    setTimeout(() => {
-      setFormState((prev) =>
-        prev === 'generating_description' ? 'generating_image' : prev,
-      )
-    }, 8000)
-
     try {
+      // Step 1: Initiate generation (returns immediately with generationId)
       const response = await fetch(`${API_URL}/api/custom-generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, prompt }),
+        signal: controller.signal,
       })
 
       const data = await response.json()
@@ -154,12 +217,18 @@ export function GeneratorForm() {
       }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong. Please try again.')
+        throw new Error(
+          data.error || 'Something went wrong. Please try again.',
+        )
       }
 
-      setResult(data)
-      setFormState('success')
+      // Step 2: Start polling for completion
+      setFormState('generating_description')
+      await pollGenerationStatus(data.generationId, controller.signal)
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return // User navigated away or started a new request
+      }
       setFormState('error')
       setErrorMessage(
         err instanceof Error
@@ -170,6 +239,7 @@ export function GeneratorForm() {
   }
 
   function handleReset() {
+    abortRef.current?.abort()
     setFormState('idle')
     setPrompt('')
     setResult(null)
@@ -237,6 +307,7 @@ export function GeneratorForm() {
   // Success state — show generated design
   // -------------------------------------------------------------------------
   if (formState === 'success' && result) {
+    const downloadFilename = `${result.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '-')}.png`
     return (
       <div className="space-y-8">
         {/* Generated image */}
@@ -324,16 +395,16 @@ export function GeneratorForm() {
 
           {/* Actions */}
           <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href={result.imageUrl}
-              download={`${result.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '-')}.png`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() =>
+                handleBlobDownload(result.imageUrl, downloadFilename)
+              }
               className="inline-flex items-center gap-2 rounded-xl bg-[#F4845F] px-6 py-3 font-display text-sm font-semibold text-white shadow-sm transition hover:bg-[#e5734e]"
             >
               <DownloadIcon className="h-5 w-5" />
               Download Page
-            </a>
+            </button>
             <button
               onClick={handleReset}
               className="inline-flex items-center gap-2 rounded-xl bg-[#9B7BC7]/10 px-6 py-3 font-display text-sm font-semibold text-[#4A3F6B] transition hover:bg-[#9B7BC7]/20"
@@ -491,7 +562,7 @@ export function GeneratorForm() {
                 {formState === 'generating_description' &&
                   'Crafting your watercolor concept...'}
                 {formState === 'generating_image' &&
-                  'Painting your watercolor (this takes ~30s)...'}
+                  'Painting your watercolor...'}
               </span>
             </>
           ) : (

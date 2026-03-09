@@ -1,23 +1,20 @@
 /**
  * frc-custom-generate-handler
  *
- * Custom Reverse Coloring Page Generator — lets users create a one-off
- * AI-generated watercolor reverse coloring page from a text prompt.
+ * Handles two operations for the Custom Reverse Coloring Page Generator:
  *
- * Flow:
- *   1. Validate email + prompt
- *   2. Check rate limit (2 free generations per email per month)
- *   3. Call GPT-4o for design description (structured JSON)
- *   4. Call gpt-image-1 for watercolor image
- *   5. Upload image to S3
- *   6. Record generation in DynamoDB
- *   7. Return presigned URL + design metadata
+ *   POST /api/custom-generate          → Initiate generation
+ *     1. Validate email + prompt
+ *     2. Check rate limit (2 free per email per month) with atomic re-check
+ *     3. Write "pending" record to DynamoDB
+ *     4. Async-invoke the processor Lambda
+ *     5. Return 202 with { generationId, status: "pending" }
  *
- * Input (API Gateway proxy): POST /api/custom-generate
- *   Body: { email: string, prompt: string }
+ *   GET  /api/custom-generate/{id}     → Poll generation status
+ *     Returns current status + result data (including fresh presigned URL) when complete.
  *
- * Output: API Gateway proxy response with:
- *   { imageUrl, title, description, drawingPrompts, colorPalette, remainingGenerations }
+ * This two-step async pattern avoids the API Gateway 29-second integration
+ * timeout limit, since actual image generation takes 30-60 seconds.
  */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -25,13 +22,13 @@ import {
   DynamoDBDocumentClient,
   QueryCommand,
   PutCommand,
+  GetCommand,
+  DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import {
-  generateCustomDesignDescription,
-  generateImage,
-} from './openai-client';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import { randomUUID } from 'crypto';
 
 // ---------------------------------------------------------------------------
 // AWS SDK Clients
@@ -43,6 +40,7 @@ const dynamoClient = DynamoDBDocumentClient.from(
 );
 
 const s3Client = new S3Client({ region: 'us-east-1' });
+const lambdaClient = new LambdaClient({ region: 'us-east-1' });
 
 // ---------------------------------------------------------------------------
 // Environment variables
@@ -51,6 +49,7 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 const CUSTOM_GENERATIONS_TABLE = process.env.CUSTOM_GENERATIONS_TABLE!;
 const CONTENT_BUCKET = process.env.CONTENT_BUCKET!;
 const MAX_FREE_PER_MONTH = parseInt(process.env.MAX_FREE_PER_MONTH || '2', 10);
+const PROCESSOR_FUNCTION_NAME = process.env.PROCESSOR_FUNCTION_NAME!;
 const ALLOWED_ORIGINS = [
   'https://freereversecoloring.com',
   'https://www.freereversecoloring.com',
@@ -65,6 +64,7 @@ interface APIGatewayEvent {
   httpMethod: string;
   body: string | null;
   headers: Record<string, string | undefined>;
+  pathParameters?: Record<string, string | undefined> | null;
 }
 
 interface APIGatewayResponse {
@@ -77,10 +77,13 @@ interface APIGatewayResponse {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function generateId(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 10);
-  return `${timestamp}-${random}`;
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!domain) return '***';
+  const maskedLocal = local.length <= 2
+    ? local[0] + '***'
+    : local[0] + '***' + local[local.length - 1];
+  return `${maskedLocal}@${domain}`;
 }
 
 function getCurrentMonthKey(): string {
@@ -100,7 +103,7 @@ function corsHeaders(origin?: string): Record<string, string> {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   };
 }
 
@@ -118,7 +121,7 @@ function errorResponse(
 }
 
 // ---------------------------------------------------------------------------
-// Rate limit check
+// Rate limit check (via GSI query)
 // ---------------------------------------------------------------------------
 
 async function getMonthlyUsageCount(email: string, monthKey: string): Promise<number> {
@@ -138,29 +141,11 @@ async function getMonthlyUsageCount(email: string, monthKey: string): Promise<nu
 }
 
 // ---------------------------------------------------------------------------
-// Main Handler
+// POST handler — Initiate generation
 // ---------------------------------------------------------------------------
 
-export async function handler(event: APIGatewayEvent): Promise<APIGatewayResponse> {
-  console.log('[custom-generate] Invoked:', JSON.stringify({
-    method: event.httpMethod,
-    bodyLength: event.body?.length,
-  }));
-
+async function handleInitiate(event: APIGatewayEvent): Promise<APIGatewayResponse> {
   const origin = event.headers?.origin || event.headers?.Origin;
-
-  // Handle CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: corsHeaders(origin),
-      body: '',
-    };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return errorResponse(405, 'Method not allowed', origin);
-  }
 
   // Parse request body
   let body: { email?: string; prompt?: string };
@@ -181,13 +166,11 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayRespons
     return errorResponse(400, 'Both email and prompt are required', origin);
   }
 
-  // Email validation (same regex as subscribe handler)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   if (!emailRegex.test(email)) {
     return errorResponse(400, 'Please enter a valid email address', origin);
   }
 
-  // Prompt length validation
   if (prompt.length < 3) {
     return errorResponse(400, 'Please describe your theme in at least a few words', origin);
   }
@@ -204,7 +187,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayRespons
     const usageCount = await getMonthlyUsageCount(email, monthKey);
 
     console.log(
-      `[custom-generate] Email: ${email}, month: ${monthKey}, usage: ${usageCount}/${MAX_FREE_PER_MONTH}`,
+      `[custom-generate] Email: ${maskEmail(email)}, month: ${monthKey}, usage: ${usageCount}/${MAX_FREE_PER_MONTH}`,
     );
 
     if (usageCount >= MAX_FREE_PER_MONTH) {
@@ -216,49 +199,11 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayRespons
     }
 
     // -----------------------------------------------------------------------
-    // Step 2: Generate design description with GPT-4o
+    // Step 2: Write "pending" record to DynamoDB
     // -----------------------------------------------------------------------
-    console.log('[custom-generate] Generating design description...');
-    const design = await generateCustomDesignDescription(prompt);
-
-    // -----------------------------------------------------------------------
-    // Step 3: Generate watercolor image with gpt-image-1
-    // -----------------------------------------------------------------------
-    console.log(`[custom-generate] Generating image for "${design.title}"...`);
-    const imageBuffer = await generateImage(design.generationPrompt);
-    console.log(`[custom-generate] Image generated: ${imageBuffer.length} bytes`);
-
-    // -----------------------------------------------------------------------
-    // Step 4: Upload image to S3
-    // -----------------------------------------------------------------------
-    const generationId = `custom-${generateId()}`;
-    const s3Key = `custom-generations/${monthKey}/${generationId}/${design.slug}.png`;
-
-    console.log(`[custom-generate] Uploading to s3://${CONTENT_BUCKET}/${s3Key}`);
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: CONTENT_BUCKET,
-        Key: s3Key,
-        Body: imageBuffer,
-        ContentType: 'image/png',
-        CacheControl: 'public, max-age=31536000, immutable',
-      }),
-    );
-
-    // Generate presigned URL (7 days expiry)
-    const imageUrl = await getSignedUrl(
-      s3Client,
-      new GetObjectCommand({
-        Bucket: CONTENT_BUCKET,
-        Key: s3Key,
-      }),
-      { expiresIn: 604800 },
-    );
-
-    // -----------------------------------------------------------------------
-    // Step 5: Record generation in DynamoDB
-    // -----------------------------------------------------------------------
+    const generationId = `custom-${randomUUID()}`;
     const now = new Date().toISOString();
+
     await dynamoClient.send(
       new PutCommand({
         TableName: CUSTOM_GENERATIONS_TABLE,
@@ -266,49 +211,162 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayRespons
           generationId,
           email,
           monthKey,
-          generatedAt: now,
           prompt,
-          title: design.title,
-          slug: design.slug,
-          description: design.description,
-          difficulty: design.difficulty,
-          s3Key,
-          colorPalette: design.colorPalette,
-          drawingPrompts: design.drawingPrompts,
-          tags: design.tags,
-          fileSizeBytes: imageBuffer.length,
+          status: 'pending',
+          createdAt: now,
         },
       }),
     );
 
-    const remainingGenerations = MAX_FREE_PER_MONTH - usageCount - 1;
+    // -----------------------------------------------------------------------
+    // Step 2b: Re-check rate limit to guard against concurrent requests
+    // (mitigates TOCTOU race condition — see review feedback)
+    // -----------------------------------------------------------------------
+    const updatedCount = await getMonthlyUsageCount(email, monthKey);
+    if (updatedCount > MAX_FREE_PER_MONTH) {
+      console.log(
+        `[custom-generate] Race condition detected for ${maskEmail(email)}: count=${updatedCount}, rolling back`,
+      );
+      await dynamoClient.send(
+        new DeleteCommand({
+          TableName: CUSTOM_GENERATIONS_TABLE,
+          Key: { generationId },
+        }),
+      );
+      return errorResponse(429, 'rate_limit', origin, {
+        message: `You've used your ${MAX_FREE_PER_MONTH} free generations this month. Check back next month!`,
+        remainingGenerations: 0,
+        nextResetDate: getNextMonthResetDate(),
+      });
+    }
 
-    console.log(
-      `[custom-generate] Success! "${design.title}" for ${email}. Remaining: ${remainingGenerations}`,
+    // -----------------------------------------------------------------------
+    // Step 3: Async-invoke the processor Lambda
+    // -----------------------------------------------------------------------
+    console.log(`[custom-generate] Invoking processor for ${generationId}`);
+    await lambdaClient.send(
+      new InvokeCommand({
+        FunctionName: PROCESSOR_FUNCTION_NAME,
+        InvocationType: 'Event', // async invocation — returns immediately
+        Payload: JSON.stringify({
+          generationId,
+          email,
+          prompt,
+          monthKey,
+        }),
+      }),
     );
 
+    const remainingGenerations = MAX_FREE_PER_MONTH - updatedCount;
+
     // -----------------------------------------------------------------------
-    // Step 6: Return result
+    // Step 4: Return 202 Accepted with generation ID
     // -----------------------------------------------------------------------
     return {
-      statusCode: 200,
+      statusCode: 202,
       headers: corsHeaders(origin),
       body: JSON.stringify({
         generationId,
-        imageUrl,
-        title: design.title,
-        description: design.description,
-        difficulty: design.difficulty,
-        drawingPrompts: design.drawingPrompts,
-        colorPalette: design.colorPalette,
-        tags: design.tags,
+        status: 'pending',
         remainingGenerations,
       }),
     };
   } catch (err) {
-    const errorMsg = `Custom generation failed: ${(err as Error).message}`;
+    const errorMsg = `Custom generation initiation failed: ${(err as Error).message}`;
     console.error(`[custom-generate] ${errorMsg}`, err);
-
-    return errorResponse(500, 'Something went wrong generating your page. Please try again.', origin);
+    return errorResponse(500, 'Something went wrong. Please try again.', origin);
   }
+}
+
+// ---------------------------------------------------------------------------
+// GET handler — Poll generation status
+// ---------------------------------------------------------------------------
+
+async function handleStatus(event: APIGatewayEvent): Promise<APIGatewayResponse> {
+  const origin = event.headers?.origin || event.headers?.Origin;
+  const generationId = event.pathParameters?.generationId;
+
+  if (!generationId) {
+    return errorResponse(400, 'Missing generationId', origin);
+  }
+
+  try {
+    const result = await dynamoClient.send(
+      new GetCommand({
+        TableName: CUSTOM_GENERATIONS_TABLE,
+        Key: { generationId },
+      }),
+    );
+
+    if (!result.Item) {
+      return errorResponse(404, 'Generation not found', origin);
+    }
+
+    const item = result.Item;
+    const response: Record<string, unknown> = {
+      generationId: item.generationId,
+      status: item.status,
+    };
+
+    if (item.status === 'complete') {
+      // Generate a fresh presigned URL (7-day expiry)
+      const imageUrl = await getSignedUrl(
+        s3Client,
+        new GetObjectCommand({
+          Bucket: CONTENT_BUCKET,
+          Key: item.s3Key,
+        }),
+        { expiresIn: 604800 },
+      );
+
+      response.imageUrl = imageUrl;
+      response.title = item.title;
+      response.description = item.description;
+      response.difficulty = item.difficulty;
+      response.drawingPrompts = item.drawingPrompts;
+      response.colorPalette = item.colorPalette;
+      response.tags = item.tags;
+      response.remainingGenerations = item.remainingGenerations;
+    }
+
+    if (item.status === 'failed') {
+      response.errorMessage = item.errorMessage || 'Generation failed. Please try again.';
+    }
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders(origin),
+      body: JSON.stringify(response),
+    };
+  } catch (err) {
+    const errorMsg = `Status check failed: ${(err as Error).message}`;
+    console.error(`[custom-generate] ${errorMsg}`, err);
+    return errorResponse(500, 'Something went wrong checking your generation status.', origin);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main Handler (routes by HTTP method)
+// ---------------------------------------------------------------------------
+
+export async function handler(event: APIGatewayEvent): Promise<APIGatewayResponse> {
+  console.log('[custom-generate] Invoked:', JSON.stringify({
+    method: event.httpMethod,
+    path: event.pathParameters,
+    bodyLength: event.body?.length,
+  }));
+
+  // NOTE: CORS preflight OPTIONS requests are handled automatically by
+  // API Gateway's defaultCorsPreflightOptions — no Lambda handling needed.
+
+  if (event.httpMethod === 'POST') {
+    return handleInitiate(event);
+  }
+
+  if (event.httpMethod === 'GET') {
+    return handleStatus(event);
+  }
+
+  const origin = event.headers?.origin || event.headers?.Origin;
+  return errorResponse(405, 'Method not allowed', origin);
 }

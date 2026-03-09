@@ -920,7 +920,8 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     const customGenerationsTable = new dynamodb.Table(this, 'CustomGenerationsTable', {
       tableName: 'frc-custom-generations',
       partitionKey: { name: 'generationId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'generatedAt', type: dynamodb.AttributeType.STRING },
+      // No sort key — generationId is globally unique (UUID-based).
+      // Each partition has exactly one item, so a sort key adds no value.
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
@@ -937,11 +938,13 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     // Lambda — Custom Reverse Coloring Page Generator
     // =========================================================================
 
-    const customGenerateHandler = new lambdaNodejs.NodejsFunction(this, 'CustomGenerateHandler', {
-      functionName: 'frc-custom-generate-handler',
-      description: 'Custom reverse coloring page generator — user-prompted AI watercolor generation',
+    // ---- Processor Lambda (async — does the actual OpenAI generation) ----
+
+    const customGenerateProcessor = new lambdaNodejs.NodejsFunction(this, 'CustomGenerateProcessor', {
+      functionName: 'frc-custom-generate-processor',
+      description: 'Async processor for custom reverse coloring page generation (GPT-4o + gpt-image-1)',
       runtime: lambda.Runtime.NODEJS_18_X,
-      entry: path.join(__dirname, '..', 'lambda', 'custom-generate', 'index.ts'),
+      entry: path.join(__dirname, '..', 'lambda', 'custom-generate', 'processor.ts'),
       handler: 'handler',
       timeout: Duration.minutes(5),
       memorySize: 1024,
@@ -959,21 +962,55 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
       },
     });
 
-    // IAM permissions for custom generation Lambda
-    customGenerationsTable.grantReadWriteData(customGenerateHandler);
-    contentBucket.grantReadWrite(customGenerateHandler);
-    openaiApiKeySecret.grantRead(customGenerateHandler);
+    // Processor needs: DynamoDB read/write, S3 write, Secrets Manager read
+    customGenerationsTable.grantReadWriteData(customGenerateProcessor);
+    contentBucket.grantReadWrite(customGenerateProcessor);
+    openaiApiKeySecret.grantRead(customGenerateProcessor);
 
-    // Wire up POST /api/custom-generate
+    // ---- Initiator + Status Lambda (handles POST and GET via API Gateway) ----
+
+    const customGenerateHandler = new lambdaNodejs.NodejsFunction(this, 'CustomGenerateHandler', {
+      functionName: 'frc-custom-generate-handler',
+      description: 'Custom generator initiator (POST) + status poller (GET) — returns immediately, delegates to processor',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'custom-generate', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.seconds(29),
+      memorySize: 512,
+      environment: {
+        CUSTOM_GENERATIONS_TABLE: customGenerationsTable.tableName,
+        CONTENT_BUCKET: contentBucket.bucketName,
+        MAX_FREE_PER_MONTH: '2',
+        PROCESSOR_FUNCTION_NAME: customGenerateProcessor.functionName,
+      },
+      bundling: {
+        minify: false,
+        sourceMap: true,
+        // Do NOT externalize AWS SDK — bundle everything including
+        // @aws-sdk/s3-request-presigner which is not in the Lambda runtime.
+      },
+    });
+
+    // Initiator needs: DynamoDB read/write, S3 read (presigned URLs), invoke processor
+    customGenerationsTable.grantReadWriteData(customGenerateHandler);
+    contentBucket.grantRead(customGenerateHandler);
+    customGenerateProcessor.grantInvoke(customGenerateHandler);
+
+    // Wire up POST /api/custom-generate (initiate generation)
     const customGenerateResource = apiResource.addResource('custom-generate');
     customGenerateResource.addMethod(
       'POST',
-      new apigateway.LambdaIntegration(customGenerateHandler, {
-        timeout: Duration.seconds(29),  // API Gateway max is 29s
-      }),
+      new apigateway.LambdaIntegration(customGenerateHandler),
     );
 
-    // CloudWatch alarm for custom generation errors
+    // Wire up GET /api/custom-generate/{generationId} (poll status)
+    const customGenerateStatusResource = customGenerateResource.addResource('{generationId}');
+    customGenerateStatusResource.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(customGenerateHandler),
+    );
+
+    // CloudWatch alarm for custom generation errors (initiator)
     const customGenerateErrorAlarm = new cloudwatch.Alarm(this, 'CustomGenerateErrorAlarm', {
       alarmName: 'frc-custom-generate-errors',
       alarmDescription: 'Custom page generation Lambda errors (>0 in 1 hour)',
@@ -985,16 +1022,36 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     });
     customGenerateErrorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
 
+    // CloudWatch alarm for custom generation processor errors
+    const customProcessorErrorAlarm = new cloudwatch.Alarm(this, 'CustomProcessorErrorAlarm', {
+      alarmName: 'frc-custom-generate-processor-errors',
+      alarmDescription: 'Custom page generation processor Lambda errors (>0 in 1 hour)',
+      metric: customGenerateProcessor.metricErrors({ period: Duration.hours(1) }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    customProcessorErrorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alarmTopic));
+
     // Add custom generation metrics to the dashboard
     dashboard.addWidgets(
       new cloudwatch.GraphWidget({
-        title: 'Custom Page Generator',
+        title: 'Custom Generator (Initiator + Status)',
         left: [
           customGenerateHandler.metricInvocations({ period: Duration.hours(1) }),
           customGenerateHandler.metricErrors({ period: Duration.hours(1) }),
-          customGenerateHandler.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
         ],
-        width: 12,
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Custom Generator (Processor)',
+        left: [
+          customGenerateProcessor.metricInvocations({ period: Duration.hours(1) }),
+          customGenerateProcessor.metricErrors({ period: Duration.hours(1) }),
+          customGenerateProcessor.metricDuration({ period: Duration.hours(1), statistic: 'p99' }),
+        ],
+        width: 8,
       }),
       new cloudwatch.GraphWidget({
         title: 'Custom Generator DynamoDB',
@@ -1002,7 +1059,7 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
           new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedReadCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-custom-generations' } }),
           new cloudwatch.Metric({ namespace: 'AWS/DynamoDB', metricName: 'ConsumedWriteCapacityUnits', period: Duration.hours(1), statistic: 'Sum', dimensionsMap: { TableName: 'frc-custom-generations' } }),
         ],
-        width: 12,
+        width: 8,
       }),
     );
 
