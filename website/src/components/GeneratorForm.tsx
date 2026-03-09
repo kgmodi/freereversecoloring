@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, type FormEvent } from 'react'
 import clsx from 'clsx'
+import { ShareButtons } from '@/components/ShareButtons'
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -114,6 +115,10 @@ export function GeneratorForm() {
   } | null>(null)
   const [honeypot, setHoneypot] = useState('')
   const [loadedAt] = useState(() => Date.now())
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verificationState, setVerificationState] = useState<'idle' | 'sending' | 'sent' | 'verifying' | 'verified'>('idle')
+  const [verificationError, setVerificationError] = useState('')
   const abortRef = useRef<AbortController | null>(null)
 
   const isGenerating =
@@ -193,12 +198,67 @@ export function GeneratorForm() {
     [],
   )
 
+  async function handleSendVerification() {
+    if (!email || !email.includes('@')) {
+      setVerificationError('Please enter a valid email address.')
+      return
+    }
+    setVerificationState('sending')
+    setVerificationError('')
+    try {
+      const response = await fetch(`${API_URL}/api/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification code.')
+      }
+      setVerificationState('sent')
+    } catch (err) {
+      setVerificationError(err instanceof Error ? err.message : 'Failed to send verification code.')
+      setVerificationState('idle')
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (!verificationCode || verificationCode.length !== 6) {
+      setVerificationError('Please enter the 6-digit code.')
+      return
+    }
+    setVerificationState('verifying')
+    setVerificationError('')
+    try {
+      const response = await fetch(`${API_URL}/api/verify-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: verificationCode }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid verification code.')
+      }
+      setEmailVerified(true)
+      setVerificationState('verified')
+    } catch (err) {
+      setVerificationError(err instanceof Error ? err.message : 'Verification failed.')
+      setVerificationState('sent') // Go back to code entry state
+    }
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
     // Bot detection: honeypot field filled or form submitted too quickly.
     // Silently return without changing state to avoid revealing detection.
     if (honeypot || Date.now() - loadedAt < 2000) {
+      return
+    }
+
+    if (!emailVerified) {
+      setFormState('error')
+      setErrorMessage('Please verify your email address first.')
       return
     }
 
@@ -288,6 +348,10 @@ export function GeneratorForm() {
     setPrompt('')
     setResult(null)
     setErrorMessage('')
+    setEmailVerified(false)
+    setVerificationState('idle')
+    setVerificationCode('')
+    setVerificationError('')
   }
 
   function handleExampleClick(example: string) {
@@ -458,6 +522,15 @@ export function GeneratorForm() {
             </button>
           </div>
 
+          {/* Share */}
+          <div className="mt-8">
+            <ShareButtons
+              url={`https://www.freereversecoloring.com/shared/?id=${result.generationId}`}
+              title={result.title}
+              description={result.description}
+            />
+          </div>
+
           {result.remainingGenerations > 0 && (
             <p className="mt-4 text-xs text-[#6B687D]">
               You have{' '}
@@ -501,7 +574,7 @@ export function GeneratorForm() {
           />
         </div>
 
-        {/* Email input */}
+        {/* Email input with verification */}
         <div>
           <label
             htmlFor="generator-email"
@@ -509,19 +582,145 @@ export function GeneratorForm() {
           >
             Your email
           </label>
-          <input
-            id="generator-email"
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-              if (formState === 'error') setFormState('idle')
-            }}
-            placeholder="you@example.com"
-            autoComplete="email"
-            disabled={isGenerating}
-            className="mt-2 block w-full rounded-2xl border border-[#9B7BC7]/20 bg-white px-5 py-3.5 text-base text-[#2D2B3D] ring-4 ring-transparent transition placeholder:text-[#6B687D]/60 focus:border-[#9B7BC7] focus:outline-hidden focus:ring-[#9B7BC7]/10 disabled:opacity-60"
-          />
+
+          {emailVerified ? (
+            <div className="mt-2 flex items-center gap-3 rounded-2xl border border-[#9B7BC7]/20 bg-white/60 px-5 py-3.5">
+              <span className="text-base text-[#2D2B3D]">{email}</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20">
+                &#10003; Verified
+              </span>
+            </div>
+          ) : (
+            <>
+              <input
+                id="generator-email"
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (formState === 'error') setFormState('idle')
+                  if (verificationError) setVerificationError('')
+                  // Reset verification if email changes after code was sent
+                  if (verificationState === 'sent' || verificationState === 'verifying') {
+                    setVerificationState('idle')
+                    setVerificationCode('')
+                  }
+                }}
+                placeholder="you@example.com"
+                autoComplete="email"
+                disabled={isGenerating || verificationState === 'sending' || verificationState === 'verifying'}
+                className="mt-2 block w-full rounded-2xl border border-[#9B7BC7]/20 bg-white px-5 py-3.5 text-base text-[#2D2B3D] ring-4 ring-transparent transition placeholder:text-[#6B687D]/60 focus:border-[#9B7BC7] focus:outline-hidden focus:ring-[#9B7BC7]/10 disabled:opacity-60"
+              />
+
+              {verificationState === 'idle' && (
+                <button
+                  type="button"
+                  onClick={handleSendVerification}
+                  className="mt-3 rounded-xl bg-[#9B7BC7]/10 px-4 py-2 font-display text-sm font-semibold text-[#4A3F6B] transition hover:bg-[#9B7BC7]/20"
+                >
+                  Verify Email
+                </button>
+              )}
+
+              {verificationState === 'sending' && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-[#6B687D]">
+                  <svg
+                    className="h-4 w-4 animate-spin text-[#9B7BC7]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="opacity-25"
+                    />
+                    <path
+                      d="M12 2a10 10 0 0 1 10 10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Sending code...
+                </div>
+              )}
+
+              {verificationState === 'sent' && (
+                <div className="mt-3 space-y-3">
+                  <p className="text-sm text-[#6B687D]">
+                    We sent a 6-digit code to <span className="font-semibold text-[#4A3F6B]">{email}</span>. Enter it below:
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    value={verificationCode}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                      setVerificationCode(val)
+                      if (verificationError) setVerificationError('')
+                    }}
+                    placeholder="Enter 6-digit code"
+                    className="block w-full rounded-2xl border border-[#9B7BC7]/20 bg-white px-5 py-3.5 text-center text-lg tracking-widest text-[#2D2B3D] ring-4 ring-transparent transition placeholder:text-[#6B687D]/60 focus:border-[#9B7BC7] focus:outline-hidden focus:ring-[#9B7BC7]/10"
+                  />
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={handleVerifyCode}
+                      className="rounded-xl bg-[#9B7BC7]/10 px-4 py-2 font-display text-sm font-semibold text-[#4A3F6B] transition hover:bg-[#9B7BC7]/20"
+                    >
+                      Verify
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSendVerification}
+                      className="text-sm text-[#9B7BC7] underline transition hover:text-[#6B46C1]"
+                    >
+                      Didn&apos;t receive it? Resend
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {verificationState === 'verifying' && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-[#6B687D]">
+                  <svg
+                    className="h-4 w-4 animate-spin text-[#9B7BC7]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="opacity-25"
+                    />
+                    <path
+                      d="M12 2a10 10 0 0 1 10 10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Verifying...
+                </div>
+              )}
+
+              {verificationError && (
+                <p className="mt-2 text-sm text-red-600">{verificationError}</p>
+              )}
+            </>
+          )}
         </div>
 
         {/* Theme prompt */}
@@ -574,7 +773,7 @@ export function GeneratorForm() {
         {/* Submit button */}
         <button
           type="submit"
-          disabled={isGenerating}
+          disabled={isGenerating || !emailVerified}
           className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#F4845F] px-8 py-4 font-display text-base font-semibold text-white shadow-sm transition hover:bg-[#e5734e] disabled:opacity-60"
         >
           {isGenerating ? (

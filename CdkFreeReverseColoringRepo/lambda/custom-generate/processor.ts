@@ -18,6 +18,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import {
   generateCustomDesignDescription,
   generateImage,
@@ -34,6 +35,8 @@ const dynamoClient = DynamoDBDocumentClient.from(
 
 const s3Client = new S3Client({ region: 'us-east-1' });
 
+const sesClient = new SESv2Client({ region: 'us-east-1' });
+
 // ---------------------------------------------------------------------------
 // Environment variables
 // ---------------------------------------------------------------------------
@@ -41,6 +44,8 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 const CUSTOM_GENERATIONS_TABLE = process.env.CUSTOM_GENERATIONS_TABLE!;
 const CONTENT_BUCKET = process.env.CONTENT_BUCKET!;
 const MAX_FREE_PER_MONTH = parseInt(process.env.MAX_FREE_PER_MONTH || '2', 10);
+const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL || 'noreply@freereversecoloring.com';
+const SITE_URL = process.env.SITE_URL || 'https://freereversecoloring.com';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -64,6 +69,85 @@ function maskEmail(email: string): string {
     ? local[0] + '***'
     : local[0] + '***' + local[local.length - 1];
   return `${maskedLocal}@${domain}`;
+}
+
+// ---------------------------------------------------------------------------
+// Email Template
+// ---------------------------------------------------------------------------
+
+function buildGenerationNotificationEmail(params: {
+  title: string;
+  description: string;
+  shareUrl: string;
+  drawingPrompts: string[];
+}): { html: string; text: string } {
+  const promptsHtml = params.drawingPrompts
+    .map((p, i) => `<li style="margin-bottom: 8px; color: #4A3F6B;">${i + 1}. ${p}</li>`)
+    .join('');
+  const promptsText = params.drawingPrompts
+    .map((p, i) => `${i + 1}. ${p}`)
+    .join('\n');
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h1 style="color: #6B46C1; font-size: 24px; margin-bottom: 4px;">FreeReverseColoring</h1>
+  <p style="color: #6B687D; margin-top: 0;">Your custom reverse coloring page is ready!</p>
+
+  <div style="background-color: #F8F6FF; border-radius: 12px; padding: 24px; margin: 24px 0;">
+    <h2 style="color: #2D2B3D; font-size: 20px; margin-top: 0;">${params.title}</h2>
+    <p style="color: #6B687D;">${params.description}</p>
+  </div>
+
+  <div style="margin: 24px 0;">
+    <h3 style="color: #4A3F6B; font-size: 16px;">Drawing Ideas</h3>
+    <ul style="padding-left: 0; list-style: none;">${promptsHtml}</ul>
+  </div>
+
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="${params.shareUrl}" style="background-color: #F4845F; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">View &amp; Download Your Design</a>
+  </div>
+
+  <div style="text-align: center; margin: 24px 0;">
+    <p style="color: #6B687D; font-size: 14px;">Share your creation with friends!</p>
+    <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out this reverse coloring page I created!')}&url=${encodeURIComponent(params.shareUrl)}" style="color: #6B46C1; margin: 0 8px;">Twitter</a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(params.shareUrl)}" style="color: #6B46C1; margin: 0 8px;">Facebook</a>
+    <a href="https://pinterest.com/pin/create/button/?url=${encodeURIComponent(params.shareUrl)}&description=${encodeURIComponent(params.title)}" style="color: #6B46C1; margin: 0 8px;">Pinterest</a>
+  </div>
+
+  <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+  <div style="text-align: center;">
+    <p style="color: #6B687D; font-size: 14px;">Want more designs? We publish 3 new watercolor backgrounds every Wednesday.</p>
+    <a href="${SITE_URL}/#signup" style="color: #6B46C1; font-weight: 600;">Subscribe for Free</a>
+  </div>
+
+  <p style="font-size: 12px; color: #999; text-align: center; margin-top: 30px;">
+    &copy; FreeReverseColoring &mdash; <a href="${SITE_URL}" style="color: #6B46C1;">${SITE_URL}</a>
+  </p>
+</body>
+</html>`.trim();
+
+  const text = `Your reverse coloring page "${params.title}" is ready!
+
+${params.description}
+
+Drawing Ideas:
+${promptsText}
+
+View & Download: ${params.shareUrl}
+
+Share with friends:
+- Twitter: https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out this reverse coloring page I created!')}&url=${encodeURIComponent(params.shareUrl)}
+- Facebook: https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(params.shareUrl)}
+
+Want more designs? Subscribe at ${SITE_URL}/#signup
+
+FreeReverseColoring - ${SITE_URL}`;
+
+  return { html, text };
 }
 
 // ---------------------------------------------------------------------------
@@ -170,6 +254,42 @@ export async function handler(event: ProcessorEvent): Promise<void> {
         },
       }),
     );
+
+    // -----------------------------------------------------------------------
+    // Step 7: Send email notification to the user
+    // -----------------------------------------------------------------------
+    try {
+      const shareUrl = `${SITE_URL}/shared/?id=${generationId}`;
+      const { html, text } = buildGenerationNotificationEmail({
+        title: design.title,
+        description: design.description,
+        shareUrl,
+        drawingPrompts: design.drawingPrompts,
+      });
+
+      await sesClient.send(
+        new SendEmailCommand({
+          FromEmailAddress: SES_FROM_EMAIL,
+          Destination: { ToAddresses: [email] },
+          Content: {
+            Simple: {
+              Subject: {
+                Data: `Your reverse coloring page "${design.title}" is ready!`,
+                Charset: 'UTF-8',
+              },
+              Body: {
+                Html: { Data: html, Charset: 'UTF-8' },
+                Text: { Data: text, Charset: 'UTF-8' },
+              },
+            },
+          },
+        }),
+      );
+      console.log(`[processor] Notification email sent to ${maskEmail(email)}`);
+    } catch (emailErr) {
+      // Log but don't fail the generation if email fails
+      console.error(`[processor] Failed to send notification email to ${maskEmail(email)}: ${(emailErr as Error).message}`);
+    }
 
     console.log(
       `[processor] Complete! "${design.title}" for ${maskEmail(email)}`,

@@ -967,6 +967,51 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     });
 
     // =========================================================================
+    // DynamoDB — Email Verifications Table (OTP verification for custom generator)
+    // =========================================================================
+
+    const emailVerificationsTable = new dynamodb.Table(this, 'EmailVerificationsTable', {
+      tableName: 'frc-email-verifications',
+      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      timeToLiveAttribute: 'ttl',
+    });
+
+    // =========================================================================
+    // Lambda — Email Verification Handler (OTP send + verify)
+    // =========================================================================
+
+    const verifyEmailHandler = new lambdaNodejs.NodejsFunction(this, 'VerifyEmailHandler', {
+      functionName: 'frc-verify-email-handler',
+      description: 'Email verification via OTP — send code and verify code endpoints',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '..', 'lambda', 'verify-email', 'index.ts'),
+      handler: 'handler',
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      environment: {
+        VERIFICATIONS_TABLE: emailVerificationsTable.tableName,
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
+      },
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+      },
+    });
+
+    // Grant DynamoDB permissions: read + write verification records
+    emailVerificationsTable.grantReadWriteData(verifyEmailHandler);
+
+    // Grant SES permission for sending verification emails
+    verifyEmailHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      }),
+    );
+
+    // =========================================================================
     // Lambda — Custom Reverse Coloring Page Generator
     // =========================================================================
 
@@ -985,6 +1030,8 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
         CONTENT_BUCKET: contentBucket.bucketName,
         OPENAI_SECRET_ARN: openaiApiKeySecret.secretArn,
         MAX_FREE_PER_MONTH: '2',
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
       },
       bundling: {
         minify: false,
@@ -998,6 +1045,14 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     customGenerationsTable.grantReadWriteData(customGenerateProcessor);
     contentBucket.grantReadWrite(customGenerateProcessor);
     openaiApiKeySecret.grantRead(customGenerateProcessor);
+
+    // Grant SES permission for sending generation notification emails
+    customGenerateProcessor.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      }),
+    );
 
     // ---- Initiator + Status Lambda (handles POST and GET via API Gateway) ----
 
@@ -1040,6 +1095,20 @@ export class CdkFreeReverseColoringRepoStack extends cdk.Stack {
     customGenerateStatusResource.addMethod(
       'GET',
       new apigateway.LambdaIntegration(customGenerateHandler),
+    );
+
+    // Wire up POST /api/verify-email (send OTP)
+    const verifyEmailResource = apiResource.addResource('verify-email');
+    verifyEmailResource.addMethod(
+      'POST',
+      new apigateway.LambdaIntegration(verifyEmailHandler),
+    );
+
+    // Wire up POST /api/verify-code (verify OTP)
+    const verifyCodeResource = apiResource.addResource('verify-code');
+    verifyCodeResource.addMethod(
+      'POST',
+      new apigateway.LambdaIntegration(verifyEmailHandler),
     );
 
     // CloudWatch alarm for custom generation errors (initiator)
