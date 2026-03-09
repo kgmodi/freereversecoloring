@@ -54,8 +54,8 @@ test('No CodePipeline pipelines exist', () => {
 // DynamoDB Tables
 // =========================================================================
 
-test('Six DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends + email-events + custom-generations)', () => {
-  template.resourceCountIs('AWS::DynamoDB::Table', 6);
+test('Seven DynamoDB tables exist (subscribers + designs + theme-backlog + email-sends + email-events + custom-generations + email-verifications)', () => {
+  template.resourceCountIs('AWS::DynamoDB::Table', 7);
 });
 
 test('Subscribers table has correct key schema and 4 GSIs', () => {
@@ -331,8 +331,8 @@ test('Confirm Lambda has required environment variables', () => {
   });
 });
 
-test('Ten Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler + custom-generate-handler + custom-generate-processor)', () => {
-  template.resourceCountIs('AWS::Lambda::Function', 10);
+test('Eleven Lambda functions exist (subscribe + confirm + unsubscribe + generate-content + approve-content + approval-reminder + send-weekly-email + ses-event-handler + custom-generate-handler + custom-generate-processor + verify-email)', () => {
+  template.resourceCountIs('AWS::Lambda::Function', 11);
 });
 
 // =========================================================================
@@ -733,5 +733,77 @@ test('Custom generate processor error alarm exists', () => {
     AlarmName: 'frc-custom-generate-processor-errors',
     MetricName: 'Errors',
     Threshold: 1,
+  });
+});
+
+// =========================================================================
+// Email Verifications Table (OTP for custom generator)
+// =========================================================================
+
+test('Email verifications table has correct key schema and TTL', () => {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
+    TableName: 'frc-email-verifications',
+    KeySchema: [
+      { AttributeName: 'email', KeyType: 'HASH' },
+    ],
+    BillingMode: 'PAY_PER_REQUEST',
+    TimeToLiveSpecification: {
+      AttributeName: 'ttl',
+      Enabled: true,
+    },
+  });
+});
+
+// =========================================================================
+// Lambda — Verify Email Handler (OTP send + verify)
+// =========================================================================
+
+test('Verify email Lambda function exists with correct name and runtime', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-verify-email-handler',
+    Runtime: 'nodejs18.x',
+  });
+});
+
+test('Verify email Lambda has 10-second timeout', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-verify-email-handler',
+    Timeout: 10,
+  });
+});
+
+test('Verify email Lambda has 256 MB memory', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-verify-email-handler',
+    MemorySize: 256,
+  });
+});
+
+test('Verify email Lambda has required environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-verify-email-handler',
+    Environment: {
+      Variables: Match.objectLike({
+        VERIFICATIONS_TABLE: Match.anyValue(),
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
+  });
+});
+
+// =========================================================================
+// Custom Generate Processor — SES env vars for email notifications
+// =========================================================================
+
+test('Custom generate processor Lambda has SES environment variables for email notifications', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    FunctionName: 'frc-custom-generate-processor',
+    Environment: {
+      Variables: Match.objectLike({
+        SES_FROM_EMAIL: 'noreply@freereversecoloring.com',
+        SITE_URL: 'https://freereversecoloring.com',
+      }),
+    },
   });
 });
