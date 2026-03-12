@@ -23,6 +23,7 @@
     "fast-glob": "^3.3.3",
     "framer-motion": "^12.23.11",
     "next": "^15",
+    "perfect-freehand": "^1.2.3",
     "react": "^19",
     "react-dom": "^19",
     "recma-import-images": "0.0.3",
